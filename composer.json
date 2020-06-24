@@ -1,7 +1,7 @@
 {
-    "name": "laravel/laravel",
+    "name": "lairgg/services",
     "type": "project",
-    "description": "The Laravel Framework.",
+    "description": "Lair.GG services.",
     "keywords": [
         "framework",
         "laravel"
