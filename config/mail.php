@@ -90,6 +90,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Global "Reply" Address
+    |--------------------------------------------------------------------------
+    |
+    | You may wish for all e-mails sent by your application to be reply to
+    | the same address. Here, you may specify a name and address that is
+    | used globally for all e-mails that are reply by your application.
+    |
+    */
+
+    'reply_to' => [
+        'address' => env('MAIL_REPLY_ADDRESS', 'hello@example.com'),
+        'name' => env('MAIL_REPLY_NAME', 'Example'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Markdown Mail Settings
     |--------------------------------------------------------------------------
     |
