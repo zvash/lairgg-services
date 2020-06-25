@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Resource as NovaResource;
 
@@ -55,5 +56,25 @@ abstract class Resource extends NovaResource
     public static function relatableQuery(NovaRequest $request, $query)
     {
         return parent::relatableQuery($request, $query);
+    }
+
+    /**
+     * Modifications timestamps fields.
+     *
+     * @param  bool  $hasSoftDeleted
+     * @return array
+     */
+    protected function modifications(bool $hasSoftDeleted = false)
+    {
+        $fields = [
+            DateTime::make('Created at')->onlyOnDetail(),
+            DateTime::make('Updated at')->onlyOnDetail(),
+        ];
+
+        if ($hasSoftDeleted) {
+            $fields[] = DateTime::make('Deleted at')->onlyOnDetail();
+        }
+
+        return $fields;
     }
 }

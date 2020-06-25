@@ -3,10 +3,20 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
-use Laravel\Nova\Fields\Gravatar;
-use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Password;
-use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\{
+    Date,
+    DateTime,
+    ID,
+    Line,
+    Number,
+    Password,
+    PasswordConfirmation,
+    Stack,
+    Text,
+    Textarea,
+    Timezone
+};
+use Laravel\Nova\Panel;
 
 class User extends Resource
 {
@@ -18,11 +28,24 @@ class User extends Resource
     public static $model = \App\User::class;
 
     /**
-     * The single value that should be used to represent the resource when being displayed.
+     * Get the value that should be displayed to represent the resource.
      *
-     * @var string
+     * @return string
      */
-    public static $title = 'name';
+    public function title()
+    {
+        return $this->full_name;
+    }
+
+    /**
+     * Get the search result subtitle for the resource.
+     *
+     * @return string|null
+     */
+    public function subtitle()
+    {
+        return $this->username;
+    }
 
     /**
      * The columns that should be searched.
@@ -30,7 +53,12 @@ class User extends Resource
      * @var array
      */
     public static $search = [
-        'id', 'name', 'email',
+        'id',
+        'first_name',
+        'last_name',
+        'email',
+        'username',
+        'username',
     ];
 
     /**
@@ -42,68 +70,118 @@ class User extends Resource
     public function fields(Request $request)
     {
         return [
-            ID::make()->sortable(),
+            new Panel('User Details', $this->details()),
 
-            Gravatar::make()->maxWidth(50),
+            new Panel('Security and Privacy', $this->securityAndPrivacy()),
 
-            Text::make('Name')
-                ->sortable()
-                ->rules('required', 'max:255'),
+            new Panel('Tournaments', $this->tournaments()),
 
-            Text::make('Email')
-                ->sortable()
-                ->rules('required', 'email', 'max:254')
-                ->creationRules('unique:users,email')
-                ->updateRules('unique:users,email,{{resourceId}}'),
-
-            Password::make('Password')
-                ->onlyOnForms()
-                ->creationRules('required', 'string', 'min:8')
-                ->updateRules('nullable', 'string', 'min:8'),
+            new Panel('Modifications', $this->modifications(true)),
         ];
     }
 
     /**
-     * Get the cards available for the request.
+     * Resource detail fields.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function cards(Request $request)
+    protected function details()
     {
-        return [];
+        return [
+            ID::make()->sortable(),
+
+            Text::make('Full name', function () {
+                return $this->title();
+            })->exceptOnForms(),
+
+            Text::make('First name')
+                ->onlyOnForms()
+                ->required()
+                ->rules('required', 'max:50'),
+
+            Text::make('Last name')
+                ->onlyOnForms()
+                ->required()
+                ->rules('required', 'max:50'),
+
+            Text::make('Email')
+                ->hideFromIndex()
+                ->required()
+                ->rules('required', 'email:rfc,dns', 'max:254')
+                ->creationRules('unique:users,email')
+                ->updateRules('unique:users,email,{{resourceId}}'),
+
+            Text::make('Username')
+                ->sortable()
+                ->required()
+                ->rules('required', 'regex:/^[\w]{4,50}$/i')
+                ->creationRules('unique:users,username')
+                ->updateRules('unique:users,username,{{resourceId}}'),
+
+            Stack::make('Details', [
+                Line::make('email')->asSubTitle(),
+
+                Line::make('timezone')
+                    ->extraClasses('text-primary-dark font-bold')
+                    ->asSmall(),
+
+                Line::make('dob', function () {
+                    return 'Date of Birth: '.$this->dob->toDateString();
+                })->asSmall(),
+            ])->onlyOnIndex(),
+
+            Textarea::make('Bio')
+                ->hideFromIndex()
+                ->nullable(),
+
+            Date::make('Date of Birth', 'dob')
+                ->hideFromIndex()
+                ->nullable()
+                ->rules('nullable', 'date'),
+
+            Timezone::make('Timezone')
+                ->hideFromIndex()
+                ->searchable(),
+        ];
     }
 
     /**
-     * Get the filters available for the resource.
+     * Resource security and privacy fields.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function filters(Request $request)
+    protected function securityAndPrivacy()
     {
-        return [];
+        return [
+            Password::make('Password')
+                ->onlyOnForms()
+                ->creationRules('required', 'string', 'min:8')
+                ->updateRules('nullable', 'string', 'min:8'),
+
+            PasswordConfirmation::make('Password Confirmation'),
+
+            Text::make('IP Address', 'ip')
+                ->readonly()
+                ->onlyOnDetail(),
+
+            DateTime::make('Email verified at')
+                ->readonly()
+                ->onlyOnDetail(),
+        ];
     }
 
     /**
-     * Get the lenses available for the resource.
+     * Resource tournament fields.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function lenses(Request $request)
+    protected function tournaments()
     {
-        return [];
-    }
-
-    /**
-     * Get the actions available for the resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
-    public function actions(Request $request)
-    {
-        return [];
+        return [
+            Number::make('Points')
+                ->sortable()
+                ->readonly()
+                ->exceptOnForms(),
+        ];
     }
 }
