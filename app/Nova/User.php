@@ -4,9 +4,11 @@ namespace App\Nova;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
+    Avatar,
     Date,
     DateTime,
     ID,
+    Image,
     Line,
     Number,
     Password,
@@ -58,7 +60,6 @@ class User extends Resource
         'last_name',
         'email',
         'username',
-        'username',
     ];
 
     /**
@@ -89,6 +90,25 @@ class User extends Resource
     {
         return [
             ID::make()->sortable(),
+
+            Avatar::make('Avatar')
+                ->disk('s3')
+                ->squared()
+                ->path('users/avatars')
+                ->prunable()
+                ->deletable()
+                ->nullable()
+                ->rules('nullable', 'mimes:jpeg,jpg,png'),
+
+            Image::make('Cover')
+                ->hideFromIndex()
+                ->disk('s3')
+                ->squared()
+                ->path('users/covers')
+                ->prunable()
+                ->deletable()
+                ->nullable()
+                ->rules('nullable', 'mimes:jpeg,jpg,png'),
 
             Text::make('Full name', function () {
                 return $this->title();
@@ -126,13 +146,14 @@ class User extends Resource
                     ->asSmall(),
 
                 Line::make('dob', function () {
-                    return 'Date of Birth: '.$this->dob->toDateString();
+                    return $this->dob ? 'Date of Birth: '.$this->dob->toDateString() : null;
                 })->asSmall(),
             ])->onlyOnIndex(),
 
             Textarea::make('Bio')
                 ->hideFromIndex()
-                ->nullable(),
+                ->nullable()
+                ->rules('nullable'),
 
             Date::make('Date of Birth', 'dob')
                 ->hideFromIndex()
