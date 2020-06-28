@@ -1,13 +1,16 @@
+@inject('storage', 'Illuminate\Contracts\Filesystem\Factory')
+
 <dropdown-trigger class="h-9 flex items-center">
-    @isset($user->email)
+    @if($user->avatar && $storage->disk('s3')->exists($user->avatar))
         <img
-            src="https://secure.gravatar.com/avatar/{{ md5(\Illuminate\Support\Str::lower($user->email)) }}?size=512"
-            class="rounded-full w-8 h-8 mr-3"
+            src="{{ $storage->disk('s3')->url($user->avatar) }}"
+            class="rounded w-8 h-8 mr-3"
+            alt="{{ $user->full_name }}"
         />
     @endisset
 
     <span class="text-90">
-        {{ $user->name ?? $user->email ?? __('Nova User') }}
+        {{ $user->full_name ?? $user->username }}
     </span>
 </dropdown-trigger>
 
