@@ -165,6 +165,7 @@ return [
         /*
          * Package Service Providers...
          */
+        Standard\Theme\ThemeServiceProvider::class,
 
         /*
          * Application Service Providers...

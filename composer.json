@@ -18,7 +18,8 @@
         "laravel/tinker": "^2.0",
         "laravel/nova": "*",
         "league/flysystem-aws-s3-v3": "~1.0",
-        "league/flysystem-cached-adapter": "~1.0"
+        "league/flysystem-cached-adapter": "~1.0",
+        "standard/theme": "*"
     },
     "require-dev": {
         "facade/ignition": "^2.0",
@@ -36,6 +37,14 @@
         {
             "type": "path",
             "url": "./nova"
+        },
+        {
+            "type": "path",
+            "url": "./nova-components/Theme"
+        },
+        {
+            "type": "path",
+            "url": "./nova-components/Theme"
         }
     ],
     "extra": {
@@ -48,8 +57,7 @@
             "App\\": "app/"
         },
         "classmap": [
-            "database/seeds",
-            "database/factories"
+            "database/seeds"
         ]
     },
     "autoload-dev": {
