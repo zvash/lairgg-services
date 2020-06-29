@@ -2,13 +2,15 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Nova\Actions\Actionable;
 use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use Notifiable, HasApiTokens;
+    use Notifiable, HasApiTokens, SoftDeletes, Actionable;
 
     /**
      * The attributes that aren't mass assignable.
@@ -36,6 +38,18 @@ class User extends Authenticatable
         'dob' => 'date',
         'points' => 'integer',
         'email_verified_at' => 'datetime',
+        'deactivate' => 'boolean',
+    ];
+
+    /**
+     * The model's attributes.
+     *
+     * @var array
+     */
+    protected $attributes = [
+        'points' => 0,
+        'timezone' => 'UTC',
+        'deactivate' => false,
     ];
 
     /**
@@ -46,5 +60,41 @@ class User extends Authenticatable
     public function getFullNameAttribute()
     {
         return $this->first_name.' '.$this->last_name;
+    }
+
+    /**
+     * Get the gender that owns the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function gender()
+    {
+        return $this->belongsTo(Gender::class);
+    }
+
+    /**
+     * The games that belong to the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function games()
+    {
+        return $this->belongsToMany(Game::class, 'usernames')
+            ->using(Username::class)
+            ->withPivot('username')
+            ->withTimestamps();
+    }
+
+    /**
+     * The teams that belong to the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class, 'players')
+            ->using(Player::class)
+            ->withTimestamps()
+            ->withPivot('captain');
     }
 }

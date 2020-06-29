@@ -24,9 +24,16 @@ class CreateUsersTable extends Migration
             $table->text('cover')->nullable();
             $table->text('bio')->nullable();
             $table->date('dob')->nullable();
-            $table->string('timezone', 30);
+            $table->string('timezone', 30)->default('UTC');
             $table->unsignedInteger('points')->default(0)->index();
             $table->ipAddress('ip')->nullable();
+            $table->boolean('deactivate')->default(false)->index();
+
+            $table->foreignId('gender_id')
+                ->constrained()
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+
             $table->rememberToken();
             $table->timestamp('email_verified_at')->nullable();
             $table->timestamps();

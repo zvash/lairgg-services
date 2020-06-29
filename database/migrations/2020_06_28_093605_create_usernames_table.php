@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCaptainsTable extends Migration
+class CreateUsernamesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,20 +13,20 @@ class CreateCaptainsTable extends Migration
      */
     public function up()
     {
-        Schema::create('captains', function (Blueprint $table) {
+        Schema::create('usernames', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId('team_id')
-                ->constrained()
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
 
             $table->foreignId('game_id')
                 ->constrained()
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 
-            $table->timestamp('ended_at')->nullable();
+            $table->foreignId('user_id')
+                ->constrained()
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+
+            $table->string('username');
             $table->timestamps();
         });
     }
@@ -38,6 +38,6 @@ class CreateCaptainsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('captains');
+        Schema::dropIfExists('usernames');
     }
 }

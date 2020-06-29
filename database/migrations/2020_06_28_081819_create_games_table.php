@@ -17,11 +17,22 @@ class CreateGamesTable extends Migration
             $table->id();
             $table->string('name');
             $table->text('bio');
-            $table->timestamp('launched_at')->nullable();
+            $table->date('launched_at');
             $table->text('image');
             $table->text('cover');
             $table->text('logo');
             $table->string('website');
+
+            $table->foreignId('game_type_id')
+                ->constrained()
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+
+            $table->foreignId('studio_id')
+                ->constrained()
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+
             $table->timestamps();
             $table->softDeletes();
         });
