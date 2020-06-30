@@ -5,6 +5,8 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     Avatar,
+    Badge,
+    Code,
     Date,
     DateTime,
     ID,
@@ -13,9 +15,9 @@ use Laravel\Nova\Fields\{
     Number,
     Password,
     PasswordConfirmation,
+    Select,
     Stack,
     Text,
-    Textarea,
     Timezone
 };
 use Laravel\Nova\Panel;
@@ -145,22 +147,27 @@ class User extends Resource
                     ->extraClasses('text-primary-dark font-bold')
                     ->asSmall(),
 
-                Line::make('dob', function () {
-                    return $this->dob ? 'Date of Birth: '.$this->dob->toDateString() : null;
-                })->asSmall(),
+                Line::make('points', function () {
+                    return view('nova::partials.status', [
+                        'points' => $this->points,
+                    ])->render();
+                })->asHtml(),
             ])->onlyOnIndex(),
 
-            Textarea::make('Bio')
+            Code::make('Bio')
                 ->hideFromIndex()
+                ->language('markdown')
                 ->nullable()
                 ->rules('nullable'),
 
             Date::make('Date of Birth', 'dob')
                 ->hideFromIndex()
                 ->nullable()
-                ->rules('nullable', 'date'),
+                ->rules('nullable', 'date')
+                ->format('Do MMMM YYYY'),
 
             Timezone::make('Timezone')
+                ->required()
                 ->hideFromIndex()
                 ->searchable(),
         ];
@@ -188,6 +195,23 @@ class User extends Resource
             DateTime::make('Email verified at')
                 ->readonly()
                 ->onlyOnDetail(),
+
+            Select::make('Status')
+                ->displayUsingLabels()
+                ->onlyOnForms()
+                ->required()
+                ->rules('required')
+                ->options([
+                    0 => 'Deactive',
+                    1 => 'Active',
+                ]),
+
+            Badge::make('Status', function () {
+                return $this->status ? 'Active' : 'Deactivated';
+            })->map([
+                'Deactivated' => 'danger',
+                'Active' => 'success',
+            ])->exceptOnForms(),
         ];
     }
 
@@ -200,9 +224,8 @@ class User extends Resource
     {
         return [
             Number::make('Points')
-                ->sortable()
                 ->readonly()
-                ->exceptOnForms(),
+                ->onlyOnDetail(),
         ];
     }
 }

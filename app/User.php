@@ -37,8 +37,8 @@ class User extends Authenticatable
     protected $casts = [
         'dob' => 'date',
         'points' => 'integer',
+        'status' => 'integer',
         'email_verified_at' => 'datetime',
-        'deactivate' => 'boolean',
     ];
 
     /**
@@ -48,8 +48,8 @@ class User extends Authenticatable
      */
     protected $attributes = [
         'points' => 0,
+        'status' => 1,
         'timezone' => 'UTC',
-        'deactivate' => false,
     ];
 
     /**

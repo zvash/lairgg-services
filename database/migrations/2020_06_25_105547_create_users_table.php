@@ -27,12 +27,13 @@ class CreateUsersTable extends Migration
             $table->string('timezone', 30)->default('UTC');
             $table->unsignedInteger('points')->default(0)->index();
             $table->ipAddress('ip')->nullable();
-            $table->boolean('deactivate')->default(false)->index();
+            $table->unsignedTinyInteger('status')->default(1)->index();
 
             $table->foreignId('gender_id')
+                ->nullable()
                 ->constrained()
                 ->onUpdate('cascade')
-                ->onDelete('cascade');
+                ->onDelete('set null');
 
             $table->rememberToken();
             $table->timestamp('email_verified_at')->nullable();

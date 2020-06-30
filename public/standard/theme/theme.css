@@ -46,6 +46,8 @@
     background-image: linear-gradient(0deg, #1c2d3e, #0f1822);
 }
 
-.router-link-exact-active, .router-link-exact-active span {
+.router-link-active,
+.router-link-exact-active,
+.router-link-exact-active span {
     color: var(--primary);
 }
