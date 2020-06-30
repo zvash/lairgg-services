@@ -30,6 +30,16 @@ class Game extends Resource
     public static $title = 'name';
 
     /**
+     * The columns that should be searched.
+     *
+     * @var array
+     */
+    public static $search = [
+        'id',
+        'name',
+    ];
+
+    /**
      * Get the search result subtitle for the resource.
      *
      * @return string|null
@@ -40,14 +50,14 @@ class Game extends Resource
     }
 
     /**
-     * The columns that should be searched.
+     * Get the logical group associated with the resource.
      *
-     * @var array
+     * @return string
      */
-    public static $search = [
-        'id',
-        'name',
-    ];
+    public static function group()
+    {
+        return 'Games';
+    }
 
     /**
      * Get the fields displayed by the resource.

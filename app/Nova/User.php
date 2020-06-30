@@ -32,6 +32,19 @@ class User extends Resource
     public static $model = \App\User::class;
 
     /**
+     * The columns that should be searched.
+     *
+     * @var array
+     */
+    public static $search = [
+        'id',
+        'first_name',
+        'last_name',
+        'email',
+        'username',
+    ];
+
+    /**
      * Get the value that should be displayed to represent the resource.
      *
      * @return string
@@ -52,17 +65,14 @@ class User extends Resource
     }
 
     /**
-     * The columns that should be searched.
+     * Get the logical group associated with the resource.
      *
-     * @var array
+     * @return string
      */
-    public static $search = [
-        'id',
-        'first_name',
-        'last_name',
-        'email',
-        'username',
-    ];
+    public static function group()
+    {
+        return 'Accounts';
+    }
 
     /**
      * Get the fields displayed by the resource.
