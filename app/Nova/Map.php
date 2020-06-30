@@ -5,6 +5,7 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     Avatar,
+    BelongsTo,
     ID,
     Text
 };
@@ -65,6 +66,8 @@ class Map extends Resource
             new Panel('Map Details', $this->details()),
 
             new Panel('Modifications', $this->modifications(true)),
+
+            new Panel('Relations', $this->relations()),
         ];
     }
 
@@ -93,6 +96,22 @@ class Map extends Resource
                 ->sortable()
                 ->required()
                 ->rules('required', 'max:254'),
+        ];
+    }
+
+    /**
+     * Resource relations.
+     *
+     * @return array
+     */
+    protected function relations()
+    {
+        return [
+            BelongsTo::make('Game')
+                ->showCreateRelationButton()
+                ->searchable()
+                ->withSubtitles()
+                ->required(),
         ];
     }
 }

@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     Avatar,
     Badge,
+    BelongsTo,
+    BelongsToMany,
+    Boolean,
     Code,
     Date,
     DateTime,
@@ -90,6 +93,8 @@ class User extends Resource
             new Panel('Tournaments', $this->tournaments()),
 
             new Panel('Modifications', $this->modifications(true)),
+
+            new Panel('Relations', $this->relations()),
         ];
     }
 
@@ -236,6 +241,41 @@ class User extends Resource
             Number::make('Points')
                 ->readonly()
                 ->onlyOnDetail(),
+        ];
+    }
+
+    /**
+     * Resource relations.
+     *
+     * @return array
+     */
+    protected function relations()
+    {
+        return [
+            BelongsTo::make('Gender')
+                ->hideFromIndex()
+                ->showCreateRelationButton()
+                ->searchable()
+                ->nullable(),
+
+            BelongsToMany::make('Games')
+                ->searchable()
+                ->fields(function () {
+                    return [
+                        Text::make('Username')
+                            ->required()
+                            ->rules('required', 'max:254'),
+                    ];
+                }),
+
+            BelongsToMany::make('Teams')
+                ->searchable()
+                ->fields(function () {
+                    return [
+                        Boolean::make('Captain'),
+                    ];
+                }),
+
         ];
     }
 }

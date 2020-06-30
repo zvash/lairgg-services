@@ -5,6 +5,9 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     Avatar,
+    BelongsTo,
+    BelongsToMany,
+    Boolean,
     Code,
     ID,
     Image,
@@ -60,6 +63,8 @@ class Team extends Resource
             new Panel('Team Details', $this->details()),
 
             new Panel('Modifications', $this->modifications(true)),
+
+            new Panel('Relations', $this->relations()),
         ];
     }
 
@@ -107,6 +112,30 @@ class Team extends Resource
                 ->nullable()
                 ->hideFromIndex()
                 ->rules('nullable', 'max:254'),
+        ];
+    }
+
+    /**
+     * Resource relations.
+     *
+     * @return array
+     */
+    protected function relations()
+    {
+        return [
+            BelongsTo::make('Game')
+                ->showCreateRelationButton()
+                ->searchable()
+                ->withSubtitles()
+                ->required(),
+
+            BelongsToMany::make('Players', 'players', User::class)
+                ->searchable()
+                ->fields(function () {
+                    return [
+                        Boolean::make('Captain'),
+                    ];
+                }),
         ];
     }
 }

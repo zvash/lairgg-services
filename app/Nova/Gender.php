@@ -4,6 +4,7 @@ namespace App\Nova;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
+    HasMany,
     ID,
     Text
 };
@@ -64,6 +65,8 @@ class Gender extends Resource
             new Panel('Gender Details', $this->details()),
 
             new Panel('Modifications', $this->modifications(true)),
+
+            new Panel('Relations', $this->relations()),
         ];
     }
 
@@ -81,6 +84,18 @@ class Gender extends Resource
                 ->sortable()
                 ->required()
                 ->rules('required', 'max:254'),
+        ];
+    }
+
+    /**
+     * Resource relations.
+     *
+     * @return array
+     */
+    protected function relations()
+    {
+        return [
+            HasMany::make('Users'),
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace App\Nova;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
+    HasMany,
     ID,
     Text
 };
@@ -74,6 +75,8 @@ class GameType extends Resource
             new Panel('Game Type Details', $this->details()),
 
             new Panel('Modifications', $this->modifications(true)),
+
+            new Panel('Relations', $this->relations()),
         ];
     }
 
@@ -91,6 +94,18 @@ class GameType extends Resource
                 ->sortable()
                 ->required()
                 ->rules('required', 'max:254'),
+        ];
+    }
+
+    /**
+     * Resource relations.
+     *
+     * @return array
+     */
+    protected function relations()
+    {
+        return [
+            HasMany::make('Games'),
         ];
     }
 }

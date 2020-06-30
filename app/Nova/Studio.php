@@ -5,6 +5,7 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     Avatar,
+    HasMany,
     ID,
     Text
 };
@@ -66,6 +67,8 @@ class Studio extends Resource
             new Panel('Studio Details', $this->details()),
 
             new Panel('Modifications', $this->modifications(true)),
+
+            new Panel('Relations', $this->relations()),
         ];
     }
 
@@ -99,6 +102,18 @@ class Studio extends Resource
                 ->hideFromIndex()
                 ->required()
                 ->rules('required', 'max:254'),
+        ];
+    }
+
+    /**
+     * Resource relations.
+     *
+     * @return array
+     */
+    protected function relations()
+    {
+        return [
+            HasMany::make('Games'),
         ];
     }
 }

@@ -5,8 +5,11 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     Avatar,
+    BelongsTo,
+    BelongsToMany,
     Code,
     Date,
+    HasMany,
     ID,
     Image,
     Text
@@ -71,6 +74,8 @@ class Game extends Resource
             new Panel('Game Details', $this->details()),
 
             new Panel('Modifications', $this->modifications(true)),
+
+            new Panel('Relations', $this->relations()),
         ];
     }
 
@@ -131,7 +136,6 @@ class Game extends Resource
                 ->rules('required'),
 
             Date::make('Launched at')
-                ->sortable()
                 ->required()
                 ->rules('required', 'date')
                 ->format('Do MMMM YYYY'),
@@ -140,6 +144,40 @@ class Game extends Resource
                 ->required()
                 ->hideFromIndex()
                 ->rules('required', 'max:254'),
+        ];
+    }
+
+    /**
+     * Resource relations.
+     *
+     * @return array
+     */
+    protected function relations()
+    {
+        return [
+            BelongsTo::make('Studio')
+                ->showCreateRelationButton()
+                ->searchable()
+                ->required(),
+
+            BelongsTo::make('Type', 'GameType', GameType::class)
+                ->showCreateRelationButton()
+                ->searchable()
+                ->required(),
+
+            HasMany::make('Maps'),
+
+            HasMany::make('Teams'),
+
+            BelongsToMany::make('Users')
+                ->searchable()
+                ->fields(function () {
+                    return [
+                        Text::make('Username')
+                            ->required()
+                            ->rules('required', 'max:254'),
+                    ];
+                }),
         ];
     }
 }
