@@ -18,12 +18,15 @@ class DatabaseSeeder extends Seeder
         // Disabled during database seeding.
         $this->call([
             LinkTypeSeeder::class,
+            StaffTypeSeeder::class,
+            GameTypeSeeder::class,
             GenderSeeder::class,
             StudioSeeder::class,
-            GameTypeSeeder::class,
             GameSeeder::class,
             MapSeeder::class,
             UserSeeder::class,
+            OrganizationSeeder::class,
+            StaffSeeder::class,
         ]);
     }
 

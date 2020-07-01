@@ -171,7 +171,6 @@ class User extends Resource
             ])->onlyOnIndex(),
 
             Code::make('Bio')
-                ->hideFromIndex()
                 ->language('markdown')
                 ->nullable()
                 ->rules('nullable'),
@@ -186,6 +185,23 @@ class User extends Resource
                 ->required()
                 ->hideFromIndex()
                 ->searchable(),
+
+            Select::make('Status')
+                ->displayUsingLabels()
+                ->onlyOnForms()
+                ->required()
+                ->rules('required')
+                ->options([
+                    0 => 'Deactive',
+                    1 => 'Active',
+                ]),
+
+            Badge::make('Status', function () {
+                return $this->status ? 'Active' : 'Deactivated';
+            })->map([
+                'Deactivated' => 'danger',
+                'Active' => 'success',
+            ])->exceptOnForms(),
         ];
     }
 
@@ -211,23 +227,6 @@ class User extends Resource
             DateTime::make('Email verified at')
                 ->readonly()
                 ->onlyOnDetail(),
-
-            Select::make('Status')
-                ->displayUsingLabels()
-                ->onlyOnForms()
-                ->required()
-                ->rules('required')
-                ->options([
-                    0 => 'Deactive',
-                    1 => 'Active',
-                ]),
-
-            Badge::make('Status', function () {
-                return $this->status ? 'Active' : 'Deactivated';
-            })->map([
-                'Deactivated' => 'danger',
-                'Active' => 'success',
-            ])->exceptOnForms(),
         ];
     }
 

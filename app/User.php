@@ -78,6 +78,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the staff for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function staff()
+    {
+        return $this->hasMany(Staff::class);
+    }
+
+    /**
      * The games that belong to the user.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany

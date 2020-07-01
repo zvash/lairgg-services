@@ -5,25 +5,28 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     Avatar,
-    BelongsTo,
-    BelongsToMany,
-    Boolean,
+    Badge,
     Code,
+    HasMany,
     ID,
     Image,
+    Line,
     MorphMany,
-    Text
+    Select,
+    Stack,
+    Text,
+    Timezone
 };
 use Laravel\Nova\Panel;
 
-class Team extends Resource
+class Organization extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = \App\Team::class;
+    public static $model = \App\Organization::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -40,7 +43,18 @@ class Team extends Resource
     public static $search = [
         'id',
         'name',
+        'username',
     ];
+
+    /**
+     * Get the search result subtitle for the resource.
+     *
+     * @return string|null
+     */
+    public function subtitle()
+    {
+        return $this->username;
+    }
 
     /**
      * Get the logical group associated with the resource.
@@ -49,7 +63,7 @@ class Team extends Resource
      */
     public static function group()
     {
-        return 'Tournaments';
+        return 'Accounts';
     }
 
     /**
@@ -61,7 +75,7 @@ class Team extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Team Details', $this->details()),
+            new Panel('Organization Details', $this->details()),
 
             new Panel('Modifications', $this->modifications(true)),
 
@@ -82,7 +96,7 @@ class Team extends Resource
             Avatar::make('Logo')
                 ->disk('s3')
                 ->squared()
-                ->path('teams/logos')
+                ->path('organizations/logos')
                 ->prunable()
                 ->deletable()
                 ->nullable()
@@ -92,7 +106,7 @@ class Team extends Resource
                 ->disk('s3')
                 ->squared()
                 ->hideFromIndex()
-                ->path('teams/covers')
+                ->path('organizations/covers')
                 ->prunable()
                 ->deletable()
                 ->nullable()
@@ -103,10 +117,47 @@ class Team extends Resource
                 ->required()
                 ->rules('required', 'max:254'),
 
+            Text::make('Username')
+                ->hideFromIndex()
+                ->required()
+                ->rules('required', 'regex:/^[a-z\-]{4,50}$/i')
+                ->creationRules('unique:organizations,username')
+                ->updateRules('unique:organizations,username,{{resourceId}}'),
+
             Code::make('Bio')
                 ->language('markdown')
                 ->nullable()
                 ->rules('nullable'),
+
+            Stack::make('Details', [
+                Line::make('username')->asSubTitle(),
+
+                Line::make('timezone')
+                    ->extraClasses('text-primary-dark font-bold')
+                    ->asSmall(),
+            ])->onlyOnIndex(),
+
+            Timezone::make('Timezone')
+                ->hideFromIndex()
+                ->required()
+                ->searchable(),
+
+            Select::make('Status')
+                ->displayUsingLabels()
+                ->onlyOnForms()
+                ->required()
+                ->rules('required')
+                ->options([
+                    0 => 'Deactive',
+                    1 => 'Active',
+                ]),
+
+            Badge::make('Status', function () {
+                return $this->status ? 'Active' : 'Deactivated';
+            })->map([
+                'Deactivated' => 'danger',
+                'Active' => 'success',
+            ])->exceptOnForms(),
         ];
     }
 
@@ -118,21 +169,9 @@ class Team extends Resource
     protected function relations()
     {
         return [
-            BelongsTo::make('Game')
-                ->showCreateRelationButton()
-                ->searchable()
-                ->withSubtitles()
-                ->required(),
+            HasMany::make('Staff'),
 
             MorphMany::make('Links'),
-
-            BelongsToMany::make('Players', 'players', User::class)
-                ->searchable()
-                ->fields(function () {
-                    return [
-                        Boolean::make('Captain'),
-                    ];
-                }),
         ];
     }
 }

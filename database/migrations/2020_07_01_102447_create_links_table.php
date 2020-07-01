@@ -24,6 +24,8 @@ class CreateLinksTable extends Migration
                 ->onDelete('cascade');
 
             $table->timestamps();
+
+            $table->unique(['linkable_type', 'linkable_id', 'link_type_id']);
         });
     }
 

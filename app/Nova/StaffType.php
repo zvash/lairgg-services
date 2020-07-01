@@ -4,26 +4,20 @@ namespace App\Nova;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
-    Avatar,
-    BelongsTo,
-    BelongsToMany,
-    Boolean,
-    Code,
+    HasMany,
     ID,
-    Image,
-    MorphMany,
     Text
 };
 use Laravel\Nova\Panel;
 
-class Team extends Resource
+class StaffType extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = \App\Team::class;
+    public static $model = \App\StaffType::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -31,6 +25,13 @@ class Team extends Resource
      * @var string
      */
     public static $title = 'name';
+
+    /**
+     * Indicates if the resource should be globally searchable.
+     *
+     * @var bool
+     */
+    public static $globallySearchable = false;
 
     /**
      * The columns that should be searched.
@@ -49,7 +50,7 @@ class Team extends Resource
      */
     public static function group()
     {
-        return 'Tournaments';
+        return 'Types';
     }
 
     /**
@@ -61,7 +62,7 @@ class Team extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Team Details', $this->details()),
+            new Panel('Staff Type Details', $this->details()),
 
             new Panel('Modifications', $this->modifications(true)),
 
@@ -79,34 +80,10 @@ class Team extends Resource
         return [
             ID::make()->sortable(),
 
-            Avatar::make('Logo')
-                ->disk('s3')
-                ->squared()
-                ->path('teams/logos')
-                ->prunable()
-                ->deletable()
-                ->nullable()
-                ->rules('nullable', 'mimes:jpeg,jpg,png'),
-
-            Image::make('Cover')
-                ->disk('s3')
-                ->squared()
-                ->hideFromIndex()
-                ->path('teams/covers')
-                ->prunable()
-                ->deletable()
-                ->nullable()
-                ->rules('nullable', 'mimes:jpeg,jpg,png'),
-
             Text::make('Name')
                 ->sortable()
                 ->required()
                 ->rules('required', 'max:254'),
-
-            Code::make('Bio')
-                ->language('markdown')
-                ->nullable()
-                ->rules('nullable'),
         ];
     }
 
@@ -118,21 +95,7 @@ class Team extends Resource
     protected function relations()
     {
         return [
-            BelongsTo::make('Game')
-                ->showCreateRelationButton()
-                ->searchable()
-                ->withSubtitles()
-                ->required(),
-
-            MorphMany::make('Links'),
-
-            BelongsToMany::make('Players', 'players', User::class)
-                ->searchable()
-                ->fields(function () {
-                    return [
-                        Boolean::make('Captain'),
-                    ];
-                }),
+            HasMany::make('Staff'),
         ];
     }
 }
