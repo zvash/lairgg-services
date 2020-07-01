@@ -15,6 +15,7 @@ use Laravel\Nova\Fields\{
     ID,
     Image,
     Line,
+    MorphMany,
     Number,
     Password,
     PasswordConfirmation,
@@ -257,6 +258,8 @@ class User extends Resource
                 ->showCreateRelationButton()
                 ->searchable()
                 ->nullable(),
+
+            MorphMany::make('Links'),
 
             BelongsToMany::make('Games')
                 ->searchable()

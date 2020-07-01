@@ -2,16 +2,15 @@
 
 namespace App;
 
-use App\Traits\Eloquents\Linkable;
 use Illuminate\Database\Eloquent\{
     Model,
     SoftDeletes
 };
 use Laravel\Nova\Actions\Actionable;
 
-class Studio extends Model
+class LinkType extends Model
 {
-    use SoftDeletes, Actionable, Linkable;
+    use SoftDeletes, Actionable;
 
     /**
      * The attributes that aren't mass assignable.
@@ -21,12 +20,12 @@ class Studio extends Model
     protected $guarded = [];
 
     /**
-     * Get the games for the studio.
+     * Get the links for the link type.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function games()
+    public function links()
     {
-        return $this->hasMany(Game::class);
+        return $this->hasMany(Link::class);
     }
 }

@@ -19,7 +19,6 @@ class CreateTeamsTable extends Migration
             $table->text('bio')->nullable();
             $table->text('logo')->nullable();
             $table->text('cover')->nullable();
-            $table->string('website')->nullable();
 
             $table->foreignId('game_id')
                 ->constrained()

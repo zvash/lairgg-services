@@ -4,27 +4,38 @@ namespace App\Nova;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
-    HasMany,
+    BelongsTo,
     ID,
+    MorphTo,
     Text
 };
 use Laravel\Nova\Panel;
 
-class GameType extends Resource
+class Link extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = \App\GameType::class;
+    public static $model = \App\Link::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
      *
      * @var string
      */
-    public static $title = 'name';
+    public static $title = 'url';
+
+    /**
+     * The columns that should be searched.
+     *
+     * @var array
+     */
+    public static $search = [
+        'id',
+        'url',
+    ];
 
     /**
      * Indicates if the resource should be globally searchable.
@@ -34,24 +45,11 @@ class GameType extends Resource
     public static $globallySearchable = false;
 
     /**
-     * The columns that should be searched.
+     * Indicates if the resource should be displayed in the sidebar.
      *
-     * @var array
+     * @var bool
      */
-    public static $search = [
-        'id',
-        'name',
-    ];
-
-    /**
-     * Get the logical group associated with the resource.
-     *
-     * @return string
-     */
-    public static function group()
-    {
-        return 'Types';
-    }
+    public static $displayInNavigation = false;
 
     /**
      * Get the fields displayed by the resource.
@@ -62,9 +60,9 @@ class GameType extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Game Type Details', $this->details()),
+            new Panel('Link Details', $this->details()),
 
-            new Panel('Modifications', $this->modifications(true)),
+            new Panel('Modifications', $this->modifications()),
 
             new Panel('Relations', $this->relations()),
         ];
@@ -77,13 +75,13 @@ class GameType extends Resource
      */
     protected function details()
     {
-        return [
+        return  [
             ID::make()->sortable(),
 
-            Text::make('Name')
+            Text::make('URL')
                 ->sortable()
                 ->required()
-                ->rules('required', 'max:254'),
+                ->rules('required', 'url'),
         ];
     }
 
@@ -95,7 +93,19 @@ class GameType extends Resource
     protected function relations()
     {
         return [
-            HasMany::make('Games'),
+            BelongsTo::make('Link Type', 'linkType')
+                ->required()
+                ->searchable()
+                ->showCreateRelationButton(),
+
+            MorphTo::make('Linkable')
+                ->required()
+                ->types([
+                    Game::class,
+                    Studio::class,
+                    Team::class,
+                    User::class,
+                ]),
         ];
     }
 }

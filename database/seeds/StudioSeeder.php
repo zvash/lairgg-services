@@ -3,6 +3,7 @@
 use App\Studio;
 use App\Traits\Seeders\Storage;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Arr;
 
 class StudioSeeder extends Seeder
 {
@@ -22,7 +23,12 @@ class StudioSeeder extends Seeder
                 ),
             ]);
 
-            Studio::create($studio);
+            $website = Arr::pull($studio, 'website');
+
+            Studio::create($studio)->links()->create([
+                'url' => $website,
+                'link_type_id' => 1,
+            ]);
         }
     }
 

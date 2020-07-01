@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateStudiosTable extends Migration
+class CreateLinkTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,9 @@ class CreateStudiosTable extends Migration
      */
     public function up()
     {
-        Schema::create('studios', function (Blueprint $table) {
+        Schema::create('link_types', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('logo');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -29,6 +28,6 @@ class CreateStudiosTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('studios');
+        Schema::dropIfExists('link_types');
     }
 }

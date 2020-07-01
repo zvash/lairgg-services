@@ -12,6 +12,7 @@ use Laravel\Nova\Fields\{
     HasMany,
     ID,
     Image,
+    MorphMany,
     Text
 };
 use Laravel\Nova\Panel;
@@ -139,11 +140,6 @@ class Game extends Resource
                 ->required()
                 ->rules('required', 'date')
                 ->format('Do MMMM YYYY'),
-
-            Text::make('Website')
-                ->required()
-                ->hideFromIndex()
-                ->rules('required', 'max:254'),
         ];
     }
 
@@ -160,10 +156,12 @@ class Game extends Resource
                 ->searchable()
                 ->required(),
 
-            BelongsTo::make('Type', 'GameType', GameType::class)
+            BelongsTo::make('Game Type', 'gameType')
                 ->showCreateRelationButton()
                 ->searchable()
                 ->required(),
+
+            MorphMany::make('Links'),
 
             HasMany::make('Maps'),
 

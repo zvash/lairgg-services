@@ -7,6 +7,7 @@ use Laravel\Nova\Fields\{
     Avatar,
     HasMany,
     ID,
+    MorphMany,
     Text
 };
 use Laravel\Nova\Panel;
@@ -97,11 +98,6 @@ class Studio extends Resource
                 ->sortable()
                 ->required()
                 ->rules('required', 'max:254'),
-
-            Text::make('website')
-                ->hideFromIndex()
-                ->required()
-                ->rules('required', 'max:254'),
         ];
     }
 
@@ -114,6 +110,8 @@ class Studio extends Resource
     {
         return [
             HasMany::make('Games'),
+
+            MorphMany::make('Links'),
         ];
     }
 }

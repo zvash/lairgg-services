@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         // Mass assignment protection is automatically
         // Disabled during database seeding.
         $this->call([
+            LinkTypeSeeder::class,
             GenderSeeder::class,
             StudioSeeder::class,
             GameTypeSeeder::class,

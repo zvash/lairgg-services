@@ -21,7 +21,6 @@ class CreateGamesTable extends Migration
             $table->text('image');
             $table->text('cover');
             $table->text('logo');
-            $table->string('website');
 
             $table->foreignId('game_type_id')
                 ->constrained()

@@ -3,6 +3,7 @@
 use App\Game;
 use App\Traits\Seeders\Storage;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Arr;
 
 class GameSeeder extends Seeder
 {
@@ -30,7 +31,12 @@ class GameSeeder extends Seeder
                 ),
             ]);
 
-            Game::create($game);
+            $website = Arr::pull($game, 'website');
+
+            Game::create($game)->links()->create([
+                'url' => $website,
+                'link_type_id' => 1,
+            ]);
         }
     }
 

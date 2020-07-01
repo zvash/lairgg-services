@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Traits\Eloquents\Linkable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -10,7 +11,11 @@ use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use Notifiable, HasApiTokens, SoftDeletes, Actionable;
+    use Notifiable,
+        HasApiTokens,
+        SoftDeletes,
+        Actionable,
+        Linkable;
 
     /**
      * The attributes that aren't mass assignable.

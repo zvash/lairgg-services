@@ -4,7 +4,7 @@
 
         $navigation->each(function ($item, $key) use (&$parents) {
             switch ($key) {
-                case in_array($key, ['Games', 'User Info', 'Others', 'Tournaments']):
+                case in_array($key, ['Games', 'User Info', 'Others', 'Tournaments', 'Types']):
                     $parents['Definitions'][$key] = $item;
                     break;
 
@@ -63,7 +63,11 @@
                                 resourceName: '{{ $resource::uriKey() }}'
                             }
                         }" class="text-white text-justify no-underline dim">
-                            {{ $resource::label() }}
+                            @if(\Illuminate\Support\Str::contains($resource::label(), 'Type'))
+                                {{ trim(str_ireplace(['types', 'type'], null, $resource::label())) }}
+                            @else
+                                {{ $resource::label() }}
+                            @endif
                         </router-link>
                     </li>
                 @endforeach
