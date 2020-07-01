@@ -37,7 +37,7 @@ class StudioSeeder extends Seeder
             [
                 'name' => 'Riot Games',
                 'website' => 'https://www.riotgames.com/',
-                'logo' => 'studios/logos/riot.png',
+                'logo' => 'studios/logos/riot.jpeg',
             ],
         ];
     }

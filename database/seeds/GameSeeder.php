@@ -48,7 +48,7 @@ class GameSeeder extends Seeder
                 'launched_at' => '02-06-2020',
                 'image' => 'games/images/valorant.jpeg',
                 'cover' => 'games/covers/valorant.jpeg',
-                'logo' => 'games/logos/valorant.png',
+                'logo' => 'games/logos/valorant.jpeg',
                 'website' => 'https://playvalorant.com/',
                 'game_type_id' => 1,
                 'studio_id' => 1,
