@@ -81,7 +81,7 @@ class Link extends Resource
             Text::make('URL')
                 ->sortable()
                 ->required()
-                ->rules('required', 'url'),
+                ->rules('required', 'active_url'),
         ];
     }
 

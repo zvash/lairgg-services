@@ -17,6 +17,8 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     public function boot()
     {
         parent::boot();
+
+        $this->observers();
     }
 
     /**
@@ -88,5 +90,17 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     public function register()
     {
         //
+    }
+
+    /**
+     * Register nova observers.
+     *
+     * @return void
+     */
+    public function observers()
+    {
+        Nova::serving(function () {
+            \App\Link::observe(\App\Observers\Nova\LinkObserver::class);
+        });
     }
 }

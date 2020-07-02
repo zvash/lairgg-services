@@ -129,11 +129,7 @@ return [
     |
     */
 
-    'custom' => [
-        'attribute-name' => [
-            'rule-name' => 'custom-message',
-        ],
-    ],
+    'custom' => [],
 
     /*
     |--------------------------------------------------------------------------
@@ -148,4 +144,20 @@ return [
 
     'attributes' => [],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Validation Language Line for Nova
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify custom validation messages for attributes using the
+    | convention "attribute.rule" to name the lines. This makes it quick to
+    | specify a specific custom language line for a given attribute rule in Nova.
+    |
+    */
+
+    'nova' => [
+        'linkType' => [
+            'accepted' => 'The linkable resource already has :type url',
+        ],
+    ],
 ];
