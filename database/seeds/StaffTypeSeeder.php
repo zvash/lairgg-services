@@ -26,7 +26,7 @@ class StaffTypeSeeder extends Seeder
     {
         return [
             'Admin',
-            'Moderate',
+            'Moderator',
         ];
     }
 }

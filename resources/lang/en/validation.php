@@ -159,5 +159,8 @@ return [
         'linkType' => [
             'accepted' => 'The linkable resource already has :type url',
         ],
+        'user' => [
+            'accepted' => 'The user exists in current/another organization staff.',
+        ],
     ],
 ];

@@ -9,6 +9,7 @@ use Laravel\Nova\Fields\{
     MorphTo,
     Text
 };
+use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Panel;
 
 class Link extends Resource
@@ -64,7 +65,7 @@ class Link extends Resource
 
             new Panel('Modifications', $this->modifications()),
 
-            new Panel('Relations', $this->relations()),
+            new Panel('Relations', $this->relations($request)),
         ];
     }
 
@@ -88,15 +89,17 @@ class Link extends Resource
     /**
      * Resource relations.
      *
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @return array
      */
-    protected function relations()
+    protected function relations(NovaRequest $request)
     {
         return [
             BelongsTo::make('Link Type', 'linkType')
                 ->required()
                 ->searchable()
-                ->showCreateRelationButton(),
+                ->showCreateRelationButton($request->isUpdateOrUpdateAttachedRequest())
+                ->readonly($request->isUpdateOrUpdateAttachedRequest()),
 
             MorphTo::make('Linkable')
                 ->required()

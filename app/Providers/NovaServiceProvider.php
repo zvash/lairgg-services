@@ -101,6 +101,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     {
         Nova::serving(function () {
             \App\Link::observe(\App\Observers\Nova\LinkObserver::class);
+            \App\Staff::observe(\App\Observers\Nova\StaffObserver::class);
         });
     }
 }

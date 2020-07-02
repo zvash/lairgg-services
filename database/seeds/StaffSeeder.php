@@ -16,6 +16,7 @@ class StaffSeeder extends Seeder
             $user->staff()->create([
                 'organization_id' => 1,
                 'staff_type_id' => $user->id > 1 ? 2 : 1,
+                'owner' => $user->id == 1,
             ]);
         }
     }

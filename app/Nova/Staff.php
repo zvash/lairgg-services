@@ -5,8 +5,10 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     BelongsTo,
+    Boolean,
     ID
 };
+use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Panel;
 
 class Staff extends Resource
@@ -57,9 +59,9 @@ class Staff extends Resource
         return [
             new Panel('Staff Details', $this->details()),
 
-            new Panel('Modifications', $this->modifications(true)),
+            new Panel('Modifications', $this->modifications()),
 
-            new Panel('Relations', $this->relations()),
+            new Panel('Relations', $this->relations($request)),
         ];
     }
 
@@ -72,19 +74,23 @@ class Staff extends Resource
     {
         return [
             ID::make()->sortable(),
+
+            Boolean::make('Owner'),
         ];
     }
 
     /**
      * Resource relations.
      *
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @return array
      */
-    protected function relations()
+    protected function relations(NovaRequest $request)
     {
         return [
             BelongsTo::make('User')
-                ->showCreateRelationButton()
+                ->showCreateRelationButton($request->isUpdateOrUpdateAttachedRequest())
+                ->readonly($request->isUpdateOrUpdateAttachedRequest())
                 ->searchable()
                 ->required(),
 

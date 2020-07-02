@@ -31,8 +31,8 @@ class CreateStaffTable extends Migration
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 
+            $table->boolean('owner')->default(false)->index();
             $table->timestamps();
-            $table->softDeletes();
 
             $table->unique(['user_id', 'staff_type_id', 'organization_id']);
         });
