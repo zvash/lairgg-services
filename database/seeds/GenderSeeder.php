@@ -12,8 +12,8 @@ class GenderSeeder extends Seeder
      */
     public function run()
     {
-        foreach ($this->genders() as $name) {
-            Gender::create(compact('name'));
+        foreach ($this->genders() as $title) {
+            Gender::create(compact('title'));
         }
     }
 

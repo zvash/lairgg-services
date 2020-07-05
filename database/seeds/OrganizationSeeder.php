@@ -3,7 +3,6 @@
 use App\Organization;
 use App\Traits\Seeders\Storage;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Arr;
 
 class OrganizationSeeder extends Seeder
 {
@@ -16,19 +15,14 @@ class OrganizationSeeder extends Seeder
      */
     public function run()
     {
-        foreach ($this->organizations() as $organization) {
+        foreach ($this->organizations() as [$organization, $link]) {
             $organization = array_merge($organization, [
                 'logo' => $this->store(
                     'organizations/logos', $this->getSeederPath($organization['logo'])
                 ),
             ]);
 
-            $website = Arr::pull($organization, 'website');
-
-            Organization::create($organization)->links()->create([
-                'url' => $website,
-                'link_type_id' => 1,
-            ]);
+            Organization::create($organization)->links()->create($link);
         }
     }
 
@@ -41,12 +35,19 @@ class OrganizationSeeder extends Seeder
     {
         return [
             [
-                'name' => 'LAIR.GG',
-                'username' => 'lair-gg',
-                'bio' => 'We are expecting to attract a large pool of teams all from different skill sets, help understand where they stand and place them in the right category of tournaments. Individuals can use this area to find the right team and also increase their knowledge of the game.',
-                'logo' => 'organizations/logos/lair-gg.jpeg',
-                'website' => 'https://lair.gg/',
+                [
+                    'title' => 'LAIR.GG',
+                    'slug' => 'lair-gg',
+                    'bio' => 'We are expecting to attract a large pool of teams all from different skill sets, help understand where they stand and place them in the right category of tournaments. Individuals can use this area to find the right team and also increase their knowledge of the game.',
+                    'logo' => 'organizations/logos/lair-gg.jpeg',
+
+                ],
+                [
+                    'link_type_id' => 1,
+                    'url' => 'https://lair.gg/',
+                ],
             ],
+
         ];
     }
 }

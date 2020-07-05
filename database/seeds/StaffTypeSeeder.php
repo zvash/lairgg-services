@@ -12,8 +12,8 @@ class StaffTypeSeeder extends Seeder
      */
     public function run()
     {
-        foreach ($this->staffTypes() as $name) {
-            StaffType::create(compact('name'));
+        foreach ($this->staffTypes() as $title) {
+            StaffType::create(compact('title'));
         }
     }
 

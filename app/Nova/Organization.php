@@ -33,7 +33,7 @@ class Organization extends Resource
      *
      * @var string
      */
-    public static $title = 'name';
+    public static $title = 'title';
 
     /**
      * The columns that should be searched.
@@ -42,8 +42,8 @@ class Organization extends Resource
      */
     public static $search = [
         'id',
-        'name',
-        'username',
+        'slug',
+        'title',
     ];
 
     /**
@@ -53,7 +53,7 @@ class Organization extends Resource
      */
     public function subtitle()
     {
-        return $this->username;
+        return $this->slug;
     }
 
     /**
@@ -112,17 +112,17 @@ class Organization extends Resource
                 ->nullable()
                 ->rules('nullable', 'mimes:jpeg,jpg,png'),
 
-            Text::make('Name')
+            Text::make('Title')
                 ->sortable()
                 ->required()
                 ->rules('required', 'max:254'),
 
-            Text::make('Username')
+            Text::make('Slug')
                 ->hideFromIndex()
                 ->required()
-                ->rules('required', 'regex:/^[a-z\-]{4,50}$/i')
-                ->creationRules('unique:organizations,username')
-                ->updateRules('unique:organizations,username,{{resourceId}}'),
+                ->rules('required', 'regex:/^[a-z\-]{4,254}$/i')
+                ->creationRules('unique:organizations,slug')
+                ->updateRules('unique:organizations,slug,{{resourceId}}'),
 
             Code::make('Bio')
                 ->language('markdown')
@@ -130,7 +130,7 @@ class Organization extends Resource
                 ->rules('nullable'),
 
             Stack::make('Details', [
-                Line::make('username')->asSubTitle(),
+                Line::make('slug')->asSubTitle(),
 
                 Line::make('timezone')
                     ->extraClasses('text-primary-dark font-bold')

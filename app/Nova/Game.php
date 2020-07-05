@@ -32,7 +32,7 @@ class Game extends Resource
      *
      * @var string
      */
-    public static $title = 'name';
+    public static $title = 'title';
 
     /**
      * The columns that should be searched.
@@ -41,7 +41,7 @@ class Game extends Resource
      */
     public static $search = [
         'id',
-        'name',
+        'title',
     ];
 
     /**
@@ -51,7 +51,7 @@ class Game extends Resource
      */
     public function subtitle()
     {
-        return $this->studio->name;
+        return $this->studio->title;
     }
 
     /**
@@ -126,7 +126,7 @@ class Game extends Resource
                 ->updateRules('nullable')
                 ->rules('mimes:jpeg,jpg,png'),
 
-            Text::make('Name')
+            Text::make('Title')
                 ->sortable()
                 ->required()
                 ->rules('required', 'max:254'),

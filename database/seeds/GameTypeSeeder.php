@@ -12,8 +12,8 @@ class GameTypeSeeder extends Seeder
      */
     public function run()
     {
-        foreach ($this->gameTypes() as $name) {
-            GameType::create(compact('name'));
+        foreach ($this->gameTypes() as $title) {
+            GameType::create(compact('title'));
         }
     }
 

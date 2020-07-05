@@ -46,7 +46,7 @@ class Organization extends Model
      */
     public function getRouteKeyName()
     {
-        return 'username';
+        return 'slug';
     }
 
     /**

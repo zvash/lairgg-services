@@ -15,7 +15,7 @@ class CreateStudiosTable extends Migration
     {
         Schema::create('studios', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('title');
             $table->text('logo');
             $table->timestamps();
             $table->softDeletes();

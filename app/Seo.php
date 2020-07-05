@@ -42,6 +42,6 @@ class Seo extends Model
      */
     public function getFormattedKeywordsAttribute()
     {
-        return implode(', ', $this->keywords) ?: null;
+        return implode(', ', array_values($this->keywords)) ?: null;
     }
 }

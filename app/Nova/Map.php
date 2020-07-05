@@ -25,7 +25,7 @@ class Map extends Resource
      *
      * @var string
      */
-    public static $title = 'name';
+    public static $title = 'title';
 
     /**
      * Indicates if the resource should be globally searchable.
@@ -41,7 +41,7 @@ class Map extends Resource
      */
     public static $search = [
         'id',
-        'name',
+        'title',
     ];
 
     /**
@@ -92,7 +92,7 @@ class Map extends Resource
                 ->updateRules('nullable')
                 ->rules('mimes:jpeg,jpg,png'),
 
-            Text::make('Name')
+            Text::make('Title')
                 ->sortable()
                 ->required()
                 ->rules('required', 'max:254'),

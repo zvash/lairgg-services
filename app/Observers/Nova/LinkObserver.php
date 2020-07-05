@@ -55,7 +55,7 @@ class LinkObserver
     protected function messages()
     {
         $message = __('validation.nova.linkType.accepted', [
-            'type' => $this->resource->linktype->name,
+            'type' => $this->resource->linktype->title,
         ]);
 
         return ['linkType.accepted' => $message];

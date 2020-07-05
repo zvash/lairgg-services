@@ -16,13 +16,11 @@ class MapSeeder extends Seeder
     public function run()
     {
         foreach ($this->maps() as $map) {
-            $map = array_merge($map, [
+            Map::create(array_merge($map, [
                 'image' => $this->store(
                     'maps/images', $this->getSeederPath($map['image'])
                 ),
-            ]);
-
-            Map::create($map);
+            ]));
         }
     }
 
@@ -35,22 +33,22 @@ class MapSeeder extends Seeder
     {
         return [
             [
-                'name' => 'bind',
+                'title' => 'bind',
                 'image' => 'maps/images/bind.jpeg',
                 'game_id' => 1,
             ],
             [
-                'name' => 'Haven',
+                'title' => 'Haven',
                 'image' => 'maps/images/haven.jpeg',
                 'game_id' => 1,
             ],
             [
-                'name' => 'Split',
+                'title' => 'Split',
                 'image' => 'maps/images/split.jpeg',
                 'game_id' => 1,
             ],
             [
-                'name' => 'Ascent',
+                'title' => 'Ascent',
                 'image' => 'maps/images/ascent.jpeg',
                 'game_id' => 1,
             ],

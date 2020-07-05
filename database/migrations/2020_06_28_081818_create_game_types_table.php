@@ -15,7 +15,7 @@ class CreateGameTypesTable extends Migration
     {
         Schema::create('game_types', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('title');
             $table->timestamps();
             $table->softDeletes();
         });

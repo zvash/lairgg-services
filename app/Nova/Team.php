@@ -30,7 +30,7 @@ class Team extends Resource
      *
      * @var string
      */
-    public static $title = 'name';
+    public static $title = 'title';
 
     /**
      * The columns that should be searched.
@@ -39,7 +39,7 @@ class Team extends Resource
      */
     public static $search = [
         'id',
-        'name',
+        'title',
     ];
 
     /**
@@ -98,7 +98,7 @@ class Team extends Resource
                 ->nullable()
                 ->rules('nullable', 'mimes:jpeg,jpg,png'),
 
-            Text::make('Name')
+            Text::make('Title')
                 ->sortable()
                 ->required()
                 ->rules('required', 'max:254'),

@@ -24,7 +24,7 @@ class GameType extends Resource
      *
      * @var string
      */
-    public static $title = 'name';
+    public static $title = 'title';
 
     /**
      * Indicates if the resource should be globally searchable.
@@ -40,7 +40,7 @@ class GameType extends Resource
      */
     public static $search = [
         'id',
-        'name',
+        'title',
     ];
 
     /**
@@ -80,7 +80,7 @@ class GameType extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Name')
+            Text::make('Title')
                 ->sortable()
                 ->required()
                 ->rules('required', 'max:254'),

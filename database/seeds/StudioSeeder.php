@@ -3,7 +3,6 @@
 use App\Studio;
 use App\Traits\Seeders\Storage;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Arr;
 
 class StudioSeeder extends Seeder
 {
@@ -16,19 +15,14 @@ class StudioSeeder extends Seeder
      */
     public function run()
     {
-        foreach ($this->studios() as $studio) {
+        foreach ($this->studios() as [$studio, $link]) {
             $studio = array_merge($studio, [
                 'logo' => $this->store(
                     'studios/logos', $this->getSeederPath($studio['logo'])
                 ),
             ]);
 
-            $website = Arr::pull($studio, 'website');
-
-            Studio::create($studio)->links()->create([
-                'url' => $website,
-                'link_type_id' => 1,
-            ]);
+            Studio::create($studio)->links()->create($link);
         }
     }
 
@@ -41,9 +35,14 @@ class StudioSeeder extends Seeder
     {
         return [
             [
-                'name' => 'Riot Games',
-                'website' => 'https://www.riotgames.com/',
-                'logo' => 'studios/logos/riot.jpeg',
+                [
+                    'title' => 'Riot Games',
+                    'logo' => 'studios/logos/riot.jpeg',
+                ],
+                [
+                    'url' => 'https://www.riotgames.com/',
+                    'link_type_id' => 1,
+                ],
             ],
         ];
     }

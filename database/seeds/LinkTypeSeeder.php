@@ -12,8 +12,8 @@ class LinkTypeSeeder extends Seeder
      */
     public function run()
     {
-        foreach ($this->linkTypes() as $name) {
-            LinkType::create(compact('name'));
+        foreach ($this->linkTypes() as $title) {
+            LinkType::create(compact('title'));
         }
     }
 
