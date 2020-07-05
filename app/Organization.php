@@ -40,6 +40,16 @@ class Organization extends Model
     ];
 
     /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return 'username';
+    }
+
+    /**
      * Get the staff for the organization.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

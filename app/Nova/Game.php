@@ -13,6 +13,7 @@ use Laravel\Nova\Fields\{
     ID,
     Image,
     MorphMany,
+    MorphOne,
     Text
 };
 use Laravel\Nova\Panel;
@@ -161,6 +162,8 @@ class Game extends Resource
                 ->required(),
 
             MorphMany::make('Links'),
+
+            MorphOne::make('Seo'),
 
             HasMany::make('Maps'),
 

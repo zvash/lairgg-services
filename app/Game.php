@@ -2,7 +2,10 @@
 
 namespace App;
 
-use App\Traits\Eloquents\Linkable;
+use App\Traits\Eloquents\{
+    Linkable,
+    Seoable
+};
 use Illuminate\Database\Eloquent\{
     Model,
     SoftDeletes
@@ -11,7 +14,7 @@ use Laravel\Nova\Actions\Actionable;
 
 class Game extends Model
 {
-    use SoftDeletes, Actionable, Linkable;
+    use SoftDeletes, Actionable, Linkable, Seoable;
 
     /**
      * The attributes that aren't mass assignable.

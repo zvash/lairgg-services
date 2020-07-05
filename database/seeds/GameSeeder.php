@@ -3,7 +3,6 @@
 use App\Game;
 use App\Traits\Seeders\Storage;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Arr;
 
 class GameSeeder extends Seeder
 {
@@ -16,8 +15,8 @@ class GameSeeder extends Seeder
      */
     public function run()
     {
-        foreach ($this->games() as $game) {
-            $game = array_merge($game, [
+        foreach ($this->games() as [$game, $link, $seo]) {
+            $game = Game::create(array_merge($game, [
                 'image' => $this->store(
                     'games/images', $this->getSeederPath($game['image'])
                 ),
@@ -29,14 +28,15 @@ class GameSeeder extends Seeder
                 'logo' => $this->store(
                     'games/logos', $this->getSeederPath($game['logo'])
                 ),
-            ]);
+            ]));
 
-            $website = Arr::pull($game, 'website');
+            $game->links()->create($link);
 
-            Game::create($game)->links()->create([
-                'url' => $website,
-                'link_type_id' => 1,
-            ]);
+            $game->seo()->create(array_merge($seo, [
+                'image' => $this->store(
+                    'seos/images', $this->getSeederPath($seo['image'])
+                ),
+            ]));
         }
     }
 
@@ -49,15 +49,31 @@ class GameSeeder extends Seeder
     {
         return [
             [
-                'name' => 'Valorant',
-                'bio' => 'Valorant is an upcoming tactical shooter game developed and published by Riot Games. It was announced on October 15, 2019 under the codename Project A.',
-                'launched_at' => '02-06-2020',
-                'image' => 'games/images/valorant.jpeg',
-                'cover' => 'games/covers/valorant.jpeg',
-                'logo' => 'games/logos/valorant.jpeg',
-                'website' => 'https://playvalorant.com/',
-                'game_type_id' => 1,
-                'studio_id' => 1,
+                [
+                    'name' => 'Valorant',
+                    'bio' => 'Valorant is an upcoming tactical shooter game developed and published by Riot Games. It was announced on October 15, 2019 under the codename Project A.',
+                    'launched_at' => '02-06-2020',
+                    'image' => 'games/images/valorant.jpeg',
+                    'cover' => 'games/covers/valorant.jpeg',
+                    'logo' => 'games/logos/valorant.jpeg',
+                    'game_type_id' => 1,
+                    'studio_id' => 1,
+                ],
+                [
+                    'url' => 'https://playvalorant.com/',
+                    'link_type_id' => 1,
+                ],
+                [
+                    'title' => 'Valorant',
+                    'description' => 'Valorant is an upcoming tactical shooter game developed and published by Riot Games.',
+                    'keywords' => [
+                        1 => 'valorant',
+                        2 => 'shooter',
+                        3 => 'fps',
+                        4 => 'tournament',
+                    ],
+                    'image' => 'seos/images/valorant.jpeg',
+                ],
             ],
         ];
     }
