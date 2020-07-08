@@ -14,11 +14,11 @@ class Organization extends Model
     use SoftDeletes, Actionable, Linkable;
 
     /**
-     * The attributes that aren't mass assignable.
+     * Indicates if all mass assignment is enabled.
      *
-     * @var array
+     * @var bool
      */
-    protected $guarded = [];
+    protected static $unguarded = true;
 
     /**
      * The attributes that should be cast to native types.
@@ -57,5 +57,15 @@ class Organization extends Model
     public function staff()
     {
         return $this->hasMany(Staff::class);
+    }
+
+    /**
+     * Get the tournaments for the organizations.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function tournaments()
+    {
+        return $this->hasMany(Tournament::class);
     }
 }

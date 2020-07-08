@@ -108,6 +108,7 @@ class Link extends Resource
                     Studio::class,
                     Team::class,
                     User::class,
+                    Tournament::class,
                 ]),
         ];
     }

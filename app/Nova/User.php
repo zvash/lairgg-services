@@ -157,13 +157,13 @@ class User extends Resource
                 ->updateRules('unique:users,username,{{resourceId}}'),
 
             Stack::make('Details', [
-                Line::make('email')->asSubTitle(),
+                Line::make('Email')->asSubTitle(),
 
-                Line::make('timezone')
+                Line::make('Timezone')
                     ->extraClasses('text-primary-dark font-bold')
                     ->asSmall(),
 
-                Line::make('points', function () {
+                Line::make('Points', function () {
                     return view('nova::partials.status', [
                         'points' => $this->points,
                     ])->render();

@@ -17,11 +17,11 @@ class Game extends Model
     use SoftDeletes, Actionable, Linkable, Seoable;
 
     /**
-     * The attributes that aren't mass assignable.
+     * Indicates if all mass assignment is enabled.
      *
-     * @var array
+     * @var bool
      */
-    protected $guarded = [];
+    protected static $unguarded = true;
 
     /**
      * The attributes that should be cast to native types.
@@ -83,5 +83,15 @@ class Game extends Model
             ->using(Username::class)
             ->withPivot('username')
             ->withTimestamps();
+    }
+
+    /**
+     * Get the tournaments for the game.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function tournaments()
+    {
+        return $this->hasMany(Tournament::class);
     }
 }

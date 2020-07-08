@@ -14,11 +14,11 @@ class Team extends Model
     use SoftDeletes, Actionable, Linkable;
 
     /**
-     * The attributes that aren't mass assignable.
+     * Indicates if all mass assignment is enabled.
      *
-     * @var array
+     * @var bool
      */
-    protected $guarded = [];
+    protected static $unguarded = true;
 
     /**
      * Get the game that owns the team.

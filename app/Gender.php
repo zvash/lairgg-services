@@ -13,11 +13,11 @@ class Gender extends Model
     use SoftDeletes, Actionable;
 
     /**
-     * The attributes that aren't mass assignable.
+     * Indicates if all mass assignment is enabled.
      *
-     * @var array
+     * @var bool
      */
-    protected $guarded = [];
+    protected static $unguarded = true;
 
     /**
      * Get the users for the gender.

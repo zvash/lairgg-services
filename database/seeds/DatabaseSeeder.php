@@ -27,6 +27,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             OrganizationSeeder::class,
             StaffSeeder::class,
+            RegionSeeder::class,
+            TournamentTypeSeeder::class,
         ]);
     }
 

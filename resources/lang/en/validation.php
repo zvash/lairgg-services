@@ -133,6 +133,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Custom Validation Values
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify custom validation messages for values.
+    | This makes it quick to specify a specific custom
+    | language line for a given values.
+    |
+    */
+
+    'values' => [
+        'tournamentType' => [
+            '4' => 'league',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Custom Validation Attributes
     |--------------------------------------------------------------------------
     |

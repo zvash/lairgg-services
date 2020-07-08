@@ -14,11 +14,11 @@ class Page extends Model
     use SoftDeletes, Actionable, Seoable;
 
     /**
-     * The attributes that aren't mass assignable.
+     * Indicates if all mass assignment is enabled.
      *
-     * @var array
+     * @var bool
      */
-    protected $guarded = [];
+    protected static $unguarded = true;
 
     /**
      * Get the route key for the model.

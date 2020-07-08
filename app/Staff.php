@@ -13,11 +13,11 @@ class Staff extends Model
     use Actionable;
 
     /**
-     * The attributes that aren't mass assignable.
+     * Indicates if all mass assignment is enabled.
      *
-     * @var array
+     * @var bool
      */
-    protected $guarded = [];
+    protected static $unguarded = true;
 
     /**
      * The attributes that should be cast to native types.

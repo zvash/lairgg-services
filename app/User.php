@@ -18,11 +18,11 @@ class User extends Authenticatable
         Linkable;
 
     /**
-     * The attributes that aren't mass assignable.
+     * Indicates if all mass assignment is enabled.
      *
-     * @var array
+     * @var bool
      */
-    protected $guarded = [];
+    protected static $unguarded = true;
 
     /**
      * The attributes that should be hidden for arrays.

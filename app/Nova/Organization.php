@@ -172,6 +172,8 @@ class Organization extends Resource
             HasMany::make('Staff'),
 
             MorphMany::make('Links'),
+
+            HasMany::make('Tournaments'),
         ];
     }
 }

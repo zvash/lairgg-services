@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\{
 };
 use Laravel\Nova\Actions\Actionable;
 
-class StaffType extends Model
+class Region extends Model
 {
-    use SoftDeletes, Actionable;
+    use Actionable, SoftDeletes;
 
     /**
      * Indicates if all mass assignment is enabled.
@@ -20,12 +20,12 @@ class StaffType extends Model
     protected static $unguarded = true;
 
     /**
-     * Get the staff for the staff type.
+     * Get the tournaments for the region.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function staff()
+    public function tournaments()
     {
-        return $this->hasMany(Staff::class);
+        return $this->hasMany(Tournament::class);
     }
 }

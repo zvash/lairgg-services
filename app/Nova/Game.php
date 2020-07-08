@@ -178,6 +178,8 @@ class Game extends Resource
                             ->rules('required', 'max:254'),
                     ];
                 }),
+
+            HasMany::make('Tournaments'),
         ];
     }
 }
