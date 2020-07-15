@@ -12,6 +12,7 @@ use Laravel\Nova\Fields\{
     Code,
     Currency,
     DateTime,
+    HasMany,
     ID,
     Image,
     Line,
@@ -365,6 +366,8 @@ class Tournament extends Resource
                 ->withSubtitles(),
 
             MorphMany::make('Links'),
+
+            HasMany::make('Prizes'),
         ];
     }
 }
