@@ -42,4 +42,14 @@ class Team extends Model
             ->withTimestamps()
             ->withPivot('captain');
     }
+
+    /**
+     * Get all of the team's participants.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function participants()
+    {
+        return $this->morphMany(Participant::class, 'participantable');
+    }
 }

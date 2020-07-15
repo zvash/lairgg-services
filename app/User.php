@@ -112,4 +112,14 @@ class User extends Authenticatable
             ->withTimestamps()
             ->withPivot('captain');
     }
+
+    /**
+     * Get all of the user's participants.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function participants()
+    {
+        return $this->morphMany(Participant::class, 'participantable');
+    }
 }

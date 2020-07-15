@@ -67,7 +67,7 @@ class Prize extends Resource
         return [
             new Panel('Prize Details', $this->details()),
 
-            new Panel('Modifications', $this->modifications(true)),
+            new Panel('Modifications', $this->modifications()),
 
             new Panel('Relations', $this->relations()),
         ];
@@ -91,7 +91,7 @@ class Prize extends Resource
             Number::make('Rank')
                 ->sortable()
                 ->required()
-                ->rules('required', 'gte:1'),
+                ->rules('required', 'integer', 'gte:1'),
 
             Text::make('Value')
                 ->hideFromIndex()

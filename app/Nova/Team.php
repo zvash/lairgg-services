@@ -133,6 +133,8 @@ class Team extends Resource
                         Boolean::make('Captain'),
                     ];
                 }),
+
+            MorphMany::make('Participants'),
         ];
     }
 }

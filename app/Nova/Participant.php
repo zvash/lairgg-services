@@ -5,20 +5,22 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     BelongsTo,
-    Boolean,
-    ID
+    DateTime,
+    ID,
+    MorphTo,
+    Number
 };
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Panel;
 
-class Staff extends Resource
+class Participant extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = \App\Staff::class;
+    public static $model = \App\Participant::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -26,6 +28,17 @@ class Staff extends Resource
      * @var string
      */
     public static $title = 'id';
+
+    /**
+     * The columns that should be searched.
+     *
+     * @var array
+     */
+    public static $search = [
+        'id',
+        'seed',
+        'rank',
+    ];
 
     /**
      * Indicates if the resource should be globally searchable.
@@ -42,13 +55,6 @@ class Staff extends Resource
     public static $displayInNavigation = false;
 
     /**
-     * The columns that should be searched.
-     *
-     * @var array
-     */
-    public static $search = ['id'];
-
-    /**
      * Get the fields displayed by the resource.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -57,7 +63,7 @@ class Staff extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Staff Details', $this->details()),
+            new Panel('Participant Details', $this->details()),
 
             new Panel('Modifications', $this->modifications()),
 
@@ -75,7 +81,20 @@ class Staff extends Resource
         return [
             ID::make()->sortable(),
 
-            Boolean::make('Owner'),
+            DateTime::make('Checked in at')
+                ->sortable()
+                ->nullable()
+                ->rules('nullable', 'date', 'before:now'),
+
+            Number::make('Seed')
+                ->sortable()
+                ->nullable()
+                ->rules('nullable', 'integer', 'gte:1'),
+
+            Number::make('Rank')
+                ->sortable()
+                ->nullable()
+                ->rules('nullable', 'integer', 'gte:1'),
         ];
     }
 
@@ -88,23 +107,21 @@ class Staff extends Resource
     protected function relations(NovaRequest $request)
     {
         return [
-            BelongsTo::make('User')
-                ->showCreateRelationButton($request->isUpdateOrUpdateAttachedRequest())
-                ->readonly($request->isUpdateOrUpdateAttachedRequest())
+            BelongsTo::make('Tournament')
+                ->showCreateRelationButton()
                 ->searchable()
                 ->withSubtitles()
                 ->required(),
 
-            BelongsTo::make('Staff Type', 'staffType')
-                ->showCreateRelationButton()
+            MorphTo::make('Participantable')
+                ->types([
+                    User::class,
+                    Team::class,
+                ])
+                ->hideWhenUpdating()
                 ->searchable()
-                ->required(),
-
-            BelongsTo::make('Organization')
-                ->showCreateRelationButton()
                 ->withSubtitles()
-                ->searchable()
-                ->required(),
+                ->showCreateRelationButton(),
         ];
     }
 }

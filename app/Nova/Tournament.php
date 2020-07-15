@@ -368,6 +368,8 @@ class Tournament extends Resource
             MorphMany::make('Links'),
 
             HasMany::make('Prizes'),
+
+            HasMany::make('Participants'),
         ];
     }
 }

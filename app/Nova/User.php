@@ -278,6 +278,7 @@ class User extends Resource
                     ];
                 }),
 
+            MorphMany::make('Participants'),
         ];
     }
 }

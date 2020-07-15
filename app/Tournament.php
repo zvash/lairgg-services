@@ -112,4 +112,14 @@ class Tournament extends Model
     {
         return $this->hasMany(Prize::class);
     }
+
+    /**
+     * Get the participants for the tournament.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function participants()
+    {
+        return $this->hasMany(Participant::class);
+    }
 }
