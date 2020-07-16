@@ -46,4 +46,14 @@ class Participant extends Model
     {
         return $this->belongsTo(Tournament::class);
     }
+
+    /**
+     * Get the prize that owns the participant.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function prize()
+    {
+        return $this->belongsTo(Prize::class);
+    }
 }

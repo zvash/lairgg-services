@@ -5,6 +5,7 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     BelongsTo,
+    HasOne,
     ID,
     Number,
     Text
@@ -35,6 +36,13 @@ class Prize extends Resource
     public static $globallySearchable = false;
 
     /**
+     * Indicates if the resource should be displayed in the sidebar.
+     *
+     * @var bool
+     */
+    public static $displayInNavigation = false;
+
+    /**
      * The columns that should be searched.
      *
      * @var array
@@ -45,16 +53,6 @@ class Prize extends Resource
         'rank',
         'value',
     ];
-
-    /**
-     * Get the logical group associated with the resource.
-     *
-     * @return string
-     */
-    public static function group()
-    {
-        return 'Tournaments';
-    }
 
     /**
      * Get the fields displayed by the resource.
@@ -118,6 +116,8 @@ class Prize extends Resource
                 ->searchable()
                 ->withSubtitles()
                 ->required(),
+
+            HasOne::make('Participant'),
         ];
     }
 }

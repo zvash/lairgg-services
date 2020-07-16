@@ -10,7 +10,6 @@ use Laravel\Nova\Fields\{
     MorphTo,
     Number
 };
-use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Panel;
 
 class Participant extends Resource
@@ -67,7 +66,7 @@ class Participant extends Resource
 
             new Panel('Modifications', $this->modifications()),
 
-            new Panel('Relations', $this->relations($request)),
+            new Panel('Relations', $this->relations()),
         ];
     }
 
@@ -101,10 +100,9 @@ class Participant extends Resource
     /**
      * Resource relations.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @return array
      */
-    protected function relations(NovaRequest $request)
+    protected function relations()
     {
         return [
             BelongsTo::make('Tournament')
@@ -112,6 +110,11 @@ class Participant extends Resource
                 ->searchable()
                 ->withSubtitles()
                 ->required(),
+
+            BelongsTo::make('Prize')
+                ->showCreateRelationButton()
+                ->searchable()
+                ->nullable(),
 
             MorphTo::make('Participantable')
                 ->types([

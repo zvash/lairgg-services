@@ -21,6 +21,12 @@ class CreateParticipantsTable extends Migration
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 
+            $table->foreignId('prize_id')
+                ->nullable()
+                ->constrained()
+                ->onUpdate('cascade')
+                ->onDelete('set null');
+
             $table->morphs('participantable');
             $table->timestamp('checked_in_at')->nullable()->default(null);
             $table->unsignedInteger('seed')->index()->nullable()->default(null);

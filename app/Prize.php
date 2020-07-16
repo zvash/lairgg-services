@@ -44,4 +44,14 @@ class Prize extends Model
     {
         return $this->belongsTo(Tournament::class);
     }
+
+    /**
+     * Get the participant associated with the prize.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function participant()
+    {
+        return $this->hasOne(Participant::class);
+    }
 }
