@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     BelongsTo,
     DateTime,
+    HasMany,
     ID,
     MorphTo,
     Number
@@ -20,13 +21,6 @@ class Participant extends Resource
      * @var string
      */
     public static $model = \App\Participant::class;
-
-    /**
-     * The single value that should be used to represent the resource when being displayed.
-     *
-     * @var string
-     */
-    public static $title = 'id';
 
     /**
      * The columns that should be searched.
@@ -52,6 +46,16 @@ class Participant extends Resource
      * @var bool
      */
     public static $displayInNavigation = false;
+
+    /**
+     * Get the value that should be displayed to represent the resource.
+     *
+     * @return string
+     */
+    public function title()
+    {
+        return 'Tournament: '.$this->tournament->title;
+    }
 
     /**
      * Get the fields displayed by the resource.
@@ -125,6 +129,8 @@ class Participant extends Resource
                 ->searchable()
                 ->withSubtitles()
                 ->showCreateRelationButton(),
+
+            HasMany::make('Shares'),
         ];
     }
 }

@@ -12,6 +12,7 @@ use Laravel\Nova\Fields\{
     Code,
     Date,
     DateTime,
+    HasMany,
     ID,
     Image,
     Line,
@@ -279,6 +280,8 @@ class User extends Resource
                 }),
 
             MorphMany::make('Participants'),
+
+            HasMany::make('Shares'),
         ];
     }
 }

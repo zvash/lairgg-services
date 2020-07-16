@@ -56,4 +56,14 @@ class Participant extends Model
     {
         return $this->belongsTo(Prize::class);
     }
+
+    /**
+     * Get the shares for the participant.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function shares()
+    {
+        return $this->hasMany(Share::class);
+    }
 }

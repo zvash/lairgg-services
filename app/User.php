@@ -122,4 +122,14 @@ class User extends Authenticatable
     {
         return $this->morphMany(Participant::class, 'participantable');
     }
+
+    /**
+     * Get the shares for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function shares()
+    {
+        return $this->hasMany(Share::class);
+    }
 }
