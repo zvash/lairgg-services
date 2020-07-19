@@ -28,4 +28,14 @@ class Map extends Model
     {
         return $this->belongsTo(Game::class);
     }
+
+    /**
+     * Get the plays for the map.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function plays()
+    {
+        return $this->hasMany(Play::class);
+    }
 }

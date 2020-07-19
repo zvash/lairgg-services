@@ -61,4 +61,14 @@ class Match extends Model
     {
         return $this->belongsTo(Team::class, 'winner_team_id');
     }
+
+    /**
+     * Get the plays for the match.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function plays()
+    {
+        return $this->hasMany(Play::class);
+    }
 }

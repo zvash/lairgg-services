@@ -7,6 +7,8 @@ use Laravel\Nova\Fields\{
     BelongsTo,
     Boolean,
     DateTime,
+    HasMany,
+    ID,
     Number
 };
 use Laravel\Nova\Panel;
@@ -81,11 +83,15 @@ class Match extends Resource
     protected function details()
     {
         return  [
+            ID::make()->sortable(),
+
             Number::make('Round')
+                ->sortable()
                 ->nullable()
                 ->rules('nullable', 'integer', 'gte:1'),
 
             Number::make('Group')
+                ->sortable()
                 ->nullable()
                 ->rules('nullable', 'integer', 'gte:1'),
 
@@ -96,7 +102,8 @@ class Match extends Resource
                 ->required()
                 ->rules('required', 'integer', 'gte:1'),
 
-            Boolean::make('Is forfeit'),
+            Boolean::make('Is forfeit')
+                ->sortable(),
 
             DateTime::make('Started at')
                 ->hideFromIndex()
@@ -114,15 +121,14 @@ class Match extends Resource
     {
         return [
             BelongsTo::make('Tournament')
-                ->showCreateRelationButton()
-                ->searchable()
-                ->withSubtitles()
-                ->required(),
+                ->readonly(),
 
-            BelongsTo::make('Winner')
+            BelongsTo::make('Winner', 'winner', Team::class)
                 ->showCreateRelationButton()
                 ->nullable()
                 ->searchable(),
+
+            HasMany::make('Plays'),
         ];
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMatchesTable extends Migration
+class CreatePlaysTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,25 +13,27 @@ class CreateMatchesTable extends Migration
      */
     public function up()
     {
-        Schema::create('matches', function (Blueprint $table) {
+        Schema::create('plays', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('round')->nullable()->default(null)->index();
-            $table->unsignedInteger('group')->nullable()->default(null)->index();
-            $table->unsignedInteger('play_count')->default(1)->index();
-            $table->boolean('is_forfeit')->default(false)->index();
 
-            $table->foreignId('tournament_id')
+            $table->foreignId('match_id')
                 ->constrained()
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 
-            $table->foreignId('winner_team_id')
+            $table->foreignId('map_id')
                 ->nullable()
-                ->constrained('teams')
+                ->constrained()
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 
-            $table->timestamp('started_at')->nullable();
+            $table->text('screenshot')->nullable()->default(null);
+
+            $table->foreignId('edited_by')
+                ->nullable()
+                ->constrained('users')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
 
             $table->timestamps();
         });
@@ -44,6 +46,6 @@ class CreateMatchesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('matches');
+        Schema::dropIfExists('plays');
     }
 }

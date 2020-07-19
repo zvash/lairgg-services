@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     Avatar,
     BelongsTo,
+    HasMany,
     ID,
     Text
 };
@@ -112,6 +113,8 @@ class Map extends Resource
                 ->searchable()
                 ->withSubtitles()
                 ->required(),
+
+            HasMany::make('Plays'),
         ];
     }
 }
