@@ -43,6 +43,16 @@ class Team extends Resource
     ];
 
     /**
+     * Get the search result subtitle for the resource.
+     *
+     * @return string|null
+     */
+    public function subtitle()
+    {
+        return $this->game->title;
+    }
+
+    /**
      * Get the logical group associated with the resource.
      *
      * @return string

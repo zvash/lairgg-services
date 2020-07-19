@@ -52,4 +52,14 @@ class Team extends Model
     {
         return $this->morphMany(Participant::class, 'participantable');
     }
+
+    /**
+     * Get the parties for the team.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function parties()
+    {
+        return $this->hasMany(Party::class);
+    }
 }

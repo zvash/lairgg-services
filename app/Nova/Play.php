@@ -5,6 +5,7 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     BelongsTo,
+    HasMany,
     ID,
     Image
 };
@@ -104,6 +105,7 @@ class Play extends Resource
 
             BelongsTo::make('Map')
                 ->searchable()
+                ->withSubtitles()
                 ->showCreateRelationButton()
                 ->nullable(),
 
@@ -112,6 +114,8 @@ class Play extends Resource
                 ->searchable()
                 ->nullable()
                 ->withSubtitles(),
+
+            HasMany::make('Parties'),
         ];
     }
 }

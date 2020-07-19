@@ -45,4 +45,14 @@ class Play extends Model
     {
         return $this->belongsTo(User::class, 'edited_by');
     }
+
+    /**
+     * Get the parties for the play.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function parties()
+    {
+        return $this->hasMany(Party::class);
+    }
 }
