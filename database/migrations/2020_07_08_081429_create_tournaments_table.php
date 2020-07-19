@@ -42,7 +42,7 @@ class CreateTournamentsTable extends Migration
             ]);
 
             $table->unsignedInteger('match_check_in_period')->default(10);
-            $table->unsignedInteger('match_play_count')->default(3);
+            $table->unsignedInteger('match_play_count')->default(1);
             $table->boolean('match_randomize_map')->default(true);
             $table->boolean('match_third_rank')->default(false);
 

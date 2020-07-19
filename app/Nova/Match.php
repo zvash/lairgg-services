@@ -5,22 +5,20 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     BelongsTo,
+    Boolean,
     DateTime,
-    HasMany,
-    ID,
-    MorphTo,
     Number
 };
 use Laravel\Nova\Panel;
 
-class Participant extends Resource
+class Match extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = \App\Participant::class;
+    public static $model = \App\Match::class;
 
     /**
      * The columns that should be searched.
@@ -29,8 +27,9 @@ class Participant extends Resource
      */
     public static $search = [
         'id',
-        'seed',
-        'rank',
+        'round',
+        'group',
+        'play_count',
     ];
 
     /**
@@ -41,9 +40,9 @@ class Participant extends Resource
     public static $globallySearchable = false;
 
     /**
-     * Indicates if the resource should be displayed in the sidebar.
+     * The number of results to display in the global search.
      *
-     * @var bool
+     * @var int
      */
     public static $displayInNavigation = false;
 
@@ -54,7 +53,7 @@ class Participant extends Resource
      */
     public function title()
     {
-        return 'Participant: '.$this->tournament->title;
+        return 'Match: '.$this->tournament->title;
     }
 
     /**
@@ -66,7 +65,7 @@ class Participant extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Participant Details', $this->details()),
+            new Panel('Match Details', $this->details()),
 
             new Panel('Modifications', $this->modifications()),
 
@@ -81,23 +80,28 @@ class Participant extends Resource
      */
     protected function details()
     {
-        return [
-            ID::make()->sortable(),
-
-            DateTime::make('Checked in at')
-                ->sortable()
-                ->nullable()
-                ->rules('nullable', 'date', 'before:now'),
-
-            Number::make('Seed')
-                ->sortable()
+        return  [
+            Number::make('Round')
                 ->nullable()
                 ->rules('nullable', 'integer', 'gte:1'),
 
-            Number::make('Rank')
-                ->sortable()
+            Number::make('Group')
                 ->nullable()
                 ->rules('nullable', 'integer', 'gte:1'),
+
+            Number::make('Play count')
+                ->hideFromIndex()
+                ->help('BO (aka Best of), like BO5 or BO3 ...')
+                ->min(1)
+                ->required()
+                ->rules('required', 'integer', 'gte:1'),
+
+            Boolean::make('Is forfeit'),
+
+            DateTime::make('Started at')
+                ->hideFromIndex()
+                ->nullable()
+                ->rules('nullable', 'date', 'after:now'),
         ];
     }
 
@@ -115,22 +119,10 @@ class Participant extends Resource
                 ->withSubtitles()
                 ->required(),
 
-            BelongsTo::make('Prize')
+            BelongsTo::make('Winner')
                 ->showCreateRelationButton()
-                ->searchable()
-                ->nullable(),
-
-            MorphTo::make('Participantable')
-                ->types([
-                    User::class,
-                    Team::class,
-                ])
-                ->hideWhenUpdating()
-                ->searchable()
-                ->withSubtitles()
-                ->showCreateRelationButton(),
-
-            HasMany::make('Shares'),
+                ->nullable()
+                ->searchable(),
         ];
     }
 }

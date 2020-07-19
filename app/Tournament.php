@@ -58,7 +58,7 @@ class Tournament extends Model
         'status' => 1,
         'check_in_period' => 10,
         'match_check_in_period' => 10,
-        'match_play_count' => 3,
+        'match_play_count' => 1,
         'match_randomize_map' => true,
         'match_third_rank' => false,
     ];
@@ -121,5 +121,15 @@ class Tournament extends Model
     public function participants()
     {
         return $this->hasMany(Participant::class);
+    }
+
+    /**
+     * Get the matches for the tournament.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function matches()
+    {
+        return $this->hasMany(Match::class);
     }
 }

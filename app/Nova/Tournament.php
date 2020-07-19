@@ -370,6 +370,8 @@ class Tournament extends Resource
             HasMany::make('Prizes'),
 
             HasMany::make('Participants'),
+
+            HasMany::make('Matches'),
         ];
     }
 }
