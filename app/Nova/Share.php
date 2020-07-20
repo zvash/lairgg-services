@@ -59,7 +59,7 @@ class Share extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Share Details', $this->details()),
+            (new Panel('Share Details', $this->details()))->withToolbar(),
 
             new Panel('Modifications', $this->modifications()),
 

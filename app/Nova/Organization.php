@@ -75,7 +75,7 @@ class Organization extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Organization Details', $this->details()),
+            (new Panel('Organization Details', $this->details()))->withToolbar(),
 
             new Panel('Modifications', $this->modifications(true)),
 

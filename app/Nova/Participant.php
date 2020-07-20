@@ -66,7 +66,7 @@ class Participant extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Participant Details', $this->details()),
+            (new Panel('Participant Details', $this->details()))->withToolbar(),
 
             new Panel('Modifications', $this->modifications()),
 

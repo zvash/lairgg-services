@@ -67,7 +67,7 @@ class Match extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Match Details', $this->details()),
+            (new Panel('Match Details', $this->details()))->withToolbar(),
 
             new Panel('Modifications', $this->modifications()),
 

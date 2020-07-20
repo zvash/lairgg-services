@@ -66,7 +66,7 @@ class Seo extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Seo Details', $this->details()),
+            (new Panel('Seo Details', $this->details()))->withToolbar(),
 
             new Panel('Modifications', $this->modifications()),
 

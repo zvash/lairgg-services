@@ -57,7 +57,7 @@ class Staff extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Staff Details', $this->details()),
+            (new Panel('Staff Details', $this->details()))->withToolbar(),
 
             new Panel('Modifications', $this->modifications()),
 

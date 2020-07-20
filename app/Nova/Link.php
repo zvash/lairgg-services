@@ -61,7 +61,7 @@ class Link extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Link Details', $this->details()),
+            (new Panel('Link Details', $this->details()))->withToolbar(),
 
             new Panel('Modifications', $this->modifications()),
 

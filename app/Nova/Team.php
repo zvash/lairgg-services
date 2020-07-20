@@ -71,7 +71,7 @@ class Team extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Team Details', $this->details()),
+            (new Panel('Team Details', $this->details()))->withToolbar(),
 
             new Panel('Modifications', $this->modifications(true)),
 

@@ -62,7 +62,7 @@ class Play extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Play Details', $this->details()),
+            (new Panel('Play Details', $this->details()))->withToolbar(),
 
             new Panel('Modifications', $this->modifications()),
 

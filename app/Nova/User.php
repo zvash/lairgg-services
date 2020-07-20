@@ -88,7 +88,7 @@ class User extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('User Details', $this->details()),
+            (new Panel('User Details', $this->details()))->withToolbar(),
 
             new Panel('Security and Privacy', $this->securityAndPrivacy()),
 

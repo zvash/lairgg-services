@@ -74,7 +74,7 @@ class Map extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Map Details', $this->details()),
+            (new Panel('Map Details', $this->details()))->withToolbar(),
 
             new Panel('Modifications', $this->modifications(true)),
 

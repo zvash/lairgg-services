@@ -68,7 +68,7 @@ class Page extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Page Details', $this->details()),
+            (new Panel('Page Details', $this->details()))->withToolbar(),
 
             new Panel('Modifications', $this->modifications(true)),
 

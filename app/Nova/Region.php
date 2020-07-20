@@ -62,7 +62,7 @@ class Region extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Region Details', $this->details()),
+            (new Panel('Region Details', $this->details()))->withToolbar(),
 
             new Panel('Modifications', $this->modifications(true)),
 

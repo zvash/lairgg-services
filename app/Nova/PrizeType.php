@@ -62,7 +62,7 @@ class PrizeType extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Prize Type Details', $this->details()),
+            (new Panel('Prize Type Details', $this->details()))->withToolbar(),
 
             new Panel('Modifications', $this->modifications(true)),
 

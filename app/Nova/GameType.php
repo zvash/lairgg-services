@@ -62,7 +62,7 @@ class GameType extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Game Type Details', $this->details()),
+            (new Panel('Game Type Details', $this->details()))->withToolbar(),
 
             new Panel('Modifications', $this->modifications(true)),
 

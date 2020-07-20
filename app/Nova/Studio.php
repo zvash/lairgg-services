@@ -65,7 +65,7 @@ class Studio extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Studio Details', $this->details()),
+            (new Panel('Studio Details', $this->details()))->withToolbar(),
 
             new Panel('Modifications', $this->modifications(true)),
 

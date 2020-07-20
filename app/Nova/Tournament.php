@@ -82,7 +82,7 @@ class Tournament extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Tournament Details', $this->details()),
+            (new Panel('Tournament Details', $this->details()))->withToolbar(),
 
             new Panel('Configuration', $this->configuration()),
 

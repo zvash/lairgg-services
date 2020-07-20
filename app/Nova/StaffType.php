@@ -62,7 +62,7 @@ class StaffType extends Resource
     public function fields(Request $request)
     {
         return [
-            new Panel('Staff Type Details', $this->details()),
+            (new Panel('Staff Type Details', $this->details()))->withToolbar(),
 
             new Panel('Modifications', $this->modifications(true)),
 
