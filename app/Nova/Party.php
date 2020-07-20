@@ -127,7 +127,9 @@ class Party extends Resource
      */
     public static function relatableTeams(NovaRequest $request, $query)
     {
-        $tournament = $request->findParentModelOrFail();
+        $party = $request->findModelQuery()->first() ?? $request->model();
+
+        $tournament = $party->play->match->tournament ?? $request->findParentModel()->match->tournament;
 
         return $query->whereHas('participants', function (Builder $query) use ($tournament) {
             return $query->whereNotNull('checked_in_at')->whereTournamentId($tournament->id);

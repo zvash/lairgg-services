@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     BelongsTo,
@@ -11,6 +12,7 @@ use Laravel\Nova\Fields\{
     ID,
     Number
 };
+use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Panel;
 
 class Match extends Resource
@@ -130,5 +132,31 @@ class Match extends Resource
 
             HasMany::make('Plays'),
         ];
+    }
+
+    /**
+     * Build a "relatable" query for the given resource.
+     *
+     * This query determines which instances of the model may be attached to other resources.
+     *
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public static function relatableTeams(NovaRequest $request, $query)
+    {
+        $match = $request->findModelQuery()->first() ?? $request->model();
+
+        $tournament = $match->tournament ?? $request->findParentModel();
+
+        if ($tournament) {
+            $query->whereHas('participants', function (Builder $query) use ($match) {
+                return $query->whereNotNull('checked_in_at')->whereTournamentId($match->tournament->id);
+            });
+        }
+
+        return $query->whereHas('parties', function (Builder $query) use ($match) {
+            return $query->whereIn('play_id', $match->plays->pluck('id'));
+        });
     }
 }
