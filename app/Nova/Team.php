@@ -117,6 +117,9 @@ class Team extends Resource
                 ->language('markdown')
                 ->nullable()
                 ->rules('nullable'),
+
+            Boolean::make('Join request')
+                ->help('Users can send a join request or not?'),
         ];
     }
 

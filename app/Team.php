@@ -21,6 +21,24 @@ class Team extends Model
     protected static $unguarded = true;
 
     /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'join_request' => 'boolean',
+    ];
+
+    /**
+     * The model's attributes.
+     *
+     * @var array
+     */
+    protected $attributes = [
+        'join_request' => false,
+    ];
+
+    /**
      * Get the game that owns the team.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
