@@ -16,7 +16,7 @@ class CreateGamesTable extends Migration
         Schema::create('games', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->text('bio');
+            $table->text('description');
             $table->date('launched_at');
             $table->text('image');
             $table->text('cover');

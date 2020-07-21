@@ -131,7 +131,7 @@ class Game extends Resource
                 ->required()
                 ->rules('required', 'max:254'),
 
-            Code::make('Bio')
+            Code::make('description')
                 ->language('markdown')
                 ->required()
                 ->rules('required'),

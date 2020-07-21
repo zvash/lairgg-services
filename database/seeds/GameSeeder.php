@@ -51,7 +51,7 @@ class GameSeeder extends Seeder
             [
                 [
                     'title' => 'Valorant',
-                    'bio' => 'Valorant is an upcoming tactical shooter game developed and published by Riot Games. It was announced on October 15, 2019 under the codename Project A.',
+                    'description' => 'Valorant is an upcoming tactical shooter game developed and published by Riot Games. It was announced on October 15, 2019 under the codename Project A.',
                     'launched_at' => '02-06-2020',
                     'image' => 'games/images/valorant.jpeg',
                     'cover' => 'games/covers/valorant.jpeg',

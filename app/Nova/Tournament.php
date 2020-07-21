@@ -48,9 +48,9 @@ class Tournament extends Resource
      */
     public static $search = [
         'id',
-        'bio',
         'rules',
         'structure',
+        'description',
     ];
 
     /**
@@ -131,7 +131,7 @@ class Tournament extends Resource
                 ->required()
                 ->rules('required', 'max:254'),
 
-            Code::make('Bio')
+            Code::make('description')
                 ->language('markdown')
                 ->nullable()
                 ->rules('nullable'),
