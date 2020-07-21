@@ -108,7 +108,7 @@ class Product extends Resource
                 ->required()
                 ->rules('required', 'max:254'),
 
-            Code::make('description')
+            Code::make('Description')
                 ->language('markdown')
                 ->required()
                 ->rules('required'),

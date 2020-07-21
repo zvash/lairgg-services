@@ -4,7 +4,7 @@
 
         $navigation->each(function ($item, $key) use (&$parents) {
             switch ($key) {
-                case in_array($key, ['Games', 'User Info', 'Others', 'Tournaments', 'Types']):
+                case in_array($key, ['Games', 'User Info', 'Others', 'Tournaments', 'Types', 'Shop']):
                     $parents['Definitions'][$key] = $item;
                     break;
 
