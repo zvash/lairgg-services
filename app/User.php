@@ -132,4 +132,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Share::class);
     }
+
+    /**
+     * Get the orders for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }
