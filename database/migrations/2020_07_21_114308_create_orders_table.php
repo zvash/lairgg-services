@@ -26,8 +26,15 @@ class CreateOrdersTable extends Migration
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 
+            $table->string('name');
+            $table->string('phone', 30);
+            $table->text('address');
+            $table->string('state');
+            $table->string('city');
+            $table->string('country', 4);
+            $table->string('postal_code');
+            $table->unsignedTinyInteger('status')->default(0)->index();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

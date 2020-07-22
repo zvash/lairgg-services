@@ -53,7 +53,7 @@ class Product extends Resource
      */
     public function subtitle()
     {
-        return $this->price ? '$'.$this->price : $this->point.' Points';
+        return '$'.$this->price.' | '.$this->point.' Points';
     }
 
     /**
@@ -136,13 +136,24 @@ class Product extends Resource
                 ->options([
                     0 => 'Deactive',
                     1 => 'Active',
+                    2 => 'Coming Soon',
                 ]),
 
             Badge::make('Status', function () {
-                return $this->status ? 'Active' : 'Deactivated';
+                switch ($this->status) {
+                    case 1:
+                        return 'Active';
+
+                    case 2:
+                        return 'Coming Soon';
+
+                    default:
+                        return 'Deactive';
+                }
             })->map([
                 'Deactivated' => 'danger',
                 'Active' => 'success',
+                'Coming Soon' => 'warning',
             ])->exceptOnForms(),
         ];
     }

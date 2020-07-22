@@ -10,6 +10,7 @@ use Laravel\Nova\Fields\{
     BelongsToMany,
     Boolean,
     Code,
+    Country,
     Date,
     DateTime,
     HasMany,
@@ -20,6 +21,7 @@ use Laravel\Nova\Fields\{
     Number,
     Password,
     PasswordConfirmation,
+    Place,
     Select,
     Stack,
     Text,
@@ -182,6 +184,37 @@ class User extends Resource
                 ->rules('nullable', 'date')
                 ->format('Do MMMM YYYY'),
 
+            Text::make('Phone')
+                ->hideFromIndex()
+                ->nullable()
+                ->rules('nullable', 'max:30'),
+
+            Place::make('Address')
+                ->hideFromIndex()
+                ->nullable()
+                ->rules('nullable'),
+
+            Text::make('Postal Code')
+                ->hideFromIndex()
+                ->nullable()
+                ->rules('nullable', 'max:254'),
+
+            Text::make('State')
+                ->hideFromIndex()
+                ->nullable()
+                ->rules('nullable', 'max:254'),
+
+            Text::make('City')
+                ->hideFromIndex()
+                ->nullable()
+                ->rules('nullable', 'max:254'),
+
+            Country::make('Country')
+                ->hideFromIndex()
+                ->searchable()
+                ->nullable()
+                ->rules('nullable', 'max:4'),
+
             Timezone::make('Timezone')
                 ->required()
                 ->hideFromIndex()
@@ -255,8 +288,8 @@ class User extends Resource
         return [
             BelongsTo::make('Gender')
                 ->hideFromIndex()
-                ->showCreateRelationButton()
                 ->searchable()
+                ->showCreateRelationButton()
                 ->nullable(),
 
             MorphMany::make('Links'),

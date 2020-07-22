@@ -33,7 +33,6 @@ class Party extends Model
      * @var array
      */
     protected $attributes = [
-        'score' => null,
         'is_host' => false,
         'is_winner' => false,
     ];

@@ -15,8 +15,8 @@ class CreateMatchesTable extends Migration
     {
         Schema::create('matches', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('round')->nullable()->default(null)->index();
-            $table->unsignedInteger('group')->nullable()->default(null)->index();
+            $table->unsignedInteger('round')->nullable()->index();
+            $table->unsignedInteger('group')->nullable()->index();
             $table->unsignedInteger('play_count')->default(1)->index();
             $table->boolean('is_forfeit')->default(false)->index();
 

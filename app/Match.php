@@ -37,9 +37,6 @@ class Match extends Model
     protected $attributes = [
         'play_count' => 1,
         'is_forfeit' => false,
-        'round' => null,
-        'group' => null,
-        'started_at' => null,
     ];
 
     /**

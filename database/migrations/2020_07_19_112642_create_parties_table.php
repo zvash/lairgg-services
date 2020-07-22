@@ -27,7 +27,7 @@ class CreatePartiesTable extends Migration
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 
-            $table->unsignedInteger('score')->nullable()->default(null)->index();
+            $table->unsignedInteger('score')->nullable()->index();
             $table->boolean('is_host')->default(false)->index();
             $table->boolean('is_winner')->default(false)->index();
 

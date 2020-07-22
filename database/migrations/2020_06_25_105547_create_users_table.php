@@ -24,6 +24,12 @@ class CreateUsersTable extends Migration
             $table->text('cover')->nullable();
             $table->text('bio')->nullable();
             $table->date('dob')->nullable();
+            $table->string('phone', 30)->nullable();
+            $table->text('address')->nullable();
+            $table->string('state')->nullable();
+            $table->string('city')->nullable();
+            $table->string('country', 4)->nullable();
+            $table->string('postal_code')->nullable();
             $table->string('timezone', 30)->default('UTC');
             $table->unsignedInteger('points')->default(0)->index();
             $table->ipAddress('ip')->nullable();

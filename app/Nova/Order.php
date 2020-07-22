@@ -4,8 +4,13 @@ namespace App\Nova;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
+    Badge,
     BelongsTo,
-    ID
+    Country,
+    ID,
+    Place,
+    Select,
+    Text
 };
 use Laravel\Nova\Panel;
 
@@ -32,7 +37,21 @@ class Order extends Resource
      */
     public static $search = [
         'id',
+        'name',
+        'phone',
+        'address',
+        'state',
+        'city',
+        'country',
+        'postal_code',
     ];
+
+    /**
+     * Indicates if the resource should be globally searchable.
+     *
+     * @var bool
+     */
+    public static $globallySearchable = false;
 
     /**
      * Get the logical group associated with the resource.
@@ -55,7 +74,9 @@ class Order extends Resource
         return [
             (new Panel('Order Details', $this->details()))->withToolbar(),
 
-            new Panel('Modifications', $this->modifications(true)),
+            new Panel('Shipping', $this->shipping()),
+
+            new Panel('Modifications', $this->modifications()),
 
             new Panel('Relations', $this->relations()),
         ];
@@ -70,6 +91,80 @@ class Order extends Resource
     {
         return [
             ID::make()->sortable(),
+
+            Select::make('Status')
+                ->displayUsingLabels()
+                ->onlyOnForms()
+                ->required()
+                ->rules('required')
+                ->options([
+                    0 => 'Pending',
+                    1 => 'Processing',
+                    2 => 'Shipped',
+                ]),
+
+            Badge::make('Status', function () {
+                switch ($this->status) {
+                    case 1:
+                        return 'Processing';
+
+                    case 2:
+                        return 'Shipped';
+
+                    default:
+                        return 'Pending';
+                }
+            })->map([
+                'Pending' => 'warning',
+                'Processing' => 'info',
+                'Shipped' => 'success',
+            ])->exceptOnForms(),
+        ];
+    }
+
+    /**
+     * Resource shipping fields.
+     *
+     * @return array
+     */
+    protected function shipping()
+    {
+        return [
+            Text::make('Name')
+                ->hideFromIndex()
+                ->required()
+                ->rules('required', 'max:254'),
+
+            Text::make('Phone')
+                ->hideFromIndex()
+                ->required()
+                ->rules('required', 'max:30'),
+
+            Place::make('Address')
+                ->hideFromIndex()
+                ->required()
+                ->rules('required'),
+
+            Text::make('Postal Code')
+                ->hideFromIndex()
+                ->required()
+                ->rules('required', 'max:254'),
+
+            Text::make('State')
+                ->hideFromIndex()
+                ->required()
+                ->rules('required', 'max:254'),
+
+            Text::make('City')
+                ->hideFromIndex()
+                ->required()
+                ->rules('required', 'max:254'),
+
+            Country::make('Country')
+                ->hideFromIndex()
+                ->searchable()
+                ->required()
+                ->rules('required', 'max:4'),
         ];
     }
 

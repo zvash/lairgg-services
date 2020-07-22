@@ -2,15 +2,12 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\{
-    Model,
-    SoftDeletes
-};
+use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Actions\Actionable;
 
 class Order extends Model
 {
-    use Actionable, SoftDeletes;
+    use Actionable;
 
     /**
      * Indicates if all mass assignment is enabled.
@@ -18,6 +15,24 @@ class Order extends Model
      * @var bool
      */
     protected static $unguarded = false;
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'status' => 'integer',
+    ];
+
+    /**
+     * The model's attributes.
+     *
+     * @var array
+     */
+    protected $attributes = [
+        'status' => 0,
+    ];
 
     /**
      * Get the product that owns the order.
