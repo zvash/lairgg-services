@@ -124,13 +124,13 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the shares for the user.
+     * Get the transactions for the user.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function shares()
+    public function transactions()
     {
-        return $this->hasMany(Share::class);
+        return $this->hasMany(Transaction::class);
     }
 
     /**

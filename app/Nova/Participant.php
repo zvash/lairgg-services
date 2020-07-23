@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     BelongsTo,
     DateTime,
-    HasMany,
     ID,
+    MorphMany,
     MorphTo,
     Number
 };
@@ -130,7 +130,7 @@ class Participant extends Resource
                 ->withSubtitles()
                 ->showCreateRelationButton(),
 
-            HasMany::make('Shares'),
+            MorphMany::make('Transactions'),
         ];
     }
 }

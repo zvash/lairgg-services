@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSharesTable extends Migration
+class CreateTransactionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,20 +13,22 @@ class CreateSharesTable extends Migration
      */
     public function up()
     {
-        Schema::create('shares', function (Blueprint $table) {
+        Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId('participant_id')
-                ->constrained()
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
 
             $table->foreignId('user_id')
                 ->constrained()
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 
+            $table->morphs('transactionable');
             $table->string('value');
+
+            $table->foreignId('value_type_id')
+                ->constrained()
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+
             $table->timestamps();
         });
     }
@@ -38,6 +40,6 @@ class CreateSharesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('shares');
+        Schema::dropIfExists('transactions');
     }
 }

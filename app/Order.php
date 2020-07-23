@@ -2,12 +2,13 @@
 
 namespace App;
 
+use App\Traits\Eloquents\Transactionable;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Actions\Actionable;
 
 class Order extends Model
 {
-    use Actionable;
+    use Actionable, Transactionable;
 
     /**
      * Indicates if all mass assignment is enabled.

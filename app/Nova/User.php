@@ -314,9 +314,9 @@ class User extends Resource
 
             MorphMany::make('Participants'),
 
-            HasMany::make('Shares'),
-
             HasMany::make('Orders'),
+
+            HasMany::make('Transactions'),
         ];
     }
 }

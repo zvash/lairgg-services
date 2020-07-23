@@ -6,18 +6,19 @@ use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     BelongsTo,
     ID,
+    MorphTo,
     Text
 };
 use Laravel\Nova\Panel;
 
-class Share extends Resource
+class Transaction extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = \App\Share::class;
+    public static $model = \App\Transaction::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -51,6 +52,41 @@ class Share extends Resource
     ];
 
     /**
+     * Determine if the current user can view the given resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $ability
+     * @return bool
+     */
+    public function authorizedTo(Request $request, $ability)
+    {
+        return in_array($ability, ['view'])
+            ? parent::authorizedTo($request, $ability)
+            : false;
+    }
+
+    /**
+     * Determine if the current user can create new resources.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return bool
+     */
+    public static function authorizedToCreate(Request $request)
+    {
+        return false;
+    }
+
+    /**
+     * Get the logical group associated with the resource.
+     *
+     * @return string
+     */
+    public static function group()
+    {
+        return 'Accounts';
+    }
+
+    /**
      * Get the fields displayed by the resource.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -59,7 +95,7 @@ class Share extends Resource
     public function fields(Request $request)
     {
         return [
-            (new Panel('Share Details', $this->details()))->withToolbar(),
+            new Panel('Transaction Details', $this->details()),
 
             new Panel('Modifications', $this->modifications()),
 
@@ -89,9 +125,15 @@ class Share extends Resource
     protected function relations()
     {
         return [
+            BelongsTo::make('Value Type', 'valueType'),
+
             BelongsTo::make('User'),
 
-            BelongsTo::make('Participant'),
+            MorphTo::make('Transactionable')
+                ->types([
+                    Order::class,
+                    Participant::class,
+                ]),
         ];
     }
 }

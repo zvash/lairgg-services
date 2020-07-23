@@ -2,12 +2,13 @@
 
 namespace App;
 
+use App\Traits\Eloquents\Transactionable;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Actions\Actionable;
 
 class Participant extends Model
 {
-    use Actionable;
+    use Actionable, Transactionable;
 
     /**
      * Indicates if all mass assignment is enabled.
@@ -55,15 +56,5 @@ class Participant extends Model
     public function prize()
     {
         return $this->belongsTo(Prize::class);
-    }
-
-    /**
-     * Get the shares for the participant.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function shares()
-    {
-        return $this->hasMany(Share::class);
     }
 }

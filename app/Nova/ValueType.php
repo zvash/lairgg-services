@@ -118,6 +118,8 @@ class ValueType extends Resource
     {
         return [
             HasMany::make('Prizes'),
+
+            HasMany::make('Transactions'),
         ];
     }
 }

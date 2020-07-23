@@ -8,6 +8,7 @@ use Laravel\Nova\Fields\{
     BelongsTo,
     Country,
     ID,
+    MorphMany,
     Place,
     Select,
     Text
@@ -187,6 +188,8 @@ class Order extends Resource
                 ->required()
                 ->searchable()
                 ->withSubtitles(),
+
+            MorphMany::make('Transactions'),
         ];
     }
 }
