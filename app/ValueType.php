@@ -2,15 +2,12 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\{
-    Model,
-    SoftDeletes
-};
+use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Actions\Actionable;
 
-class PrizeType extends Model
+class ValueType extends Model
 {
-    use Actionable, SoftDeletes;
+    use Actionable;
 
     /**
      * Indicates if all mass assignment is enabled.
@@ -20,7 +17,7 @@ class PrizeType extends Model
     protected static $unguarded = true;
 
     /**
-     * Get the prizes for the prize type.
+     * Get the prizes for the value type.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

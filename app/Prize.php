@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Casts\Value;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Actions\Actionable;
 
@@ -23,16 +24,17 @@ class Prize extends Model
      */
     protected $casts = [
         'rank' => 'integer',
+        'value' => Value::class,
     ];
 
     /**
-     * Get the prize type that owns the prize.
+     * Get the value type that owns the prize.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function prizeType()
+    public function valueType()
     {
-        return $this->belongsTo(PrizeType::class);
+        return $this->belongsTo(ValueType::class);
     }
 
     /**

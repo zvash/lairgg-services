@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePrizeTypesTable extends Migration
+class CreateValueTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,10 @@ class CreatePrizeTypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('prize_types', function (Blueprint $table) {
+        Schema::create('value_types', function (Blueprint $table) {
             $table->id();
             $table->string('title');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -28,6 +27,6 @@ class CreatePrizeTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('prize_types');
+        Schema::dropIfExists('value_types');
     }
 }

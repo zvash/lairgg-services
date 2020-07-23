@@ -1,9 +1,9 @@
 <?php
 
-use App\PrizeType;
+use App\ValueType;
 use Illuminate\Database\Seeder;
 
-class PrizeTypeSeeder extends Seeder
+class ValueTypeSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -12,17 +12,17 @@ class PrizeTypeSeeder extends Seeder
      */
     public function run()
     {
-        foreach ($this->prizeTypes() as $title) {
-            PrizeType::create(compact('title'));
+        foreach ($this->valueTypes() as $title) {
+            ValueType::create(compact('title'));
         }
     }
 
     /**
-     * System default prize types.
+     * System default value types.
      *
      * @return array
      */
-    private function prizeTypes()
+    private function valueTypes()
     {
         return [
             'Gift',

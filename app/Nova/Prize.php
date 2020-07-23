@@ -106,8 +106,8 @@ class Prize extends Resource
     protected function relations()
     {
         return [
-            BelongsTo::make('Prize Type', 'prizeType')
-                ->showCreateRelationButton()
+            BelongsTo::make('Value Type', 'valueType')
+                ->help('Try `<b>Cash</b>`, `<b>Point</b>` or `<b>Gift</b>` in search box.')
                 ->searchable()
                 ->required(),
 

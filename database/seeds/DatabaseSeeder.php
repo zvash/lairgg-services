@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             LinkTypeSeeder::class,
             StaffTypeSeeder::class,
             GameTypeSeeder::class,
-            PrizeTypeSeeder::class,
+            ValueTypeSeeder::class,
             GenderSeeder::class,
             StudioSeeder::class,
             GameSeeder::class,

@@ -10,14 +10,14 @@ use Laravel\Nova\Fields\{
 };
 use Laravel\Nova\Panel;
 
-class PrizeType extends Resource
+class ValueType extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = \App\PrizeType::class;
+    public static $model = \App\ValueType::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -44,6 +44,31 @@ class PrizeType extends Resource
     ];
 
     /**
+     * Determine if the current user can view the given resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $ability
+     * @return bool
+     */
+    public function authorizedTo(Request $request, $ability)
+    {
+        return in_array($ability, ['view'])
+            ? parent::authorizedTo($request, $ability)
+            : false;
+    }
+
+    /**
+     * Determine if the current user can create new resources.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return bool
+     */
+    public static function authorizedToCreate(Request $request)
+    {
+        return false;
+    }
+
+    /**
      * Get the logical group associated with the resource.
      *
      * @return string
@@ -62,9 +87,9 @@ class PrizeType extends Resource
     public function fields(Request $request)
     {
         return [
-            (new Panel('Prize Type Details', $this->details()))->withToolbar(),
+            new Panel('Value Type Details', $this->details()),
 
-            new Panel('Modifications', $this->modifications(true)),
+            new Panel('Modifications', $this->modifications()),
 
             new Panel('Relations', $this->relations()),
         ];
@@ -80,10 +105,7 @@ class PrizeType extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Title')
-                ->sortable()
-                ->required()
-                ->rules('required', 'max:254'),
+            Text::make('Title')->sortable(),
         ];
     }
 

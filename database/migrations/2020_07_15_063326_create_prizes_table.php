@@ -19,7 +19,7 @@ class CreatePrizesTable extends Migration
             $table->unsignedInteger('rank')->index();
             $table->string('value');
 
-            $table->foreignId('prize_type_id')
+            $table->foreignId('value_type_id')
                 ->constrained()
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
