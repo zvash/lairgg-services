@@ -55,6 +55,16 @@ class Order extends Resource
     public static $globallySearchable = false;
 
     /**
+     * Get the value that should be displayed to represent the resource.
+     *
+     * @return string
+     */
+    public function title()
+    {
+        return $this->product->title;
+    }
+
+    /**
      * Get the logical group associated with the resource.
      *
      * @return string

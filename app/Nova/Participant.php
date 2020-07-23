@@ -54,7 +54,7 @@ class Participant extends Resource
      */
     public function title()
     {
-        return 'Participant: '.$this->tournament->title;
+        return $this->tournament->title;
     }
 
     /**

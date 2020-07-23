@@ -22,7 +22,7 @@ class Value implements CastsAttributes
                 return intval($value);
 
             case 'Cash':
-                return (float) $value;
+                return number_format($value, 2);
 
             default:
                 return $value;

@@ -57,7 +57,7 @@ class Match extends Resource
      */
     public function title()
     {
-        return 'Match: '.$this->tournament->title;
+        return $this->tournament->title;
     }
 
     /**

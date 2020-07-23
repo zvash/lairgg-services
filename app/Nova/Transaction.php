@@ -4,6 +4,7 @@ namespace App\Nova;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
+    Badge,
     BelongsTo,
     ID,
     MorphTo,
@@ -33,13 +34,6 @@ class Transaction extends Resource
      * @var bool
      */
     public static $globallySearchable = false;
-
-    /**
-     * Indicates if the resource should be displayed in the sidebar.
-     *
-     * @var bool
-     */
-    public static $displayInNavigation = false;
 
     /**
      * The columns that should be searched.
@@ -113,7 +107,31 @@ class Transaction extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Value'),
+            Text::make('Value', function () {
+                switch ($this->valueType->title) {
+                    case 'Point':
+                        return $this->value.' Points';
+
+                    case 'Cash':
+                        return '$'.$this->value;
+
+                    default:
+                        return $this->value;
+                }
+            }),
+
+            Badge::make('Type', function () {
+                return $this->transactionable instanceof \App\Order
+                    ? 'Order'
+                    : 'Prize';
+            })->map([
+                'Order' => 'info',
+                'Prize' => 'success',
+            ]),
+
+            Text::make('Created at', function () {
+                return $this->created_at->diffForHumans();
+            })->hideFromDetail(),
         ];
     }
 
@@ -125,8 +143,6 @@ class Transaction extends Resource
     protected function relations()
     {
         return [
-            BelongsTo::make('Value Type', 'valueType'),
-
             BelongsTo::make('User'),
 
             MorphTo::make('Transactionable')

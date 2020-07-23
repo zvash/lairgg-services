@@ -4,12 +4,9 @@ namespace App;
 
 use App\Casts\Value;
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Nova\Actions\Actionable;
 
 class Transaction extends Model
 {
-    use Actionable;
-
     /**
      * The attributes that should be cast to native types.
      *

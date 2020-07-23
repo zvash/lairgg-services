@@ -50,7 +50,7 @@ class Play extends Resource
      */
     public function title()
     {
-        return 'Play: '.$this->match->tournament->title;
+        return $this->match->tournament->title;
     }
 
     /**
