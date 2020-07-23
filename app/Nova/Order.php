@@ -112,6 +112,7 @@ class Order extends Resource
                     0 => 'Pending',
                     1 => 'Processing',
                     2 => 'Shipped',
+                    3 => 'Cancel',
                 ]),
 
             Badge::make('Status', function () {
@@ -122,10 +123,14 @@ class Order extends Resource
                     case 2:
                         return 'Shipped';
 
+                    case 3:
+                        return 'Cancel';
+
                     default:
                         return 'Pending';
                 }
             })->map([
+                'Cancel' => 'danger',
                 'Pending' => 'warning',
                 'Processing' => 'info',
                 'Shipped' => 'success',
