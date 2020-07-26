@@ -14,11 +14,11 @@ class TournamentType extends Model
     use Actionable, SoftDeletes;
 
     /**
-     * Indicates if all mass assignment is enabled.
+     * The attributes that aren't mass assignable.
      *
-     * @var bool
+     * @var array
      */
-    protected static $unguarded = true;
+    protected $guarded = [];
 
     /**
      * check tournament type is FFA.

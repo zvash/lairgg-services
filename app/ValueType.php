@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class ValueType extends Model
 {
     /**
-     * Indicates if all mass assignment is enabled.
+     * The attributes that aren't mass assignable.
      *
-     * @var bool
+     * @var array
      */
-    protected static $unguarded = true;
+    protected $guarded = [];
 
     /**
      * Get the prizes for the value type.

@@ -13,6 +13,8 @@ class StaffObserver
      * Handle the staff "creating" event.
      *
      * @param  \App\Staff  $staff
+     * @return void
+     *
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Throwable
      */

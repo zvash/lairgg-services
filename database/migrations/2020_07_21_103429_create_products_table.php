@@ -19,7 +19,7 @@ class CreateProductsTable extends Migration
             $table->text('description');
             $table->text('image');
             $table->float('price')->default(0)->index();
-            $table->unsignedInteger('point')->default(0)->index();
+            $table->unsignedInteger('points')->default(0)->index();
             $table->unsignedInteger('quantity')->default(0)->index();
             $table->unsignedTinyInteger('status')->default(1)->index();
             $table->timestamps();

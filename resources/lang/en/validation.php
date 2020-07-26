@@ -129,7 +129,9 @@ return [
     |
     */
 
-    'custom' => [],
+    'custom' => [
+        'status.not_in' => 'The :values :attribute is forbidden in order creation.',
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -145,6 +147,9 @@ return [
     'values' => [
         'tournamentType' => [
             '4' => 'league',
+        ],
+        'status' => [
+            '3' => 'cancel',
         ],
     ],
 

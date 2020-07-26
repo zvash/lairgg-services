@@ -2,7 +2,10 @@
 
 namespace App\Nova;
 
-use App\Enums\TournamentStructure;
+use App\Enums\{
+    Status,
+    TournamentStructure
+};
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     Avatar,
@@ -247,8 +250,8 @@ class Tournament extends Resource
                 ->required()
                 ->rules('required')
                 ->options([
-                    0 => 'Deactive',
-                    1 => 'Active',
+                    Status::DEACTIVE => 'Deactive',
+                    Status::ACTIVE => 'Active',
                 ]),
 
             Badge::make('Status', function () {

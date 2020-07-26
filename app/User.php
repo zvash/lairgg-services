@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Enums\Status;
 use App\Traits\Eloquents\Linkable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -18,11 +19,11 @@ class User extends Authenticatable
         Linkable;
 
     /**
-     * Indicates if all mass assignment is enabled.
+     * The attributes that aren't mass assignable.
      *
-     * @var bool
+     * @var array
      */
-    protected static $unguarded = true;
+    protected $guarded = [];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -53,7 +54,7 @@ class User extends Authenticatable
      */
     protected $attributes = [
         'points' => 0,
-        'status' => 1,
+        'status' => Status::ACTIVE,
         'timezone' => 'UTC',
     ];
 
@@ -141,5 +142,17 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Add or subtract point from the user.
+     *
+     * @param  int  $points
+     */
+    public function points(int $points)
+    {
+        $this->points += $points;
+
+        return $this->save();
     }
 }

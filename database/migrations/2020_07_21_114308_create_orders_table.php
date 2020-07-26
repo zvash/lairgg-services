@@ -26,6 +26,7 @@ class CreateOrdersTable extends Migration
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 
+            $table->unsignedInteger('redeem_points')->default(0)->index();
             $table->string('name');
             $table->string('phone', 30);
             $table->text('address');

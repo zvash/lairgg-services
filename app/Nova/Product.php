@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use App\Enums\ProductStatus;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     Avatar,
@@ -42,7 +43,7 @@ class Product extends Resource
         'title',
         'description',
         'price',
-        'point',
+        'points',
         'quantity',
     ];
 
@@ -53,7 +54,7 @@ class Product extends Resource
      */
     public function subtitle()
     {
-        return '$'.$this->price.' | '.$this->point.' Points';
+        return '$'.$this->price.' | '.$this->points.' Points';
     }
 
     /**
@@ -118,7 +119,7 @@ class Product extends Resource
                 ->required()
                 ->rules('required', 'numeric', 'gte:0'),
 
-            Number::make('Point')
+            Number::make('Points')
                 ->min(0)
                 ->required()
                 ->rules('required', 'integer', 'gte:0'),
@@ -134,17 +135,17 @@ class Product extends Resource
                 ->required()
                 ->rules('required')
                 ->options([
-                    0 => 'Deactive',
-                    1 => 'Active',
-                    2 => 'Coming Soon',
+                    ProductStatus::DEACTIVE => 'Deactive',
+                    ProductStatus::ACTIVE => 'Active',
+                    ProductStatus::COMING_SOON => 'Coming Soon',
                 ]),
 
             Badge::make('Status', function () {
                 switch ($this->status) {
-                    case 1:
+                    case ProductStatus::ACTIVE:
                         return 'Active';
 
-                    case 2:
+                    case ProductStatus::COMING_SOON:
                         return 'Coming Soon';
 
                     default:

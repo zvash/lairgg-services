@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use App\Enums\Status;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     Avatar,
@@ -226,8 +227,8 @@ class User extends Resource
                 ->required()
                 ->rules('required')
                 ->options([
-                    0 => 'Deactive',
-                    1 => 'Active',
+                    Status::DEACTIVE => 'Deactive',
+                    Status::ACTIVE => 'Active',
                 ]),
 
             Badge::make('Status', function () {

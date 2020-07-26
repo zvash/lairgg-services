@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Enums\ProductStatus;
 use Illuminate\Database\Eloquent\{
     Model,
     SoftDeletes
@@ -26,7 +27,7 @@ class Product extends Model
      */
     protected $casts = [
         'price' => 'float',
-        'point' => 'integer',
+        'points' => 'integer',
         'quantity' => 'integer',
         'status' => 'integer',
     ];
@@ -38,9 +39,9 @@ class Product extends Model
      */
     protected $attributes = [
         'price' => 0,
-        'point' => 0,
+        'points' => 0,
         'quantity' => 0,
-        'status' => 1,
+        'status' => ProductStatus::ACTIVE,
     ];
 
     /**

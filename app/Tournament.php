@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Enums\Status;
 use App\Traits\Eloquents\Linkable;
 use Illuminate\Database\Eloquent\{
     Model,
@@ -14,11 +15,11 @@ class Tournament extends Model
     use Actionable, SoftDeletes, Linkable;
 
     /**
-     * Indicates if all mass assignment is enabled.
+     * The attributes that aren't mass assignable.
      *
-     * @var bool
+     * @var array
      */
-    protected static $unguarded = true;
+    protected $guarded = [];
 
     /**
      * The attributes that should be cast to native types.
@@ -55,7 +56,7 @@ class Tournament extends Model
         'timezone' => 'UTC',
         'unlisted' => false,
         'invite_only' => true,
-        'status' => 1,
+        'status' => Status::ACTIVE,
         'check_in_period' => 10,
         'match_check_in_period' => 10,
         'match_play_count' => 1,

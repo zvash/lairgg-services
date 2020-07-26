@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use App\Enums\OrderStatus;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     Badge,
@@ -9,10 +10,12 @@ use Laravel\Nova\Fields\{
     Country,
     ID,
     MorphMany,
+    Number,
     Place,
     Select,
     Text
 };
+use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Panel;
 
 class Order extends Resource
@@ -89,7 +92,7 @@ class Order extends Resource
 
             new Panel('Modifications', $this->modifications()),
 
-            new Panel('Relations', $this->relations()),
+            new Panel('Relations', $this->relations($request)),
         ];
     }
 
@@ -108,22 +111,23 @@ class Order extends Resource
                 ->onlyOnForms()
                 ->required()
                 ->rules('required')
+                ->creationRules('not_in:3')
                 ->options([
-                    0 => 'Pending',
-                    1 => 'Processing',
-                    2 => 'Shipped',
-                    3 => 'Cancel',
+                    OrderStatus::PENDING => 'Pending',
+                    OrderStatus::PROCESSING => 'Processing',
+                    OrderStatus::SHIPPED => 'Shipped',
+                    OrderStatus::CANCEL => 'Cancel',
                 ]),
 
             Badge::make('Status', function () {
                 switch ($this->status) {
-                    case 1:
+                    case OrderStatus::PROCESSING:
                         return 'Processing';
 
-                    case 2:
+                    case OrderStatus::SHIPPED:
                         return 'Shipped';
 
-                    case 3:
+                    case OrderStatus::CANCEL:
                         return 'Cancel';
 
                     default:
@@ -135,6 +139,9 @@ class Order extends Resource
                 'Processing' => 'info',
                 'Shipped' => 'success',
             ])->exceptOnForms(),
+
+            Number::make('Redeem points')
+                ->exceptOnForms(),
         ];
     }
 
@@ -187,19 +194,22 @@ class Order extends Resource
     /**
      * Resource relations.
      *
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @return array
      */
-    protected function relations()
+    protected function relations(NovaRequest $request)
     {
         return [
             BelongsTo::make('Product')
                 ->showCreateRelationButton()
+                ->readonly($request->isUpdateOrUpdateAttachedRequest())
                 ->required()
                 ->searchable()
                 ->withSubtitles(),
 
             BelongsTo::make('User')
                 ->showCreateRelationButton()
+                ->readonly($request->isUpdateOrUpdateAttachedRequest())
                 ->required()
                 ->searchable()
                 ->withSubtitles(),
