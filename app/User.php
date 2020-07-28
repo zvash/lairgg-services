@@ -3,7 +3,10 @@
 namespace App;
 
 use App\Enums\Status;
-use App\Traits\Eloquents\Linkable;
+use App\Traits\Eloquents\{
+    Followable,
+    Linkable
+};
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -16,7 +19,8 @@ class User extends Authenticatable
         HasApiTokens,
         SoftDeletes,
         Actionable,
-        Linkable;
+        Linkable,
+        Followable;
 
     /**
      * The attributes that aren't mass assignable.
@@ -142,6 +146,16 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Get the following for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function following()
+    {
+        return $this->hasMany(Follower::class);
     }
 
     /**

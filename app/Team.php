@@ -2,7 +2,10 @@
 
 namespace App;
 
-use App\Traits\Eloquents\Linkable;
+use App\Traits\Eloquents\{
+    Followable,
+    Linkable
+};
 use Illuminate\Database\Eloquent\{
     Model,
     SoftDeletes
@@ -11,7 +14,10 @@ use Laravel\Nova\Actions\Actionable;
 
 class Team extends Model
 {
-    use SoftDeletes, Actionable, Linkable;
+    use SoftDeletes,
+        Actionable,
+        Linkable,
+        Followable;
 
     /**
      * The attributes that aren't mass assignable.
