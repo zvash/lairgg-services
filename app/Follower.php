@@ -19,7 +19,7 @@ class Follower extends Model
      * @var array
      */
     protected $casts = [
-        'launched_at' => 'datetime',
+        'followed_at' => 'datetime',
     ];
 
     /**

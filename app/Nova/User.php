@@ -313,6 +313,10 @@ class User extends Resource
                     ];
                 }),
 
+            MorphMany::make('Followers'),
+
+            HasMany::make('Following', 'following', Follower::class),
+
             MorphMany::make('Participants'),
 
             HasMany::make('Orders'),
