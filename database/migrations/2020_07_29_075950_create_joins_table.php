@@ -22,7 +22,7 @@ class CreateJoinsTable extends Migration
                 ->onDelete('cascade');
 
             $table->morphs('joinable');
-            $table->boolean('via_link')->default(false)->index();
+            $table->boolean('via_url')->default(false)->index();
             $table->timestamps();
 
             $table->unique(['user_id', 'joinable_id', 'joinable_type']);

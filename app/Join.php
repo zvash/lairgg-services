@@ -19,7 +19,7 @@ class Join extends Model
      * @var array
      */
     protected $casts = [
-        'via_link' => 'boolean',
+        'via_url' => 'boolean',
     ];
 
     /**
@@ -28,7 +28,7 @@ class Join extends Model
      * @var array
      */
     protected $attributes = [
-        'via_link' => false,
+        'via_url' => false,
     ];
 
     /**

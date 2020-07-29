@@ -27,8 +27,9 @@ class CreateTournamentsTable extends Migration
             $table->unsignedInteger('players');
             $table->unsignedInteger('check_in_period')->default(10);
             $table->float('entry_fee')->default(0);
-            $table->boolean('unlisted')->default(false)->index();
-            $table->boolean('invite_only')->default(true)->index();
+            $table->boolean('listed')->default(true)->index();
+            $table->boolean('join_request')->default(true)->index();
+            $table->text('join_url')->nullable();
             $table->unsignedTinyInteger('status')->default(1)->index();
 
             $table->enum('structure', [

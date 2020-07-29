@@ -107,7 +107,7 @@ class Join extends Resource
                 return $this->created_at->diffForHumans();
             })->hideFromDetail(),
 
-            Boolean::make('Via link')
+            Boolean::make('Via URL')
                 ->sortable(),
         ];
     }

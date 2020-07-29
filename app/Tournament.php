@@ -37,8 +37,8 @@ class Tournament extends Model
         'max_teams' => 'integer',
         'reserve_teams' => 'integer',
         'check_in_period' => 'integer',
-        'unlisted' => 'boolean',
-        'invite_only' => 'boolean',
+        'listed' => 'boolean',
+        'join_request' => 'boolean',
         'entry_fee' => 'float',
         'status' => 'integer',
         'started_at' => 'datetime',
@@ -60,8 +60,8 @@ class Tournament extends Model
      */
     protected $attributes = [
         'timezone' => 'UTC',
-        'unlisted' => false,
-        'invite_only' => true,
+        'listed' => true,
+        'join_request' => true,
         'status' => Status::ACTIVE,
         'check_in_period' => 10,
         'match_check_in_period' => 10,

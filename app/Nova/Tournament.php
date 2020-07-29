@@ -194,13 +194,17 @@ class Tournament extends Resource
                 ->required()
                 ->rules('required', 'numeric', 'gte:0'),
 
-            Boolean::make('Unlisted')
+            Boolean::make('Listed')
                 ->hideFromIndex()
                 ->help('Private or public ?'),
 
-            Boolean::make('Invite Only')
+            Boolean::make('Join request')
                 ->hideFromIndex()
                 ->help('Teams can join the tournaments via the invitation link.'),
+
+            Text::make('Join URL')
+                ->readonly()
+                ->onlyOnDetail(),
 
             Select::make('Structure')
                 ->displayUsingLabels()

@@ -120,6 +120,10 @@ class Team extends Resource
 
             Boolean::make('Join request')
                 ->help('Users can send a join request or not?'),
+
+            Text::make('Join URL')
+                ->readonly()
+                ->onlyOnDetail(),
         ];
     }
 

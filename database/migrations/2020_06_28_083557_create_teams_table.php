@@ -20,6 +20,7 @@ class CreateTeamsTable extends Migration
             $table->text('logo')->nullable();
             $table->text('cover')->nullable();
             $table->boolean('join_request')->default(false)->index();
+            $table->text('join_url')->nullable();
 
             $table->foreignId('game_id')
                 ->constrained()
