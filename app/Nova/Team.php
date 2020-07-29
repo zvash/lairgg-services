@@ -149,6 +149,8 @@ class Team extends Resource
 
             MorphMany::make('Followers'),
 
+            MorphMany::make('Joins'),
+
             MorphMany::make('Participants'),
         ];
     }

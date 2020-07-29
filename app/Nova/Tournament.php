@@ -372,6 +372,8 @@ class Tournament extends Resource
 
             HasMany::make('Prizes'),
 
+            MorphMany::make('Joins'),
+
             HasMany::make('Participants'),
 
             HasMany::make('Matches'),

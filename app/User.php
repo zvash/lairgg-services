@@ -5,7 +5,8 @@ namespace App;
 use App\Enums\Status;
 use App\Traits\Eloquents\{
     Followable,
-    Linkable
+    Linkable,
+    Participantable
 };
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -18,9 +19,10 @@ class User extends Authenticatable
     use Notifiable,
         HasApiTokens,
         SoftDeletes,
+        Followable,
         Actionable,
         Linkable,
-        Followable;
+        Participantable;
 
     /**
      * The attributes that aren't mass assignable.
@@ -119,16 +121,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all of the user's participants.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
-     */
-    public function participants()
-    {
-        return $this->morphMany(Participant::class, 'participantable');
-    }
-
-    /**
      * Get the transactions for the user.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -156,6 +148,16 @@ class User extends Authenticatable
     public function following()
     {
         return $this->hasMany(Follower::class);
+    }
+
+    /**
+     * Get the join requests for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function joins()
+    {
+        return $this->hasMany(Join::class);
     }
 
     /**

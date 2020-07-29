@@ -3,7 +3,10 @@
 namespace App;
 
 use App\Enums\Status;
-use App\Traits\Eloquents\Linkable;
+use App\Traits\Eloquents\{
+    Joinable,
+    Linkable
+};
 use Illuminate\Database\Eloquent\{
     Model,
     SoftDeletes
@@ -12,7 +15,10 @@ use Laravel\Nova\Actions\Actionable;
 
 class Tournament extends Model
 {
-    use Actionable, SoftDeletes, Linkable;
+    use Actionable,
+        SoftDeletes,
+        Linkable,
+        Joinable;
 
     /**
      * The attributes that aren't mass assignable.

@@ -4,7 +4,9 @@ namespace App;
 
 use App\Traits\Eloquents\{
     Followable,
-    Linkable
+    Joinable,
+    Linkable,
+    Participantable
 };
 use Illuminate\Database\Eloquent\{
     Model,
@@ -16,8 +18,10 @@ class Team extends Model
 {
     use SoftDeletes,
         Actionable,
+        Followable,
         Linkable,
-        Followable;
+        Joinable,
+        Participantable;
 
     /**
      * The attributes that aren't mass assignable.
@@ -65,16 +69,6 @@ class Team extends Model
             ->using(Player::class)
             ->withTimestamps()
             ->withPivot('captain');
-    }
-
-    /**
-     * Get all of the team's participants.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
-     */
-    public function participants()
-    {
-        return $this->morphMany(Participant::class, 'participantable');
     }
 
     /**
