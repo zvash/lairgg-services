@@ -1,0 +1,11 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /sites/lairgg-services
+    overwrite: true
+hooks:
+  AfterInstall:
+    - location: after.sh
+      timeout: 300
+      runas: root
