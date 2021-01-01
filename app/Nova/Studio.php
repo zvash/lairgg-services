@@ -43,7 +43,6 @@ class Studio extends Resource
     public static $search = [
         'id',
         'title',
-        'website',
     ];
 
     /**
