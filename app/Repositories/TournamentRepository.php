@@ -40,6 +40,44 @@ class TournamentRepository extends BaseRepository
      */
     public function createTournamentWithRequest(Request $request, Organization $organization)
     {
+        $inputs = $this->filterRequest($request);
+        $inputs['organization_id'] = $organization->id;
+        $inputs['image'] = $this->saveImageFromRequest($request, 'image', 'tournaments/images');
+        $inputs['cover'] = $this->saveImageFromRequest($request, 'cover', 'tournaments/covers');
+        return Tournament::create($inputs);
+    }
+
+    /**
+     * Updates an existing tournament
+     *
+     * @param Request $request
+     * @param Tournament $tournament
+     * @return Tournament
+     */
+    public function editTournamentWithRequest(Request $request, Tournament $tournament)
+    {
+        $inputs = $this->filterRequest($request);
+        $image = $this->saveImageFromRequest($request, 'image', 'tournaments/images');
+        $cover = $this->saveImageFromRequest($request, 'cover', 'tournaments/covers');
+        if ($image) {
+            $inputs['image'] = $image;
+        }
+        if ($cover) {
+            $inputs['cover'] = $cover;
+        }
+        foreach ($inputs as $key => $value) {
+            $tournament->setAttribute($key, $value);
+        }
+        $tournament->save();
+        return $tournament;
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    private function filterRequest(Request $request): array
+    {
         $inputs = array_filter($request->all(), function ($key) {
             return in_array($key, [
                 'title',
@@ -69,9 +107,6 @@ class TournamentRepository extends BaseRepository
                 'game_id',
             ]);
         }, ARRAY_FILTER_USE_KEY);
-        $inputs['organization_id'] = $organization->id;
-        $inputs['image'] = $this->saveImageFromRequest($request, 'image', 'tournaments/images');
-        $inputs['cover'] = $this->saveImageFromRequest($request, 'cover', 'tournaments/covers');
-        return Tournament::create($inputs);
+        return $inputs;
     }
 }

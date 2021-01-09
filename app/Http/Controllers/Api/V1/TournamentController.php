@@ -50,6 +50,35 @@ class TournamentController extends Controller
     }
 
     /**
+     * Edit the given tournament
+     *
+     * @param Request $request
+     * @param int $tournamentId
+     * @param TournamentRepository $tournamentRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function edit(Request $request, int $tournamentId, TournamentRepository $tournamentRepository)
+    {
+        $tournament = Tournament::find($tournamentId);
+        if (!$tournament) {
+            return $this->failNotFound();
+        }
+
+        $gate = Gate::inspect('update', $tournament);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+        }
+
+        list($failed, $validator) = $this->validateEditTournament($request);
+        if ($failed) {
+            return $this->failValidation($validator->errors());
+        }
+
+        $tournament = $tournamentRepository->editTournamentWithRequest($request, $tournament);
+        return $this->success($tournament);
+    }
+
+    /**
      * @param Tournament $tournament
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
@@ -115,6 +144,56 @@ class TournamentController extends Controller
             'region_id' => 'required|int|exists:regions,id',
             'tournament_type_id' => 'required|int|exists:tournament_types,id',
             'game_id' => 'required|int|exists:games,id'
+        ];
+        return $this->validateRules($request, $rules);
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    private function validateEditTournament(Request $request)
+    {
+        $timezones = collect(DateTimeZone::listIdentifiers(DateTimeZone::ALL))->map(function ($timezone) {
+            return $timezone;
+        })->all();
+        $structures = [
+            TournamentStructure::SIX,
+            TournamentStructure::FIVE,
+            TournamentStructure::FOUR,
+            TournamentStructure::THREE,
+            TournamentStructure::TWO,
+            TournamentStructure::ONE,
+            TournamentStructure::OTHER,
+        ];
+        $rules = [
+            'title' => 'filled',
+            'description' => 'string',
+            'rules' => 'string',
+            'image' => 'mimes:jpeg,jpg,png',
+            'cover' => 'mimes:jpeg,jpg,png',
+            'timezone' => 'string|in:' . implode(',', $timezones),
+            'max_teams' => 'int|min:1|max:128',
+            'reserve_teams' => 'int|min:0',
+            'players' => 'int|min:1',
+            'check_in_period' => 'int|min:1',
+            'entry_fee' => 'numeric|min:0',
+            'listed' => 'boolean',
+            'join_request' => 'boolean',
+            'join_url' => 'url',
+            'status' => 'boolean',
+            'structure' => 'in:' . implode(',', $structures),
+            'match_check_in_period' => 'int|min:0',
+            'match_play_count' => 'int|min:0',
+            'match_randomize_map' => 'boolean',
+            'match_third_rank' => 'boolean',
+            'league_win_score' => 'int|min:0',
+            'league_tie_score' => 'int|min:0',
+            'league_lose_score' => 'int|min:0',
+            'league_match_up_count' => 'int|min:0',
+            'region_id' => 'int|exists:regions,id',
+            'tournament_type_id' => 'int|exists:tournament_types,id',
+            'game_id' => 'int|exists:games,id'
         ];
         return $this->validateRules($request, $rules);
     }

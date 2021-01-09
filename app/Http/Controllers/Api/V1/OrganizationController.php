@@ -57,9 +57,9 @@ class OrganizationController extends Controller
         if (!$organization) {
             return $this->failNotFound();
         }
-        $gateResponse = Gate::inspect('update', $organization);
-        if (!$gateResponse->allowed()) {
-            return $this->failMessage($gateResponse->message(), HttpStatusCode::UNAUTHORIZED);
+        $gate = Gate::inspect('update', $organization);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
         }
 
         list($failed, $validator) = $this->validateEditOrganization($request, $organization);

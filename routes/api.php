@@ -31,7 +31,15 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
             $router->group(['prefix' => 'tournaments'], function ($router) {
 
+                $router->post('/{tournament}/edit', 'TournamentController@edit');
+
                 $router->get('/{tournament}/overview', 'TournamentController@overview');
+
+            });
+
+            $router->group(['prefix' => 'games'], function ($router) {
+
+                $router->get('/all', 'GameController@all');
 
             });
 

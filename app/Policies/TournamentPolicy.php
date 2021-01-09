@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\StaffType;
 use App\User;
 use App\Tournament;
 use App\Organization;
@@ -33,14 +34,25 @@ class TournamentPolicy extends BasePolicy
     /**
      * Determine whether the user can update the model.
      *
-     * @param  \App\User  $user
-     * @param  \App\Tournament  $tournament
+     * @param  \App\User $user
+     * @param Tournament $tournament
      * @return mixed
      */
     public function update(User $user, Tournament $tournament)
     {
-        return true;
-    }
+        $staffTypeIds = StaffType::whereIn('title', ['Admin', 'Moderator'])
+            ->pluck('id')
+            ->all();
 
+        $isAdminOrModerator = $tournament
+            ->organization
+            ->staff()
+            ->whereIn('staff_type_id', $staffTypeIds)
+            ->where('user_id', $user->id)
+            ->count();
+        return $isAdminOrModerator
+            ? Response::allow()
+            : Response::deny('You do not have administrative access to edit this tournament');
+    }
 
 }
