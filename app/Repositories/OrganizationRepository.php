@@ -5,6 +5,8 @@ namespace App\Repositories;
 
 use App\Staff;
 use App\Organization;
+use App\StaffType;
+use App\User;
 use Illuminate\Http\Request;
 
 
@@ -71,5 +73,36 @@ class OrganizationRepository extends BaseRepository
         }
         $organization->save();
         return $organization;
+    }
+
+    /**
+     * Add staff to organization
+     *
+     * @param Organization $organization
+     * @param User $user
+     * @param string $staffTypeTitle
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|null|object
+     */
+    public function addStaff(Organization $organization, User $user, string $staffTypeTitle)
+    {
+        $staffTypeId = StaffType::where('title', $staffTypeTitle)->first()->id;
+        if (!$staffTypeId) {
+            return null;
+        }
+        $staff = $organization->staff()
+            ->where('user_id', $user->id)
+            ->first();
+        if ($staff) {
+            $staff->staff_type_id = $staffTypeId;
+            $staff->save();
+        } else {
+            $staff = Staff::create([
+                'user_id' => $user->id,
+                'staff_type_id' => $staffTypeId,
+                'organization_id' => $organization->id,
+                'owner' => 0
+            ]);
+        }
+        return $staff;
     }
 }

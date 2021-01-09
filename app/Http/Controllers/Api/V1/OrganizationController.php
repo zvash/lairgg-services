@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\User;
 use DateTimeZone;
 use App\Organization;
 use Illuminate\Http\Request;
@@ -102,6 +103,76 @@ class OrganizationController extends Controller
     {
         $tournaments = $repository->tournamentsByDateForOrganization($organizationId);
         return $this->success($tournaments);
+    }
+
+    /**
+     * Add an admin to organization's staff
+     *
+     * @param Request $request
+     * @param int $organizationId
+     * @param OrganizationRepository $organizationRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function addAdmin(Request $request, int $organizationId, OrganizationRepository $organizationRepository)
+    {
+        $organization = Organization::find($organizationId);
+        if (!$organization) {
+            return $this->failNotFound();
+        }
+        $gate = Gate::inspect('addAdmin', $organization);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+        }
+
+        list($failed, $validator) = $this->validateUserId($request);
+        if ($failed) {
+            return $this->failValidation($validator->errors());
+        }
+        $user = User::find($request->get('user_id'));
+        $staff = $organizationRepository->addStaff($organization, $user, 'Admin');
+        return $this->success($staff);
+    }
+
+    /**
+     * Add a moderator to organization's staff
+     *
+     * @param Request $request
+     * @param int $organizationId
+     * @param OrganizationRepository $organizationRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function addModerator(Request $request, int $organizationId, OrganizationRepository $organizationRepository)
+    {
+        $organization = Organization::find($organizationId);
+        if (!$organization) {
+            return $this->failNotFound();
+        }
+        $gate = Gate::inspect('addAdmin', $organization);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+        }
+
+        list($failed, $validator) = $this->validateUserId($request);
+        if ($failed) {
+            return $this->failValidation($validator->errors());
+        }
+        $user = User::find($request->get('user_id'));
+        $staff = $organizationRepository->addStaff($organization, $user, 'Moderator');
+        return $this->success($staff);
+    }
+
+    /**
+     * Check if given user id is a valid one
+     *
+     * @param Request $request
+     * @return array
+     */
+    private function validateUserId(Request $request)
+    {
+        $rules = [
+            'user_id' => 'required|exists:users,id'
+        ];
+        return $this->validateRules($request, $rules);
     }
 
     /**

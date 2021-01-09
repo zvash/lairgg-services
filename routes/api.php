@@ -26,6 +26,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                 $router->get('/{organizationId}/tournaments', 'OrganizationController@tournaments');
                 $router->post('/{organizationId}/tournaments/create', 'TournamentController@create');
+                $router->post('/{organizationId}/admins/add', 'OrganizationController@addAdmin');
+                $router->post('/{organizationId}/moderators/add', 'OrganizationController@addModerator');
 
             });
 

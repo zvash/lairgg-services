@@ -52,4 +52,51 @@ class OrganizationPolicy extends BasePolicy
             : Response::deny('You are not an admin for this organization.');
     }
 
+    /**
+     * Determine whether the user can add an admin to the organization.
+     *
+     * @param User $user
+     * @param Organization $organization
+     * @return Response
+     */
+    public function addAdmin(User $user, Organization $organization)
+    {
+        $staffTypeId = 1;
+        $staffType = StaffType::where('title', 'Admin')->first();
+        if ($staffType) {
+            $staffTypeId = $staffType->id;
+        }
+        $isAdmin = $organization
+            ->staff()
+            ->where('staff_type_id', $staffTypeId)
+            ->where('user_id', $user->id)
+            ->count();
+        return $isAdmin
+            ? Response::allow()
+            : Response::deny('You are not an admin for this organization.');
+    }
+
+    /**
+     * Determine whether the user can add a moderator to the organization.
+     *
+     * @param User $user
+     * @param Organization $organization
+     * @return Response
+     */
+    public function addModerator(User $user, Organization $organization)
+    {
+        $staffTypeIds = StaffType::whereIn('title', ['Admin', 'Moderator'])
+            ->pluck('id')
+            ->all();
+
+        $isAdminOrModerator = $organization
+            ->staff()
+            ->whereIn('staff_type_id', $staffTypeIds)
+            ->where('user_id', $user->id)
+            ->count();
+        return $isAdminOrModerator
+            ? Response::allow()
+            : Response::deny('You do not have administrative access to add staff to this organization');
+    }
+
 }
