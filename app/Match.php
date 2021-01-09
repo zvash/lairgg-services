@@ -2,9 +2,14 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Actions\Actionable;
 
+/**
+ * @property int group
+ * @property int round
+ */
 class Match extends Model
 {
     use Actionable;
@@ -67,5 +72,28 @@ class Match extends Model
     public function plays()
     {
         return $this->hasMany(Play::class);
+    }
+
+    /**
+     * Get matches within the first round of the given group
+     *
+     * @param Builder $query
+     * @param int $group
+     * @return Builder
+     */
+    public function scopeFirstRoundOfGroup(Builder $query, int $group)
+    {
+        return $query->where('group', $group)->where('round', 1);
+    }
+
+    /**
+     * Get matches within the first round of all available groups
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeFirstRoundOfAllGroups(Builder $query)
+    {
+        return $query->where('round', 1);
     }
 }

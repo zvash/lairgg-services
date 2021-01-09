@@ -15,6 +15,31 @@ class Organization extends Model
     use SoftDeletes, Actionable, Linkable;
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array $fillable
+     */
+    protected $fillable = [
+        'title',
+        'slug',
+        'bio',
+        'timezone',
+        'logo',
+        'cover',
+        'status',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'logo_full_url',
+        'cover_full_url',
+    ];
+
+    /**
      * The attributes that aren't mass assignable.
      *
      * @var array
@@ -68,5 +93,29 @@ class Organization extends Model
     public function tournaments()
     {
         return $this->hasMany(Tournament::class);
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getLogoFullUrlAttribute()
+    {
+        if ($this->logo) {
+            $baseUrl = rtrim(env('AWS_URL'), '/') . '/';
+            return $baseUrl . $this->logo;
+        }
+        return null;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getCoverFullUrlAttribute()
+    {
+        if ($this->cover) {
+            $baseUrl = rtrim(env('AWS_URL'), '/') . '/';
+            return $baseUrl . $this->cover;
+        }
+        return null;
     }
 }

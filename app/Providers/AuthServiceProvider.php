@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Organization;
+use App\Policies\OrganizationPolicy;
+use App\Policies\TournamentPolicy;
+use App\Tournament;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Laravel\Passport\Passport;
 use Laravel\Passport\RouteRegistrar;
@@ -13,7 +17,10 @@ class AuthServiceProvider extends ServiceProvider
      *
      * @var array
      */
-    protected $policies = [];
+    protected $policies = [
+        Organization::class => OrganizationPolicy::class,
+        Tournament::class => TournamentPolicy::class,
+    ];
 
     /**
      * Register any authentication / authorization services.

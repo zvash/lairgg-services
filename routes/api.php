@@ -10,3 +10,35 @@
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+$router->group(['prefix' => 'v1'], function ($router) {
+
+    $router->group(['namespace' => 'Api\V1'], function ($router) {
+
+        $router->group(['middleware' => 'auth'], function ($router) {
+
+            $router->group(['prefix' => 'organizations'], function ($router) {
+
+                $router->post('/create', 'OrganizationController@create');
+                $router->post('/{organizationId}/edit', 'OrganizationController@edit');
+
+                $router->get('/all', 'OrganizationController@all');
+
+                $router->get('/{organizationId}/tournaments', 'OrganizationController@tournaments');
+                $router->post('/{organizationId}/tournaments/create', 'TournamentController@create');
+
+            });
+
+            $router->group(['prefix' => 'tournaments'], function ($router) {
+
+                $router->get('/{tournament}/overview', 'TournamentController@overview');
+
+            });
+
+
+        });
+
+
+    });
+
+});

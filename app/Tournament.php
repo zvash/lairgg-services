@@ -8,17 +8,50 @@ use App\Traits\Eloquents\{
     Linkable
 };
 use Illuminate\Database\Eloquent\{
-    Model,
-    SoftDeletes
+    Builder, Model, SoftDeletes
 };
 use Laravel\Nova\Actions\Actionable;
 
+/**
+ * @property mixed matches
+ */
 class Tournament extends Model
 {
     use Actionable,
         SoftDeletes,
         Linkable,
         Joinable;
+
+    protected $fillable = [
+        'title',
+        'description',
+        'rules',
+        'image',
+        'cover',
+        'timezone',
+        'max_teams',
+        'reserve_teams',
+        'players',
+        'check_in_period',
+        'entry_fee',
+        'listed',
+        'join_request',
+        'join_url',
+        'status',
+        'structure',
+        'match_check_in_period',
+        'match_play_count',
+        'match_randomize_map',
+        'match_third_rank',
+        'league_win_score',
+        'league_tie_score',
+        'league_lose_score',
+        'league_match_up_count',
+        'region_id',
+        'tournament_type_id',
+        'game_id',
+        'organization_id',
+    ];
 
     /**
      * The attributes that aren't mass assignable.
@@ -138,5 +171,45 @@ class Tournament extends Model
     public function matches()
     {
         return $this->hasMany(Match::class);
+    }
+
+    /**
+     * Filter only today tournaments
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeToday(Builder $query)
+    {
+        return $query->whereNotNull('started_at')
+            ->whereDate('started_at', date('Y-m-d'))
+            ->orderBy('started_at', 'DESC');
+    }
+
+    /**
+     * Filter upcoming tournaments
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeUpcoming(Builder $query)
+    {
+        return $query->whereNotNull('started_at')
+            ->whereDate('started_at', '<', date('Y-m-d'))
+            ->orderBy('started_at', 'DESC');
+    }
+
+    /**
+     * Filter last month tournaments
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeLastMonth(Builder $query)
+    {
+        return $query->whereNotNull('started_at')
+            ->whereDate('started_at', '>', date('Y-m-d'))
+            ->whereDate('started_at', '>=', date('Y-m-d', strtotime('-30 days')))
+            ->orderBy('started_at', 'DESC');
     }
 }

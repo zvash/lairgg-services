@@ -13,6 +13,18 @@ class Staff extends Model
     use Actionable;
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array $fillable
+     */
+    protected $fillable = [
+        'user_id',
+        'staff_type_id',
+        'organization_id',
+        'owner'
+    ];
+
+    /**
      * The attributes that aren't mass assignable.
      *
      * @var array
