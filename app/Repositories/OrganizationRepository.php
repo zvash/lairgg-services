@@ -27,7 +27,7 @@ class OrganizationRepository extends BaseRepository
             ->pluck('organization_id')
             ->toArray();
         if ($organizationIdsForUser) {
-            return Organization::whereIn('id', $organizationIdsForUser)->get();
+            return Organization::whereIn('id', $organizationIdsForUser)->with(['staff', 'links'])->get();
         }
         return null;
     }
