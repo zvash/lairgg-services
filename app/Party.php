@@ -9,6 +9,11 @@ class Party extends Model
 {
     use Actionable;
 
+    protected $fillable = [
+        'play_id',
+        'team_id',
+    ];
+
     /**
      * The attributes that aren't mass assignable.
      *

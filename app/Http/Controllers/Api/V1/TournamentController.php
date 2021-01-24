@@ -23,7 +23,6 @@ class TournamentController extends Controller
      * Creates a new tournament
      *
      * @param Request $request
-     * @param $
      * @param int $organizationId
      * @param TournamentRepository $tournamentRepository
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
@@ -79,6 +78,43 @@ class TournamentController extends Controller
     }
 
     /**
+     * Allow check in before check in time ha arrived
+     *
+     * @param Request $request
+     * @param Tournament $tournament
+     * @param TournamentRepository $tournamentRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function allowCheckIn(Request $request, Tournament $tournament, TournamentRepository $tournamentRepository)
+    {
+        if (!$tournament) {
+            return $this->failNotFound();
+        }
+
+        $gate = Gate::inspect('update', $tournament);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+        }
+        $tournament = $tournamentRepository->allowCheckIn($tournament);
+        return $this->success($tournament);
+    }
+
+    /**
+     * Retrieves all participants of the given tournament
+     *
+     * @param Request $request
+     * @param Tournament $tournament
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function participants(Request $request, Tournament $tournament)
+    {
+        if (!$tournament) {
+            return $this->failNotFound();
+        }
+        return $this->success($tournament->participants->load(['participantable', 'participantable.players']));
+    }
+    
+    /**
      * @param Tournament $tournament
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
@@ -96,6 +132,7 @@ class TournamentController extends Controller
             ]);
             return $this->success($tournament);
         }
+        return $this->failNotFound();
     }
 
     /**

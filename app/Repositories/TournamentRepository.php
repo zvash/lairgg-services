@@ -73,6 +73,17 @@ class TournamentRepository extends BaseRepository
     }
 
     /**
+     * @param Tournament $tournament
+     * @return Tournament
+     */
+    public function allowCheckIn(Tournament $tournament)
+    {
+        $tournament->allow_check_in = true;
+        $tournament->save();
+        return $tournament;
+    }
+
+    /**
      * @param Request $request
      * @return array
      */

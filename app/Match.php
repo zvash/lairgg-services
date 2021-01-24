@@ -44,6 +44,11 @@ class Match extends Model
         'is_forfeit' => false,
     ];
 
+    protected $appends = [
+        'has_started',
+        'has_finished',
+    ];
+
     /**
      * Get the tournament that owns the match.
      *
@@ -95,5 +100,38 @@ class Match extends Model
     public function scopeFirstRoundOfAllGroups(Builder $query)
     {
         return $query->where('round', 1);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getHasStartedAttribute()
+    {
+        return $this->matchHasStarted();
+    }
+
+    /**
+     * @return bool
+     */
+    public function getHasFinishedAttribute()
+    {
+        if ($this->winner_team_id) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function matchHasStarted()
+    {
+        if ($this->winner_team_id) {
+            return true;
+        }
+        if (!$this->started_at) {
+            return false;
+        }
+        return strtotime($this->started_at->format('Y-m-d H:i:s')) < time();
     }
 }

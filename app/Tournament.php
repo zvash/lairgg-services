@@ -103,6 +103,10 @@ class Tournament extends Model
         'match_third_rank' => false,
     ];
 
+    protected $appends = [
+        'check_in_is_allowed',
+    ];
+
     /**
      * Get the region that owns the tournament.
      *
@@ -211,5 +215,21 @@ class Tournament extends Model
             ->whereDate('started_at', '>', date('Y-m-d'))
             ->whereDate('started_at', '>=', date('Y-m-d', strtotime('-30 days')))
             ->orderBy('started_at', 'DESC');
+    }
+
+    /**
+     * @return bool
+     */
+    public function getCheckInIsAllowedAttribute()
+    {
+        if ($this->started_at) {
+            if ($this->started_at->diffInSeconds(\Carbon\Carbon::now(), false) > 0) {
+                return false;
+            } else {
+                return $this->allow_check_in
+                    || \Carbon\Carbon::now()->diffInMinutes($this->started_at, false) <= $this->check_in_period;
+            }
+        }
+        return false;
     }
 }

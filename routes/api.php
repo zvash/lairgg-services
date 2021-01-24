@@ -37,6 +37,10 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                 $router->get('/{tournament}/overview', 'TournamentController@overview');
 
+                $router->post('/{tournament}/allow-check-in', 'TournamentController@allowCheckIn');
+
+                $router->get('/{tournament}/participants', 'TournamentController@participants');
+
             });
 
             $router->group(['prefix' => 'games'], function ($router) {
@@ -45,6 +49,27 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
             });
 
+            $router->group(['prefix' => 'participants'], function ($router) {
+
+                $router->post('/{participant}/check-in', 'ParticipantController@checkParticipantIn');
+
+                $router->get('/{participant}/players', 'ParticipantController@players');
+
+            });
+
+            $router->group(['prefix' => 'players'], function ($router) {
+
+                $router->get('/{player}/get', 'PlayerController@get');
+
+            });
+
+            $router->group(['prefix' => 'matches'], function ($router) {
+
+                $router->get('/{match}/get', 'MatchController@get');
+
+                $router->post('/{match}/play-count', 'MatchController@setPlayCount');
+
+            });
 
         });
 

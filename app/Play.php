@@ -9,6 +9,10 @@ class Play extends Model
 {
     use Actionable;
 
+    protected $fillable = [
+        'match_id'
+    ];
+
     /**
      * The attributes that aren't mass assignable.
      *

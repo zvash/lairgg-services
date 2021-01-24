@@ -59,7 +59,7 @@ class Team extends Model
     }
 
     /**
-     * The players that belong to the team.
+     * Get users that belong to the team.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
@@ -68,7 +68,17 @@ class Team extends Model
         return $this->belongsToMany(User::class, 'players')
             ->using(Player::class)
             ->withTimestamps()
-            ->withPivot('captain');
+            ->withPivot(['id', 'captain'])
+            ->select([
+                'players.id',
+                'user_id',
+                'team_id',
+                'username',
+                'avatar',
+                'cover',
+                'points',
+                'players.captain'
+            ]);
     }
 
     /**

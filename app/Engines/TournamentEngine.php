@@ -61,6 +61,7 @@ abstract class TournamentEngine
             ->orderBy('group')
             ->orderBy('round')
             ->orderBy('id')
+            ->with('plays', 'plays.parties')
             ->get()
             ->all();
         $bracketMatches = [];

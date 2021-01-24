@@ -40,7 +40,7 @@ class TournamentPolicy extends BasePolicy
      */
     public function update(User $user, Tournament $tournament)
     {
-        $staffTypeIds = StaffType::whereIn('title', ['Admin', 'Moderator'])
+        $staffTypeIds = StaffType::whereIn('title', ['Admin'])
             ->pluck('id')
             ->all();
 

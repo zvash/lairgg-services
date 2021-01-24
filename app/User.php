@@ -39,6 +39,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'email',
     ];
 
     /**
@@ -117,7 +118,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Team::class, 'players')
             ->using(Player::class)
             ->withTimestamps()
-            ->withPivot('captain');
+            ->withPivot(['id', 'captain']);
     }
 
     /**
