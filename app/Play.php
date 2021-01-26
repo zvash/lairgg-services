@@ -5,6 +5,9 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Actions\Actionable;
 
+/**
+ * @property Match match
+ */
 class Play extends Model
 {
     use Actionable;
@@ -51,12 +54,22 @@ class Play extends Model
     }
 
     /**
-     * Get the parties for the play.
+     * Get parties of the play.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function parties()
     {
         return $this->hasMany(Party::class);
+    }
+
+    /**
+     * Get disputes of the play.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function disputes()
+    {
+        return $this->hasMany(Dispute::class);
     }
 }

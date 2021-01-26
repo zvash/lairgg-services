@@ -2,8 +2,14 @@
 
 namespace App\Providers;
 
+use App\Dispute;
+use App\Match;
 use App\Organization;
+use App\Play;
+use App\Policies\DisputePolicy;
+use App\Policies\MatchPolicy;
 use App\Policies\OrganizationPolicy;
+use App\Policies\PlayPolicy;
 use App\Policies\TournamentPolicy;
 use App\Tournament;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -20,6 +26,10 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         Organization::class => OrganizationPolicy::class,
         Tournament::class => TournamentPolicy::class,
+        Dispute::class => DisputePolicy::class,
+        Match::class => MatchPolicy::class,
+        Organization::class => OrganizationPolicy::class,
+        Play::class => PlayPolicy::class
     ];
 
     /**

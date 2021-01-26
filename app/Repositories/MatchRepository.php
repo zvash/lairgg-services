@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 
+use App\Dispute;
 use App\Match;
 use App\Organization;
 use App\Party;
@@ -68,6 +69,22 @@ class MatchRepository extends BaseRepository
             }
         }
         return $match;
+    }
+
+    /**
+     * @param Match $match
+     * @return mixed
+     */
+    public function getDisputes(Match $match)
+    {
+        $playIds = $match
+            ->plays()
+            ->pluck('id')
+            ->all();
+        $playIds[] = 0;
+
+        $disputes = Dispute::whereIn('play_id', $playIds)->get();
+        return $disputes;
     }
 
     /**

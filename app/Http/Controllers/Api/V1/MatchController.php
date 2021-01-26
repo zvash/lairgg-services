@@ -65,6 +65,27 @@ class MatchController extends Controller
 
     /**
      * @param Request $request
+     * @param Match $match
+     * @param MatchRepository $matchRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function getDisputes(Request $request, Match $match, MatchRepository $matchRepository)
+    {
+        if (!$match) {
+            return $this->failNotFound();
+        }
+
+        $gate = Gate::inspect('viewDisputes', $match);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+        }
+
+        $disputes = $matchRepository->getDisputes($match);
+        return $this->success($disputes);
+    }
+
+    /**
+     * @param Request $request
      * @return array
      */
     private function validateSetGameCount(Request $request)

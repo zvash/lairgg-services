@@ -69,6 +69,20 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                 $router->post('/{match}/play-count', 'MatchController@setPlayCount');
 
+                $router->get('/{match}/disputes', 'MatchController@getDisputes');
+
+            });
+
+            $router->group(['prefix' => 'disputes'], function ($router) {
+
+                $router->post('/{dispute}/close', 'DisputeController@close');
+
+            });
+
+            $router->group(['prefix' => 'plays'], function ($router) {
+
+                $router->post('/{play}/update', 'PlayController@update');
+
             });
 
         });

@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 
+use App\Enums\DisputeState;
 use App\Play;
 use App\User;
 use App\Dispute;
@@ -12,13 +13,16 @@ class DisputeRepository extends BaseRepository
 
     protected $modelClass = Dispute::class;
 
-    public function createDisputeForPlay(User $user, int $playId, string $text, ?string $screenshotPath = null)
+    /**
+     * Close given dispute
+     *
+     * @param Dispute $dispute
+     * @return Dispute
+     */
+    public function close(Dispute $dispute)
     {
-
-    }
-
-    protected function issuerCanIssueDispute(Play $play, User $user)
-    {
-
+        $dispute->state = DisputeState::CLOSED;
+        $dispute->save();
+        return $dispute;
     }
 }

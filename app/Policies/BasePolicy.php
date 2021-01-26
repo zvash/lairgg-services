@@ -3,6 +3,8 @@
 namespace App\Policies;
 
 use App\User;
+use App\StaffType;
+use App\Tournament;
 
 class BasePolicy
 {
@@ -27,5 +29,24 @@ class BasePolicy
     public function __call($name, $arguments)
     {
         // Do nothing
+    }
+
+    /**
+     * @param User $user
+     * @param Tournament $tournament
+     * @return bool
+     */
+    protected function isAdminOrModeratorOfTournament(User $user, Tournament $tournament)
+    {
+        $staffTypeIds = StaffType::whereIn('title', ['Admin', 'Moderator'])
+            ->pluck('id')
+            ->all();
+        return $tournament
+            ->organization
+            ->staff()
+            ->whereIn('staff_type_id', $staffTypeIds)
+            ->where('user_id', $user->id)
+            ->count() > 0;
+
     }
 }

@@ -9,6 +9,7 @@ use Laravel\Nova\Actions\Actionable;
 /**
  * @property int group
  * @property int round
+ * @property Tournament tournament
  */
 class Match extends Model
 {
