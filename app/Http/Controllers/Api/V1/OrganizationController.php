@@ -105,6 +105,16 @@ class OrganizationController extends Controller
         return $this->success($tournaments);
     }
 
+    public function addStaff(
+        Request $request,
+        int $organizationId,
+        OrganizationRepository $organizationRepository,
+        TournamentRepository $tournamentRepository
+    )
+    {
+        
+    }
+
     /**
      * Add an admin to organization's staff
      *

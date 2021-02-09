@@ -232,4 +232,12 @@ class Tournament extends Model
         }
         return false;
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function moderators()
+    {
+        return $this->belongsToMany(User::class, 'tournament_moderators', 'tournament_id', 'user_id');
+    }
 }
