@@ -11,6 +11,7 @@
 |
 */
 
+
 $router->group(['prefix' => 'v1'], function ($router) {
 
     $router->group(['namespace' => 'Api\V1'], function ($router) {
