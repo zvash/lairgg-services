@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'smtp'),
+    'default' => env('MAIL_MAILER', 'se'),
 
     /*
     |--------------------------------------------------------------------------
@@ -47,6 +47,10 @@ return [
 
         'ses' => [
             'transport' => 'ses',
+            'key' => 'AKIATXBSH6WBMHJ3P7IK',
+            'secret' => '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',
+            'region' => 'us-east-1',
+            'version' => 'latest',
         ],
 
         'mailgun' => [

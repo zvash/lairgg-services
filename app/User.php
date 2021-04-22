@@ -3,18 +3,23 @@
 namespace App;
 
 use App\Enums\Status;
+use App\Notifications\CustomResetPassword;
 use App\Traits\Eloquents\{
     Followable,
     Linkable,
     Participantable
 };
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Nova\Actions\Actionable;
+use Laravel\Nova\Tests\Fixtures\Role;
 use Laravel\Passport\HasApiTokens;
+use \Illuminate\Database\Eloquent\Builder;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable,
         HasApiTokens,
@@ -171,5 +176,51 @@ class User extends Authenticatable
         $this->points += $points;
 
         return $this->save();
+    }
+
+    /**
+     * Register user process.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $builder
+     * @param  array  $attributes
+     * @return \App\User
+     *
+     * @throws \Exception
+     */
+    public function scopeRegister(Builder $builder, array $attributes)
+    {
+        try {
+            DB::beginTransaction();
+
+            $attributes['password'] = bcrypt($attributes['password']);
+
+            //$user = tap($builder->create($attributes));
+            $user = $builder->create($attributes);
+                //->assignRole(Role::findByName('OAuth User', 'api'))
+                //->loadMissing($this->with);
+
+            DB::commit();
+
+            return $user;
+        } catch (\Exception $exception) {
+            // If any exception throw we will roll back all changes and
+            // Then rethrow it so ExceptionHandler class can resolve it
+            DB::rollBack();
+
+            throw $exception;
+        }
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $notification = new CustomResetPassword($token);
+
+        $this->notify($notification);
     }
 }

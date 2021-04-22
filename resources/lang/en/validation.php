@@ -129,29 +129,7 @@ return [
     |
     */
 
-    'custom' => [
-        'status.not_in' => 'The :values :attribute is forbidden in order creation.',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Validation Values
-    |--------------------------------------------------------------------------
-    |
-    | Here you may specify custom validation messages for values.
-    | This makes it quick to specify a specific custom
-    | language line for a given values.
-    |
-    */
-
-    'values' => [
-        'tournamentType' => [
-            '4' => 'league',
-        ],
-        'status' => [
-            '3' => 'cancel',
-        ],
-    ],
+    'custom' => [],
 
     /*
     |--------------------------------------------------------------------------
@@ -164,25 +142,123 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        // Include in API
+        'values' => 'values',
+        'moments' => 'moments',
+        'gender_id' => 'gender',
+        'status_id' => 'status',
+        'country_id' => 'country',
+        'event_key' => 'event key',
+        'language_id' => 'language',
+        'education_id' => 'education',
+        'mood_type_id' => 'mood type',
+        'profession_id' => 'profession',
+        'wod_id' => 'workouts of the day',
 
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Validation Language Line for Nova
-    |--------------------------------------------------------------------------
-    |
-    | Here you may specify custom validation messages for attributes using the
-    | convention "attribute.rule" to name the lines. This makes it quick to
-    | specify a specific custom language line for a given attribute rule in Nova.
-    |
-    */
+        'moments.*.event_key' => 'event key',
+        'moments.*.values.*.key' => 'key',
+        'moments.*.values.*.value' => 'value',
+        'moments.*.values' => 'moment values',
+        'moments.*.happened_at' => 'happened at',
 
-    'nova' => [
-        'linkType' => [
-            'accepted' => 'The linkable resource already has :type url',
-        ],
-        'user' => [
-            'accepted' => 'The user exists in current/another organization staff.',
-        ],
+        'values.*.key' => 'key',
+        'values.*.value' => 'value',
+
+        // include in API and Nova
+        'ip' => 'ip',
+        'key' => 'key',
+        'email' => 'email',
+        'level' => 'level',
+        'point' => 'point',
+        'version' => 'version',
+        'dob' => 'date of birth',
+        'ended_at' => 'ended at',
+        'password' => 'password',
+        'username' => 'username',
+        'last_name' => 'lastname',
+        'max_level' => 'max level',
+        'first_name' => 'firstname',
+        'slept_hour' => 'slept hour',
+        'started_at' => 'started at',
+        'device_name' => 'device name',
+        'happened_at' => 'happened at',
+        'device_id' => 'device identifier',
+        'level_up_point' => 'level up point',
+        'release_version' => 'release version',
+        'allow_newsletter' => 'allow newsletter',
+
+        // Include only in Nova
+        'id' => 'id',
+        'body' => 'body',
+        'city' => 'city',
+        'logo' => 'logo',
+        'name' => 'name',
+        'slug' => 'slug',
+        'field' => 'field',
+        'image' => 'image',
+        'title' => 'title',
+        'state' => 'state',
+        'value' => 'value',
+        'score' => 'score',
+        'locale' => 'locale',
+        'scopes' => 'scopes',
+        'secret' => 'secret',
+        'teaser' => 'teaser',
+        'address' => 'address',
+        'current' => 'current',
+        'default' => 'default',
+        'excerpt' => 'excerpt',
+        'feature' => 'feature',
+        'primary' => 'primary',
+        'revoked' => 'revoked',
+        'guard_name' => 'guard',
+        'approved' => 'approved',
+        'iso_code' => 'iso code',
+        'redirect' => 'redirect',
+        'direction' => 'direction',
+        'two_hands' => 'two hands',
+        'telephone' => 'telephone',
+        'expires_at' => 'expires at',
+        'headphones' => 'headphones',
+        'postal_code' => 'postal code',
+        'force_update' => 'force update',
+        'numeric_code' => 'numeric code',
+        'around_player' => 'around player',
+        'effectiveness' => 'effectiveness',
+        'is_superadmin' => 'is superadmin',
+        'language_code' => 'language code',
+        'is_organization' => 'is organization',
+        'password_client' => 'password client',
+        'protect_privacy' => 'protect privacy',
+        'color_perception' => 'color perception',
+        'email_verified_at' => 'email verified at',
+        'access_admin_panel' => 'access admin panel',
+        'high_movement_intensity' => 'high movement intensity',
+
+        // Include in Nova Relations
+        'game' => 'game',
+        'user' => 'user',
+        'event' => 'event',
+        'client' => 'client',
+        'gender' => 'gender',
+        'moment' => 'moment',
+        'parent' => 'parent',
+        'status' => 'status',
+        'country' => 'country',
+        'session' => 'session',
+        'language' => 'language',
+        'platform' => 'platform',
+        'scorable' => 'scorable',
+        'versions' => 'versions',
+        'gameType' => 'game type',
+        'moodType' => 'mood type',
+        'education' => 'education',
+        'profession' => 'profession',
+        'localizable' => 'localizable',
+        'wod' => 'workouts of the day',
+        'organization' => 'organization',
+        'activityType' => 'activity type',
     ],
+
 ];
