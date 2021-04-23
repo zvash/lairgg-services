@@ -95,12 +95,12 @@ class LoginController extends Controller
 
     private function getGoogleAttributes($user)
     {
-        $user = $user->user;
+        $user = $user['user'];
         return [
-            'first_name' => $user->given_name,
-            'last_name' => $user->family_name,
-            'provider_user_id' => $user->sub,
-            'email' => $user->email,
+            'first_name' => $user['given_name'],
+            'last_name' => $user['family_name'],
+            'provider_user_id' => $user['sub'],
+            'email' => $user['email'],
             'username' => $this->createUsername(),
             'password' => make_random_hash(),
         ];
