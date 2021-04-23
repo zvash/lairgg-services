@@ -17,7 +17,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('login', 'LoginController@index');
+Route::get('{provider}/login', 'LoginController@index');
 Route::get('login/{provider}', 'LoginController@redirectToProvider');
 Route::get('{provider}/callback', 'LoginController@handleProviderCallback');
 Route::get('/home', function () {

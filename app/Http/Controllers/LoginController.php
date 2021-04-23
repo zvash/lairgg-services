@@ -18,10 +18,12 @@ class LoginController extends Controller
 
     /**
      * Call the view
+     * @param string $provider
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function index()
+    public function index(string $provider)
     {
-        return view('login');
+        return view('auth.providers.' . $provider);
     }
 
     /**
@@ -38,6 +40,7 @@ class LoginController extends Controller
     /**
      * Obtain the user information from Google.
      *
+     * @param $provider
      * @return Response
      */
     public function handleProviderCallback($provider)
@@ -58,7 +61,9 @@ class LoginController extends Controller
     public function findOrCreateUser($user, $provider)
     {
         $authUser = User::where('provider_id', $user->id)->first();
-        dd($user);
+        $user = json_encode($user);
+        file_put_contents('/tmp/user', $user);
+        return null;
         if ($authUser) {
             return $authUser;
         }
