@@ -55,11 +55,9 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'first_name',
         'last_name',
-        'user_name',
+        'username',
         'email',
         'password',
-        'provider',
-        'provider_id',
     ];
 
     /**
@@ -103,6 +101,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function gender()
     {
         return $this->belongsTo(Gender::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function socialMediaAccounts()
+    {
+        return $this->hasMany(SocialMediaAccount::class);
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\SocialMediaAccount;
+use App\Traits\Passport\PassportToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
@@ -9,6 +11,7 @@ use App\User;
 
 class LoginController extends Controller
 {
+    use PassportToken;
     /**
      * Where to redirect users after login.
      *
@@ -41,15 +44,16 @@ class LoginController extends Controller
      * Obtain the user information from Google.
      *
      * @param $provider
-     * @return Response
+     * @return void
      */
     public function handleProviderCallback($provider)
     {
         $user = Socialite::driver($provider)->stateless()->user();
         $authUser = $this->findOrCreateUser($user, $provider);
-        dd($authUser);
-        Auth::login($authUser, true);
-        return redirect($this->redirectTo);
+        $this->verifyEmail($provider, $authUser);
+        dd($this->getBearerTokenByUser($authUser, false));
+//        Auth::login($authUser, true);
+//        return redirect($this->redirectTo);
     }
 
     /**
@@ -61,17 +65,65 @@ class LoginController extends Controller
      */
     public function findOrCreateUser($user, $provider)
     {
-        $authUser = User::where('provider_id', $user->id)->first();
-        $user = json_encode($user);
-        return $user;
-        if ($authUser) {
+        $socialMediaAccount = SocialMediaAccount::where('provider_user_id', $user->id)
+            ->where('provider', $provider)
+            ->first();
+        if ($socialMediaAccount) {
+            $authUser = User::where('provider_id', $socialMediaAccount->user_id)->first();
             return $authUser;
         }
-        return User::create([
-            'name'     => $user->name,
-            'email'    => $user->email,
+        $allAttributes = $this->getAttributesByProvider($provider, $user);
+        $attributes = array_filter($allAttributes, function($key) {
+            return $key != 'provider_user_id';
+        }, ARRAY_FILTER_USE_KEY);
+        $user = User::create($attributes);
+        SocialMediaAccount::create([
+            'user_id' => $user->id,
             'provider' => $provider,
-            'provider_id' => $user->id
+            'provider_user_id' => $allAttributes['provider_user_id']
         ]);
+        return $user;
+    }
+
+    private function getAttributesByProvider(string $provider, $user)
+    {
+        if ($provider == 'google') {
+            $user = $this->getGoogleAttributes($user);
+        }
+        return $user;
+    }
+
+    private function getGoogleAttributes($user)
+    {
+        $user = $user->user;
+        return [
+            'first_name' => $user->given_name,
+            'last_name' => $user->family_name,
+            'provider_user_id' => $user->sub,
+            'email' => $user->email,
+            'username' => $this->createUsername(),
+            'password' => make_random_hash(),
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    private function createUsername()
+    {
+        $random = 'user_' . mt_rand(1000000000, 9999999999) ;
+        $user = User::where('username', $random)->first();
+        if ($user) {
+            return $this->createUsername();
+        }
+        return $random;
+    }
+
+    private function verifyEmail($provider, User $user)
+    {
+        if ($provider == 'google') {
+            $user->setAttribute('email_verified_at', date('Y-m-d H:i:s'))
+                ->save();
+        }
     }
 }
