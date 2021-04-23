@@ -47,6 +47,7 @@ class LoginController extends Controller
     {
         $user = Socialite::driver($provider)->user();
         $authUser = $this->findOrCreateUser($user, $provider);
+        dd($authUser);
         Auth::login($authUser, true);
         return redirect($this->redirectTo);
     }
@@ -62,8 +63,7 @@ class LoginController extends Controller
     {
         $authUser = User::where('provider_id', $user->id)->first();
         $user = json_encode($user);
-        file_put_contents('/tmp/user', $user);
-        return null;
+        return $user;
         if ($authUser) {
             return $authUser;
         }
