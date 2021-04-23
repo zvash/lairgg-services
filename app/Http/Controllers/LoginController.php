@@ -69,7 +69,7 @@ class LoginController extends Controller
             ->where('provider', $provider)
             ->first();
         if ($socialMediaAccount) {
-            $authUser = User::where('provider_id', $socialMediaAccount->user_id)->first();
+            $authUser = User::find($socialMediaAccount->user_id);
             return $authUser;
         }
         $allAttributes = $this->getAttributesByProvider($provider, $user);
