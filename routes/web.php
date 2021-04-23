@@ -17,6 +17,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('login', 'LoginController@index');
+Route::get('login/{provider}', 'LoginController@redirectToProvider');
+Route::get('{provider}/callback', 'LoginController@handleProviderCallback');
+Route::get('/home', function () {
+    return 'User is logged in';
+});
+
 Route::group(['namespace' => 'Api\V1'], function ($router) {
     Route::group(['prefix' => 'users'], function ($router) {
 
