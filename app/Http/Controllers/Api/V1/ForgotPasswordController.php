@@ -33,7 +33,7 @@ class ForgotPasswordController extends Controller
         $this->validateEmail($request);
         $email = $request->get('email');
         $code = $this->createPasswordResetCode($email);
-        Mail::to($email)->send(new ResetPasswordMail($code));
+        Mail::to($email)->queue((new ResetPasswordMail($code))->onConnection('sqs'));
         return $this->success(['code' => $code]);
     }
 
