@@ -17,6 +17,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::post('login', 'LoginController@login');
 Route::get('{provider}/login', 'LoginController@index');
 Route::get('login/{provider}', 'LoginController@redirectToProvider');
 Route::get('{provider}/callback', 'LoginController@handleProviderCallback');
@@ -29,11 +30,11 @@ Route::group(['namespace' => 'Api\V1'], function ($router) {
 
         Route::get('/verify/{user}', 'VerificationController@verify')->name('verification.verify');
 
-        Route::post('password/reset/email', 'ForgotPasswordController@reset')->name('password.reset');
+        //Route::post('password/reset/email', 'ForgotPasswordController@sendCode')->name('password.reset');
         // Password Reset Routes
-        Route::get('/password/reset/success', 'ResetPasswordController@success')->name('users.password.reset.success');
-        Route::get('/password/reset/{token}', 'ResetPasswordController@form')->name('users.password.reset.form');
-        Route::post('/password/reset', 'ResetPasswordController@reset')->name('users.password.reset.update');
+//        Route::get('/password/reset/success', 'ResetPasswordController@success')->name('users.password.reset.success');
+//        Route::get('/password/reset/{token}', 'ResetPasswordController@form')->name('users.password.reset.form');
+//        Route::post('/password/reset', 'ResetPasswordController@reset')->name('users.password.reset.update');
 
     });
 

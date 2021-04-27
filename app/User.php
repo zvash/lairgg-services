@@ -244,4 +244,23 @@ class User extends Authenticatable implements MustVerifyEmail
 
         $this->notify($notification);
     }
+
+    /**
+     * Override the field which is used for username in the authentication
+     * @param string $username
+     * @return User
+     */
+    public function findForPassport(string $username)
+    {
+        return $this->where('email', $username)->orWhere('username', $username)->first();
+    }
+
+    /**
+     * @param string $username
+     * @return mixed
+     */
+    public static function findByUserName(string $username)
+    {
+        return static::where('email', $username)->orWhere('username', $username)->first();
+    }
 }

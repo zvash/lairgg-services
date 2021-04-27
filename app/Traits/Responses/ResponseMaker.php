@@ -85,4 +85,17 @@ trait ResponseMaker
     {
         return $this->failMessage($string, HttpStatusCode::NOT_FOUND);
     }
+
+    /**
+     * @param $data
+     * @param int $status
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    protected function response($data, int $status)
+    {
+        return response(
+            $data,
+            HttpStatusCode::SUCCESS
+        );
+    }
 }

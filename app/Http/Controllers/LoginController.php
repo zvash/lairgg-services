@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginRequest;
 use App\SocialMediaAccount;
 use App\Traits\Passport\PassportToken;
+use App\Traits\Responses\ResponseMaker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
 use App\User;
 
 class LoginController extends Controller
 {
     use PassportToken;
+    use ResponseMaker;
     /**
      * Where to redirect users after login.
      *
@@ -27,6 +31,22 @@ class LoginController extends Controller
     public function index(string $provider)
     {
         return view('auth.providers.' . $provider);
+    }
+
+    /**
+     * @param LoginRequest $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function login(LoginRequest $request)
+    {
+        $loginResponse = $this->makeInternalLoginRequest($request);
+        $statusCode = $loginResponse->getStatusCode();
+        $content = json_decode($loginResponse->getContent(), 1);
+        if ($statusCode == 200) {
+            $user = User::findByUserName($request->get('username'));
+            $content['email_is_provided'] = !!$user->email;
+        }
+        return $this->response($content, $statusCode);
     }
 
     /**
@@ -51,8 +71,8 @@ class LoginController extends Controller
         $user = Socialite::driver($provider)->stateless()->user();
         $authUser = $this->findOrCreateUser($user, $provider);
         $this->verifyEmail($provider, $authUser);
-        dd($this->getBearerTokenByUser($authUser, false));
-//        Auth::login($authUser, true);
+        $response = $this->logUserInWithoutPassword($authUser);
+        dd($response);
 //        return redirect($this->redirectTo);
     }
 
@@ -125,5 +145,30 @@ class LoginController extends Controller
             $user->setAttribute('email_verified_at', date('Y-m-d H:i:s'))
                 ->save();
         }
+    }
+
+    /**
+     * @param LoginRequest $request
+     * @return mixed
+     */
+    private function makeInternalLoginRequest(LoginRequest $request)
+    {
+        $inputs = $request->all();
+
+        $token = Request::create(
+            'oauth/token',
+            'POST',
+            [
+                'grant_type' => 'password',
+                'client_id' => $inputs['client_id'],
+                'client_secret' => $inputs['client_secret'],
+                'username' => $inputs['username'],
+                'password' => $inputs['password'],
+                'scope' => $inputs['scope'],
+            ]
+        );
+
+        $loginResponse = Route::dispatch($token);
+        return $loginResponse;
     }
 }

@@ -21,6 +21,7 @@
         "laravel/tinker": "^2.0",
         "league/flysystem-aws-s3-v3": "~1.0",
         "league/flysystem-cached-adapter": "~1.0",
+        "martinbean/socialite-discord-provider": "^1.2",
         "myclabs/php-enum": "^1.7",
         "standard/theme": "*"
     },

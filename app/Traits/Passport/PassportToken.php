@@ -131,4 +131,16 @@ trait PassportToken
 
         return $bearerToken;
     }
+
+    /**
+     * @param User $user
+     * @return array|BearerTokenResponse
+     */
+    protected function logUserInWithoutPassword(User $user)
+    {
+        $response = $this->getBearerTokenByUser($user, false);
+        $response['email_is_provided'] = !!$user->email;
+        $response['email_is_verified'] = !!$user->email_verified_at;
+        return $response;
+    }
 }

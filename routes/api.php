@@ -17,6 +17,9 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
         $router->group(['prefix' => 'users'], function ($router) {
 
+            $router->post('password/reset/email', 'ForgotPasswordController@sendCode')->name('password.reset.email');
+            $router->post('password/reset', 'ForgotPasswordController@resetByCode')->name('password.reset');
+
             $router->post('/register', 'UserController@store');
 
             $router->get('/verify/{user}', 'VerificationController@verify')->name('verification.verify');
