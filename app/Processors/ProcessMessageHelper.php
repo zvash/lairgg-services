@@ -14,7 +14,7 @@ class ProcessMessageHelper
         $this->queueUrl = 'https://sqs.us-east-1.amazonaws.com/255655933314/lairgg-main-queue';
 
         $this->client = new SqsClient([
-            'profile' => 'default',
+            //'profile' => 'default',
             'region' => env("AWS_DEFAULT_REGION", 'us-east-1'),
             'version' => '2012-11-05'
         ]);
