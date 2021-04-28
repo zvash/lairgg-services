@@ -93,15 +93,7 @@ class LoginController extends Controller
             return $authUser;
         }
         $allAttributes = $this->getAttributesByProvider($provider, $user);
-        $attributes = array_filter($allAttributes, function($key) {
-            return $key != 'provider_user_id';
-        }, ARRAY_FILTER_USE_KEY);
-        $user = User::create($attributes);
-        SocialMediaAccount::create([
-            'user_id' => $user->id,
-            'provider' => $provider,
-            'provider_user_id' => $allAttributes['provider_user_id']
-        ]);
+        $user = $this->getUserBySocialAttributes($provider, $allAttributes);
         return $user;
     }
 
@@ -110,6 +102,8 @@ class LoginController extends Controller
         dd($user);
         if ($provider == 'google') {
             $user = $this->getGoogleAttributes($user);
+        } else if ($provider == 'discord') {
+            $user = $this->getDiscordAttributes($user);
         }
         return $user;
     }
@@ -121,6 +115,19 @@ class LoginController extends Controller
             'first_name' => $user['given_name'],
             'last_name' => $user['family_name'],
             'provider_user_id' => $user['sub'],
+            'email' => $user['email'],
+            'username' => $this->createUsername(),
+            'password' => make_random_hash(),
+        ];
+    }
+
+    private function getDiscordAttributes($user)
+    {
+        $user = $user->user;
+        return [
+            'first_name' => null,
+            'last_name' => null,
+            'provider_user_id' => $user['id'],
             'email' => $user['email'],
             'username' => $this->createUsername(),
             'password' => make_random_hash(),
@@ -140,9 +147,13 @@ class LoginController extends Controller
         return $random;
     }
 
+    /**
+     * @param $provider
+     * @param User $user
+     */
     private function verifyEmail($provider, User $user)
     {
-        if ($provider == 'google') {
+        if (in_array($provider, ['google', 'discord'])) {
             $user->setAttribute('email_verified_at', date('Y-m-d H:i:s'))
                 ->save();
         }
@@ -171,5 +182,35 @@ class LoginController extends Controller
 
         $loginResponse = Route::dispatch($token);
         return $loginResponse;
+    }
+
+    /**
+     * @param string $provider
+     * @param array $allAttributes
+     * @return mixed
+     */
+    private function getUserBySocialAttributes(string $provider, array $allAttributes)
+    {
+        $attributes = array_filter($allAttributes, function ($key) {
+            return $key != 'provider_user_id';
+        }, ARRAY_FILTER_USE_KEY);
+        $user = User::where('email', $attributes['email'])->first();
+        if (!$user) {
+            $user = User::create($attributes);
+        }
+        $socilAccount = SocialMediaAccount::where('provider', $provider)
+            ->where('provider_user_id', $allAttributes['provider_user_id'])
+            ->first();
+        if (!$socilAccount) {
+            SocialMediaAccount::create([
+                'user_id' => $user->id,
+                'provider' => $provider,
+                'provider_user_id' => $allAttributes['provider_user_id']
+            ]);
+        } else {
+            $socilAccount->setAttribute('user_id', $user->id)->save();
+        }
+
+        return $user;
     }
 }
