@@ -1,7 +1,9 @@
 @component('mail::message')
-# Confirm your email address
+# Password Reset Token
 
+@component('mail:panel')
 Your password reset token is: {{ $code }}
+@endcomponent
 
 {{ config('app.name') }}
 @endcomponent

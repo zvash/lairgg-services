@@ -17,8 +17,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('sqs', 'QueueHandlerController');
-
 Route::post('login', 'LoginController@login');
 Route::get('{provider}/login', 'LoginController@index');
 Route::get('login/{provider}', 'LoginController@redirectToProvider');
