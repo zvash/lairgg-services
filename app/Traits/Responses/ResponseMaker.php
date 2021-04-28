@@ -17,7 +17,8 @@ trait ResponseMaker
         return response(
             [
                 'message' => 'success',
-                'errors' => null, 'status' => true,
+                'error' => null,
+                'status' => true,
                 'data' => $data
             ], HttpStatusCode::SUCCESS
         );
@@ -33,7 +34,7 @@ trait ResponseMaker
         return response(
             [
                 'message' => 'failed',
-                'errors' => ['message' => $message],
+                'error' => $message,
                 'status' => false,
                 'data' => []
             ], $status
@@ -50,7 +51,7 @@ trait ResponseMaker
         return response(
             [
                 'message' => 'failed',
-                'errors' => $data,
+                'error' => $data,
                 'status' => false,
                 'data' => []
             ], $status
@@ -66,11 +67,11 @@ trait ResponseMaker
         if ($errors instanceof MessageBag) {
             $errors = $errors->toArray();
         }
-        $errors['message'] = 'Validation error';
+        $error = array_values($errors)[0][0];
         return response(
             [
                 'message' => 'failed',
-                'errors' => $errors,
+                'error' => $error,
                 'status' => false,
                 'data' => []
             ], HttpStatusCode::VALIDATION_ERROR

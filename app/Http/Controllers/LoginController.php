@@ -107,6 +107,7 @@ class LoginController extends Controller
 
     private function getAttributesByProvider(string $provider, $user)
     {
+        dd($user);
         if ($provider == 'google') {
             $user = $this->getGoogleAttributes($user);
         }
