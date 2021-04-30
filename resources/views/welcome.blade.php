@@ -99,12 +99,14 @@
 
         <!-- The core Firebase JS SDK is always required and must be listed first -->
         <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-messaging.js"></script>
 
         <!-- TODO: Add SDKs for Firebase products that you want to use
              https://firebase.google.com/docs/web/setup#available-libraries -->
         <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-analytics.js"></script>
 
         <script>
+
             // Your web app's Firebase configuration
             // For Firebase JS SDK v7.20.0 and later, measurementId is optional
             var firebaseConfig = {
@@ -119,6 +121,25 @@
             // Initialize Firebase
             firebase.initializeApp(firebaseConfig);
             firebase.analytics();
+
+            const messaging = firebase.messaging();
+            // Get registration token. Initially this makes a network call, once retrieved
+            // subsequent calls to getToken will return from cache.
+            messaging.getToken({ vapidKey: 'BFSVR-xMVXc40EJJlSi0lMpsYZ_IL4KBLxxYosUAQI__oqV_NyPmmMEfG-NUEl4G7v1JPDyGJg17iho_huFOAXY' }).then((currentToken) => {
+                if (currentToken) {
+                    console.log(currentToken);
+                    // Send the token to your server and update the UI if necessary
+                    // ...
+                } else {
+                    // Show permission request UI
+                    console.log('No registration token available. Request permission to generate one.');
+                    // ...
+                }
+            }).catch((err) => {
+                console.log('An error occurred while retrieving token. ', err);
+                // ...
+            });
+
         </script>
 
     </body>
