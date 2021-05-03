@@ -42,10 +42,12 @@ class LoginController extends Controller
         $loginResponse = $this->makeInternalLoginRequest($request);
         $statusCode = $loginResponse->getStatusCode();
         $content = json_decode($loginResponse->getContent(), 1);
-        if ($statusCode == 200) {
-            $user = User::findByUserName($request->get('username'));
-            $content['email_is_provided'] = !!$user->email;
+        if (array_key_exists('error', $content)) {
+            return $this->failMessage($content['message'], 401);
         }
+        $user = User::findByUserName($request->get('username'));
+        $content['email_is_provided'] = !!$user->email;
+        $content['email_is_verified'] = !!$user->email_verified_at;
         return $this->response($content, $statusCode);
     }
 
@@ -199,17 +201,17 @@ class LoginController extends Controller
         if (!$user) {
             $user = User::create($attributes);
         }
-        $socilAccount = SocialMediaAccount::where('provider', $provider)
+        $socialAccount = SocialMediaAccount::where('provider', $provider)
             ->where('provider_user_id', $allAttributes['provider_user_id'])
             ->first();
-        if (!$socilAccount) {
+        if (!$socialAccount) {
             SocialMediaAccount::create([
                 'user_id' => $user->id,
                 'provider' => $provider,
                 'provider_user_id' => $allAttributes['provider_user_id']
             ]);
         } else {
-            $socilAccount->setAttribute('user_id', $user->id)->save();
+            $socialAccount->setAttribute('user_id', $user->id)->save();
         }
 
         return $user;
