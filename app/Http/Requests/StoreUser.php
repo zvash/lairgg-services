@@ -15,8 +15,8 @@ class StoreUser extends FormRequest
     public function rules()
     {
         return [
-            'first_name' => 'required|regex:/^[\pL\pM\s-]+$/u|max:50',
-            'last_name' => 'required|regex:/^[\pL\pM\s-]+$/u|max:50',
+            'first_name' => 'regex:/^[\pL\pM\s-]+$/u|max:50',
+            'last_name' => 'regex:/^[\pL\pM\s-]+$/u|max:50',
             'email' => 'required|email:rfc,dns|unique:users,email',
             'username' => 'required|regex:/^[\.\w\-]{4,50}$/i|unique:users,username',
             'password' => 'required|confirmed|min:8',

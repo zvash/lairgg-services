@@ -19,6 +19,7 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
             $router->post('password/reset/email', 'ForgotPasswordController@sendCode')->name('password.reset.email');
             $router->post('password/reset', 'ForgotPasswordController@resetByCode')->name('password.reset');
+            $router->post('password/verify-token', 'ForgotPasswordController@verifyToken')->name('password.verify-token');
 
             $router->post('/register', 'UserController@store');
 

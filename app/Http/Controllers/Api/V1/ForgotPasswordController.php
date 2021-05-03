@@ -34,7 +34,22 @@ class ForgotPasswordController extends Controller
         $email = $request->get('email');
         $code = $this->createPasswordResetCode($email);
         Mail::to($email)->queue((new ResetPasswordMail($code))->onConnection('sqs'));
-        return $this->success(['code' => $code]);
+        return $this->success(['message' => 'Token was sent to provided email address.']);
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function verifyToken(Request $request)
+    {
+        $this->validateEmail($request);
+        $email = $request->get('email');
+        $code = $request->get('token');
+        if ($this->resetRequestIsValid($email, $code)) {
+            return $this->success(['valid_token' => true]);
+        }
+        return $this->failMessage('invalid token or email address', 400);
     }
 
     /**
@@ -88,7 +103,7 @@ class ForgotPasswordController extends Controller
     {
         $request->validate([
             'email' => 'required|email:rfc,dns|exists:users,email',
-            'password' => 'required|confirmed|min:8',
+            'password' => 'required|min:8',
             'token' => 'required|filled'
         ]);
     }
