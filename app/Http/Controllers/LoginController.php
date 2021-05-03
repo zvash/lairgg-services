@@ -103,6 +103,8 @@ class LoginController extends Controller
             $user = $this->getGoogleAttributes($user);
         } else if ($provider == 'discord') {
             $user = $this->getDiscordAttributes($user);
+        } else if ($provider == 'twitter') {
+            dd($user);
         }
         return $user;
     }
