@@ -68,7 +68,7 @@ class LoginController extends Controller
      */
     public function handleProviderCallback($provider)
     {
-        $user = Socialite::driver($provider)->stateless()->user();
+        $user = Socialite::driver($provider)->user();
         $authUser = $this->findOrCreateUser($user, $provider);
         $this->verifyEmail($provider, $authUser);
         $response = $this->logUserInWithoutPassword($authUser);
