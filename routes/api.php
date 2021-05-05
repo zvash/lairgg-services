@@ -33,6 +33,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                 $router->post('verify/resend', 'VerificationController@resend')->name('verification.resend');
 
+                $router->post('/set-identifiers', 'UserController@setMissingIdentifiers');
+
             });
 
             $router->group(['middleware' => 'verified'], function ($router) {

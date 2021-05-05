@@ -141,6 +141,7 @@ trait PassportToken
         $response = $this->getBearerTokenByUser($user, false);
         $response['email_is_provided'] = !!$user->email;
         $response['email_is_verified'] = !!$user->email_verified_at;
+        $response['username_is_provided'] = !!$user->username;
         return $response;
     }
 }

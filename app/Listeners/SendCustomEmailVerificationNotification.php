@@ -15,7 +15,7 @@ class SendCustomEmailVerificationNotification implements ShouldQueue
      *
      * @var string|null
      */
-    //public $connection = 'sqs';
+    public $connection = 'sqs';
 
     /**
      * Handle the event.

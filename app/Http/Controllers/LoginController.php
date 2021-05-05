@@ -48,6 +48,7 @@ class LoginController extends Controller
         $user = User::findByUserName($request->get('username'));
         $content['email_is_provided'] = !!$user->email;
         $content['email_is_verified'] = !!$user->email_verified_at;
+        $content['username_is_provided'] = !!$user->username;
         return $this->response($content, $statusCode);
     }
 
@@ -66,7 +67,7 @@ class LoginController extends Controller
      * Obtain the user information from Google.
      *
      * @param $provider
-     * @return void
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
     public function handleProviderCallback($provider)
     {
@@ -74,8 +75,7 @@ class LoginController extends Controller
         $authUser = $this->findOrCreateUser($user, $provider);
         $this->verifyEmail($provider, $authUser);
         $response = $this->logUserInWithoutPassword($authUser);
-        dd($response);
-//        return redirect($this->redirectTo);
+        return $this->response($response, 200);
     }
 
     /**
@@ -106,7 +106,7 @@ class LoginController extends Controller
         } else if ($provider == 'discord') {
             $user = $this->getDiscordAttributes($user);
         } else if ($provider == 'twitter') {
-            dd($user);
+            $user = $this->getTwitterAttributes($user);
         }
         return $user;
     }
@@ -119,7 +119,7 @@ class LoginController extends Controller
             'last_name' => $user['family_name'],
             'provider_user_id' => $user['sub'],
             'email' => $user['email'],
-            'username' => $this->createUsername(),
+            'username' => null,
             'password' => make_random_hash(),
         ];
     }
@@ -132,7 +132,20 @@ class LoginController extends Controller
             'last_name' => null,
             'provider_user_id' => $user['id'],
             'email' => $user['email'],
-            'username' => $this->createUsername(),
+            'username' => null,
+            'password' => make_random_hash(),
+        ];
+    }
+
+    private function getTwitterAttributes($user)
+    {
+        $user = $user->user;
+        return [
+            'first_name' => null,
+            'last_name' => null,
+            'provider_user_id' => $user['id_str'],
+            'email' => null,
+            'username' => null,
             'password' => make_random_hash(),
         ];
     }

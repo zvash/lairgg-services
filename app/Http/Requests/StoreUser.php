@@ -19,7 +19,7 @@ class StoreUser extends FormRequest
             'last_name' => 'regex:/^[\pL\pM\s-]+$/u|max:50',
             'email' => 'required|email:rfc,dns|unique:users,email',
             'username' => 'required|regex:/^[\.\w\-]{4,50}$/i|unique:users,username',
-            'password' => 'required|confirmed|min:8',
+            'password' => 'required|min:8',
         ];
     }
 }
