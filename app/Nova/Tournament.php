@@ -203,7 +203,6 @@ class Tournament extends Resource
                 ->help('Teams can join the tournaments via the invitation link.'),
 
             Boolean::make('Featured')
-                ->hideFromIndex()
                 ->help('Make tournament featured.'),
 
             Text::make('Join URL')

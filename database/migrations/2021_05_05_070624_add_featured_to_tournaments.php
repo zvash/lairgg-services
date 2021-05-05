@@ -15,6 +15,7 @@ class AddFeaturedToTournaments extends Migration
     {
         Schema::table('tournaments', function (Blueprint $table) {
             $table->boolean('featured')
+                ->after('organization_id')
                 ->default(false);
         });
     }
