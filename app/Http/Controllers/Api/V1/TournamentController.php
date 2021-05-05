@@ -137,6 +137,28 @@ class TournamentController extends Controller
 
     /**
      * @param Request $request
+     * @param TournamentRepository $tournamentRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function featured(Request $request, TournamentRepository $tournamentRepository)
+    {
+        $tournaments = $tournamentRepository->getAllFeatured(10);
+        return $this->success($tournaments);
+    }
+
+    /**
+     * @param Request $request
+     * @param TournamentRepository $tournamentRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function live(Request $request, TournamentRepository $tournamentRepository)
+    {
+        $tournaments = $tournamentRepository->getLive(10);
+        return $this->success($tournaments);
+    }
+
+    /**
+     * @param Request $request
      * @return array
      */
     private function validateCreateTournament(Request $request)

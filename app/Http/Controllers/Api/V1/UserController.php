@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SetIdentifiersRequest;
 use App\Http\Requests\StoreUser;
 use App\Http\Resources\UserResource;
+use App\Repositories\TournamentRepository;
 use App\Traits\Responses\ResponseMaker;
 use App\User;
 use Illuminate\Auth\Events\Registered;
@@ -56,6 +57,20 @@ class UserController extends Controller
             return $this->failMessage($exception->getMessage(), $exception->getCode());
         }
 
+    }
+
+    /**
+     * Get user tournaments
+     *
+     * @param Request $request
+     * @param TournamentRepository $tournamentRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function tournaments(Request $request, TournamentRepository $tournamentRepository)
+    {
+        $user = Auth::user();
+        $tournaments = $tournamentRepository->getUserTournaments($user, 10);
+        return $this->success($tournaments);
     }
 
     /**

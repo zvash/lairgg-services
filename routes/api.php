@@ -31,6 +31,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
             $router->group(['prefix' => 'users'], function ($router) {
 
+                $router->get('tournaments', 'UserController@tournaments');
+
                 $router->post('verify/resend', 'VerificationController@resend')->name('verification.resend');
 
                 $router->post('/set-identifiers', 'UserController@setMissingIdentifiers');
@@ -55,6 +57,9 @@ $router->group(['prefix' => 'v1'], function ($router) {
                 });
 
                 $router->group(['prefix' => 'tournaments'], function ($router) {
+
+                    $router->get('/featured', 'TournamentController@featured');
+                    $router->get('/live', 'TournamentController@live');
 
                     $router->post('/{tournament}/edit', 'TournamentController@edit');
 

@@ -4,8 +4,12 @@ namespace App\Repositories;
 
 
 use App\Organization;
+use App\Team;
 use App\Tournament;
+use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class TournamentRepository extends BaseRepository
 {
@@ -81,6 +85,63 @@ class TournamentRepository extends BaseRepository
         $tournament->allow_check_in = true;
         $tournament->save();
         return $tournament;
+    }
+
+    /**
+     * Get all featured tournaments
+     *
+     * @param int $paginate
+     * @return mixed
+     */
+    public function getAllFeatured(int $paginate = 0)
+    {
+        $tournaments = Tournament::featured();
+        if ($paginate) {
+            return $tournaments->paginate($paginate);
+        }
+        return $tournaments->get()->toArray();
+    }
+
+    /**
+     * Get all tournaments for a user
+     *
+     * @param User $user
+     * @param int $paginate
+     * @return mixed
+     */
+    public function getUserTournaments(User $user, int $paginate = 0)
+    {
+        $tournaments = Tournament::whereHas('participants', function (Builder $participants) use ($user) {
+                $participants->whereHasMorph('participantable', [Team::class, User::class], function (Builder $participantable, $type) use ($user) {
+                    if ($type == Team::class) {
+                        $participantable->whereHas('players', function (Builder $players) use ($user) {
+                            $players->where('user_id', $user->id);
+                        });
+                    } else {
+                        $participantable->where('participantable_id', $user->id);
+                    }
+                });
+            });
+
+        if ($paginate) {
+            return $tournaments->paginate($paginate);
+        }
+        return $tournaments->get()->toArray();
+    }
+
+    /**
+     * Get Live tournaments
+     *
+     * @param int $paginate
+     * @return mixed
+     */
+    public function getLive(int $paginate = 0)
+    {
+        $tournaments = Tournament::live();
+        if ($paginate) {
+            return $tournaments->paginate($paginate);
+        }
+        return $tournaments->get()->toArray();
     }
 
     /**

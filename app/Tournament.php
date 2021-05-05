@@ -51,6 +51,7 @@ class Tournament extends Model
         'tournament_type_id',
         'game_id',
         'organization_id',
+        'featured',
     ];
 
     /**
@@ -84,6 +85,7 @@ class Tournament extends Model
         'league_tie_score' => 'integer',
         'league_lose_score' => 'integer',
         'league_match_up_count' => 'integer',
+        'featured' => 'boolean',
     ];
 
     /**
@@ -199,8 +201,8 @@ class Tournament extends Model
     public function scopeUpcoming(Builder $query)
     {
         return $query->whereNotNull('started_at')
-            ->whereDate('started_at', '<', date('Y-m-d'))
-            ->orderBy('started_at', 'DESC');
+            ->whereDate('started_at', '>', date('Y-m-d'))
+            ->orderBy('started_at', 'ASC');
     }
 
     /**
@@ -212,9 +214,40 @@ class Tournament extends Model
     public function scopeLastMonth(Builder $query)
     {
         return $query->whereNotNull('started_at')
-            ->whereDate('started_at', '>', date('Y-m-d'))
+            ->whereDate('started_at', '<', date('Y-m-d'))
             ->whereDate('started_at', '>=', date('Y-m-d', strtotime('-30 days')))
             ->orderBy('started_at', 'DESC');
+    }
+
+    /**
+     * Filter tournaments with a live match
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeLive(Builder $query)
+    {
+        $now = date('Y-m-d H:i:s');
+        return $query->whereNotNull('started_at')
+            ->whereDate('started_at', '<=', $now)
+            ->whereHas('matches', function (Builder $matches) use ($now) {
+                $matches->whereNotNull('started_at')
+                    ->whereDate('started_at', '<=', $now)
+                    ->whereNull('winner_team_id');
+            })
+            ->orderBy('started_at', 'DESC');
+    }
+
+    /**
+     * Filter featured tournaments
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeFeatured(Builder $query)
+    {
+        return $query->where('featured', true)
+            ->orderBy('updated_at', 'DESC');
     }
 
     /**
