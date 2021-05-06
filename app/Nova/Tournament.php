@@ -7,7 +7,7 @@ use App\Enums\{
     TournamentStructure
 };
 use App\Nova\Filters\Featured;
-use App\Nova\Filters\FeaturedTournamet;
+use App\Nova\Filters\FeaturedTournament;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     Avatar,
@@ -49,7 +49,7 @@ class Tournament extends Resource
     public function filters(Request $request)
     {
         return[
-            new FeaturedTournamet
+            new FeaturedTournament
         ];
     }
     /**

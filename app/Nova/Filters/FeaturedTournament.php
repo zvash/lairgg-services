@@ -5,7 +5,7 @@ namespace App\Nova\Filters;
 use Illuminate\Http\Request;
 use Laravel\Nova\Filters\Filter;
 
-class FeaturedTournamet extends Filter
+class FeaturedTournament extends Filter
 {
     /**
      * The filter's component.
