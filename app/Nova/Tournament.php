@@ -6,6 +6,8 @@ use App\Enums\{
     Status,
     TournamentStructure
 };
+use App\Nova\Filters\Featured;
+use App\Nova\Filters\FeaturedTournamet;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     Avatar,
@@ -44,6 +46,12 @@ class Tournament extends Resource
      */
     public static $title = 'title';
 
+    public function filters(Request $request)
+    {
+        return[
+            new FeaturedTournamet
+        ];
+    }
     /**
      * The columns that should be searched.
      *
