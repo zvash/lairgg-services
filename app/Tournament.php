@@ -206,6 +206,19 @@ class Tournament extends Model
     }
 
     /**
+     * Filter upcoming tournaments from this moment
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeUpcomingMoment(Builder $query)
+    {
+        return $query->whereNotNull('started_at')
+            ->whereDate('started_at', '>', date('Y-m-d H:i:s'))
+            ->orderBy('started_at', 'ASC');
+    }
+
+    /**
      * Filter last month tournaments
      *
      * @param Builder $query
@@ -225,7 +238,7 @@ class Tournament extends Model
      * @param Builder $query
      * @return Builder
      */
-    public function scopeLive(Builder $query)
+    public function scopeWithActiveMatch(Builder $query)
     {
         $now = date('Y-m-d H:i:s');
         return $query->whereNotNull('started_at')
@@ -235,6 +248,20 @@ class Tournament extends Model
                     ->whereDate('started_at', '<=', $now)
                     ->whereNull('winner_team_id');
             })
+            ->orderBy('started_at', 'DESC');
+    }
+
+    /**
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeLive(Builder $query)
+    {
+        $now = date('Y-md H:i:s');
+        return $query->whereNotNull('started_at')
+            ->whereNotNull('ended_at')
+            ->whereDate('started_at', '<=', $now)
+            ->whereDate('ended_at', '>=', $now)
             ->orderBy('started_at', 'DESC');
     }
 

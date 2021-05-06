@@ -74,6 +74,39 @@ class UserController extends Controller
     }
 
     /**
+     * User all upcoming tournaments
+     *
+     * @param Request $request
+     * @param TournamentRepository $tournamentRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function getUpcomingTournaments(Request $request, TournamentRepository $tournamentRepository)
+    {
+        $user = Auth::user();
+        $tournaments = $tournamentRepository->getUserUpcomingTournaments($user, 10);
+        return $this->success($tournaments);
+    }
+
+    /**
+     * @param Request $request
+     * @param TournamentRepository $tournamentRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function getLimitedUpcomingTournaments(Request $request, TournamentRepository $tournamentRepository)
+    {
+        $user = Auth::user();
+        $limit = $request->exists('limit') ? $request->get('limit') : 1;
+        if (is_numeric($limit)) {
+            $limit = max(1, intval($limit));
+        } else {
+            $limit = 1;
+        }
+        $limit = min(10, $limit);
+        $tournaments = $tournamentRepository->getUserFirstFewUpcomingTournaments($user, $limit);
+        return $this->success($tournaments);
+    }
+
+    /**
      * Dispatch user jobs and events.
      *
      * @param  \App\User $user

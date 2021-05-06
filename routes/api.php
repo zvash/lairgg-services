@@ -31,8 +31,6 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
             $router->group(['prefix' => 'users'], function ($router) {
 
-                $router->get('tournaments', 'UserController@tournaments');
-
                 $router->post('verify/resend', 'VerificationController@resend')->name('verification.resend');
 
                 $router->post('/set-identifiers', 'UserController@setMissingIdentifiers');
@@ -41,6 +39,13 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
             $router->group(['middleware' => 'verified'], function ($router) {
 
+                $router->group(['prefix' => 'users'], function ($router) {
+
+                    $router->get('tournaments/upcoming/few', 'UserController@getLimitedUpcomingTournaments');
+                    $router->get('tournaments/upcoming/all', 'UserController@getUpcomingTournaments');
+                    $router->get('tournaments', 'UserController@tournaments');
+
+                });
 
                 $router->group(['prefix' => 'organizations'], function ($router) {
 

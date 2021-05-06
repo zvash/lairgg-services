@@ -111,22 +111,42 @@ class TournamentRepository extends BaseRepository
      */
     public function getUserTournaments(User $user, int $paginate = 0)
     {
-        $tournaments = Tournament::whereHas('participants', function (Builder $participants) use ($user) {
-                $participants->whereHasMorph('participantable', [Team::class, User::class], function (Builder $participantable, $type) use ($user) {
-                    if ($type == Team::class) {
-                        $participantable->whereHas('players', function (Builder $players) use ($user) {
-                            $players->where('user_id', $user->id);
-                        });
-                    } else {
-                        $participantable->where('participantable_id', $user->id);
-                    }
-                });
-            });
+        $tournaments = $this->userTournamentsQueryBuilder($user);
 
         if ($paginate) {
             return $tournaments->paginate($paginate);
         }
         return $tournaments->get()->toArray();
+    }
+
+    /**
+     * @param User $user
+     * @param int $paginate
+     * @return mixed
+     */
+    public function getUserUpcomingTournaments(User $user, int $paginate = 0)
+    {
+        $tournaments = $this->userTournamentsQueryBuilder($user)->upcomingMoment();
+
+        if ($paginate) {
+            return $tournaments->paginate($paginate);
+        }
+        return $tournaments->get()->toArray();
+    }
+
+    /**
+     * @param User $user
+     * @param int $limit
+     * @return mixed
+     */
+    public function getUserFirstFewUpcomingTournaments(User $user, int $limit = 0)
+    {
+        $tournaments = $this->userTournamentsQueryBuilder($user)->upcomingMoment();
+
+        if ($limit) {
+            return $tournaments->limit($limit)->get()->toArray();
+        }
+        return $tournaments->limit(1)->get()->toArray();
     }
 
     /**
@@ -180,5 +200,25 @@ class TournamentRepository extends BaseRepository
             ]);
         }, ARRAY_FILTER_USE_KEY);
         return $inputs;
+    }
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    protected function userTournamentsQueryBuilder(User $user)
+    {
+        $tournaments = Tournament::whereHas('participants', function (Builder $participants) use ($user) {
+            $participants->whereHasMorph('participantable', [Team::class, User::class], function (Builder $participantable, $type) use ($user) {
+                if ($type == Team::class) {
+                    $participantable->whereHas('players', function (Builder $players) use ($user) {
+                        $players->where('user_id', $user->id);
+                    });
+                } else {
+                    $participantable->where('participantable_id', $user->id);
+                }
+            });
+        });
+        return $tournaments;
     }
 }
