@@ -84,6 +84,7 @@ class Tournament extends Model
         'league_tie_score' => 'integer',
         'league_lose_score' => 'integer',
         'league_match_up_count' => 'integer',
+        'featured' => 'boolean',
     ];
 
     /**

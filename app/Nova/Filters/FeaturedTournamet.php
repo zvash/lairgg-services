@@ -24,7 +24,7 @@ class FeaturedTournamet extends Filter
      */
     public function apply(Request $request, $query, $value)
     {
-        return $query->where('Featured',$value);
+        return $query->where('featured', $value);
     }
 
     /**
@@ -36,7 +36,7 @@ class FeaturedTournamet extends Filter
     public function options(Request $request)
     {
         return [
-            'Featured'=> true
+            'Featured'=> 1
         ];
     }
 }
