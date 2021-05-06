@@ -11,6 +11,7 @@
         "php": "^7.2.5",
         "aws/aws-sdk-php": "3.173.19",
         "aws/aws-sdk-php-laravel": "^3.6",
+        "brick/phonenumber": "^0.2.2",
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^1.0",
         "guzzlehttp/guzzle": "^6.3",
