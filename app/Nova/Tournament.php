@@ -6,6 +6,8 @@ use App\Enums\{
     Status,
     TournamentStructure
 };
+use App\Nova\Filters\Featured;
+use App\Nova\Filters\FeaturedTournament;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
     Avatar,
@@ -44,6 +46,12 @@ class Tournament extends Resource
      */
     public static $title = 'title';
 
+    public function filters(Request $request)
+    {
+        return[
+            new FeaturedTournament
+        ];
+    }
     /**
      * The columns that should be searched.
      *
@@ -201,6 +209,9 @@ class Tournament extends Resource
             Boolean::make('Join request')
                 ->hideFromIndex()
                 ->help('Teams can join the tournaments via the invitation link.'),
+
+            Boolean::make('Featured')
+                ->help('Make tournament featured.'),
 
             Text::make('Join URL')
                 ->readonly()
