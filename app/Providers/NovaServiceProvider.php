@@ -35,6 +35,20 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     }
 
     /**
+     * Configure the Nova authorization services.
+     *
+     * @return void
+     */
+    protected function authorization()
+    {
+        $this->gate();
+
+        Nova::auth(function ($request) {
+            return Gate::check('viewNova', [$request->user()]);
+        });
+    }
+
+    /**
      * Register the Nova gate.
      *
      * This gate determines who can access Nova in non-local environments.
@@ -45,7 +59,11 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     {
         Gate::define('viewNova', function ($user) {
             return in_array($user->email, [
-                //
+                'hossein@edoramedia.com',
+                'ali.shafiee@edoramedia.com',
+                'ilyad@edoramedia.com',
+                'farbod@edoramedia.com',
+                'siavash.hekmatnia@gmail.com',
             ]);
         });
     }
