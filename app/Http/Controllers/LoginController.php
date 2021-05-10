@@ -95,7 +95,7 @@ class LoginController extends Controller
      */
     public function finishSocialLogin(Request $request)
     {
-        return view('auth.verification.loggedin');
+        return view('auth.verifications.loggedin');
     }
 
     /**
