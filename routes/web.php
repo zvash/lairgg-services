@@ -25,13 +25,13 @@ Route::get('/home', function () {
     return 'User is logged in';
 });
 
+Route::get('/users/{user}/social', 'LoginController@singleUrlLogin')->name('login.single_url');
+Route::get('/users/social/login', 'LoginController@finishSocialLogin')->name('login.social');
+
 Route::group(['namespace' => 'Api\V1'], function ($router) {
     Route::group(['prefix' => 'users'], function ($router) {
 
         Route::get('/verify/{user}', 'VerificationController@verify')->name('verification.verify');
-
-        Route::get('/{user}/social', 'LoginController@singleUrlLogin')->name('login.single_url');
-        Route::get('/social/login', 'LoginController@finishSocialLogin')->name('login.social');
 
     });
 
