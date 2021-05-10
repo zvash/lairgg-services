@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
 use App\User;
+use Illuminate\Support\Facades\URL;
 
 class LoginController extends Controller
 {
@@ -74,8 +75,41 @@ class LoginController extends Controller
         $user = Socialite::driver($provider)->user();
         $authUser = $this->findOrCreateUser($user, $provider);
         $this->verifyEmail($provider, $authUser);
-        $response = $this->logUserInWithoutPassword($authUser);
-        return $this->response($response, 200);
+        $signedUrl = config('app.url').URL::temporarySignedRoute(
+            'login.single_url',
+            now()->addSeconds(config('auth.single_login.expire', 120)),
+            [
+                'user' => $authUser->id
+            ],
+            false
+        );
+        $signedUrl = base64_encode($signedUrl);
+        $redirectUrl = rtrim(route('login.social'), '/') . '?url=' . $signedUrl;
+
+        return redirect($redirectUrl);
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function finishSocialLogin(Request $request)
+    {
+        return view('auth.verification.loggedin');
+    }
+
+    /**
+     * @param Request $request
+     * @param User $user
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function singleUrlLogin(Request $request, User $user)
+    {
+        if ($request->hasValidSignature(false)) {
+            $response = $this->logUserInWithoutPassword($user);
+            return $this->response($response, 200);
+        }
+        return $this->failMessage("Authentication Failed.", 401);
     }
 
     /**

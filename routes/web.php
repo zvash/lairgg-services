@@ -30,6 +30,9 @@ Route::group(['namespace' => 'Api\V1'], function ($router) {
 
         Route::get('/verify/{user}', 'VerificationController@verify')->name('verification.verify');
 
+        Route::get('/{user}/social', 'LoginController@singleUrlLogin')->name('login.single_url');
+        Route::get('/social/login', 'LoginController@finishSocialLogin')->name('login.social');
+
     });
 
 });
