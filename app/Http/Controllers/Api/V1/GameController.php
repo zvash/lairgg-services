@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Repositories\GameRepository;
 use App\Traits\Responses\ResponseMaker;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class GameController extends Controller
 {

@@ -45,6 +45,9 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->get('tournaments/upcoming/all', 'UserController@getUpcomingTournaments');
                     $router->get('tournaments', 'UserController@tournaments');
 
+                    $router->post('games/update', 'UserController@updateUserGames');
+                    $router->get('games/all', 'UserController@listAllGames');
+
                 });
 
                 $router->group(['prefix' => 'organizations'], function ($router) {
