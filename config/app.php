@@ -69,6 +69,8 @@ return [
 
     'timezone' => 'UTC',
 
+    'request_utc_offset' => 0,
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration

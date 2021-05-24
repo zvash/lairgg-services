@@ -15,3 +15,10 @@ function get_available_languages()
     $langResourcePath = resource_path('lang');
     return array_values(array_diff(scandir($langResourcePath), ['.', '..']));
 }
+
+function getToday($format = 'Y-m-d')
+{
+    return \Carbon\Carbon::now('UTC')
+        ->addMinutes(config('app.request_utc_offset', 0))
+        ->format($format);
+}
