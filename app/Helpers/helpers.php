@@ -9,3 +9,9 @@ function make_random_hash(string $salt = '')
     }
     return sha1($string);
 }
+
+function get_available_languages()
+{
+    $langResourcePath = resource_path('lang');
+    return array_values(array_diff(scandir($langResourcePath), ['.', '..']));
+}

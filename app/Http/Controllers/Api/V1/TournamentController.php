@@ -8,6 +8,7 @@ use App\Tournament;
 use App\Organization;
 use Illuminate\Http\Request;
 use App\Enums\TournamentStructure;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\Controller;
 use App\Traits\Responses\ResponseMaker;
@@ -153,7 +154,8 @@ class TournamentController extends Controller
      */
     public function live(Request $request, TournamentRepository $tournamentRepository)
     {
-        $tournaments = $tournamentRepository->getLive(10);
+        $user = Auth::user();
+        $tournaments = $tournamentRepository->getLive($user, 10);
         return $this->success($tournaments);
     }
 

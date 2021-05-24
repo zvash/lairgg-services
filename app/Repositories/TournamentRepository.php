@@ -152,12 +152,13 @@ class TournamentRepository extends BaseRepository
     /**
      * Get Live tournaments
      *
+     * @param User $user
      * @param int $paginate
      * @return mixed
      */
-    public function getLive(int $paginate = 0)
+    public function getLive(User $user, int $paginate = 0)
     {
-        $tournaments = Tournament::live();
+        $tournaments = $this->withGames(Tournament::live(), $user);
         if ($paginate) {
             return $tournaments->paginate($paginate);
         }
@@ -220,5 +221,18 @@ class TournamentRepository extends BaseRepository
             });
         });
         return $tournaments;
+    }
+
+    /**
+     * @param Builder $query
+     * @param User $user
+     * @return Builder
+     */
+    private function withGames(Builder $query, User $user)
+    {
+        $gameIds = $user->games()->pluck('game_id');
+        return $query->whereHas('game', function($game) use ($gameIds) {
+            return $game->whereIn('id', $gameIds);
+        });
     }
 }
