@@ -208,6 +208,23 @@ class Tournament extends Model
     }
 
     /**
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeStartAfterTomorrow(Builder $query)
+    {
+        $theDayAfterTomorrow = getToday()
+            ->startOfDay()
+            ->addDays(2);
+        $monthLater = getToday()
+            ->addMonth();
+        return $query->whereNotNull('started_at')
+            ->whereDate('started_at', '>=', $theDayAfterTomorrow)
+            ->where('started_at', '<=', $monthLater)
+            ->orderBy('started_at', 'ASC');
+    }
+
+    /**
      * Filter upcoming tournaments from this moment
      *
      * @param Builder $query
@@ -215,9 +232,39 @@ class Tournament extends Model
      */
     public function scopeUpcomingMoment(Builder $query)
     {
-        $today = getToday('Y-m-d H:i:s');
+        $now = \Carbon\Carbon::now();
         return $query->whereNotNull('started_at')
-            ->whereDate('started_at', '>', $today)
+            ->where('started_at', '>=', $now)
+            ->orderBy('started_at', 'ASC');
+    }
+
+    /**
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeLaterToday(Builder $query)
+    {
+        $now = \Carbon\Carbon::now();
+        $tomorrow = getToday()
+            ->startOfDay()
+            ->addDay();
+        return $query->whereNotNull('started_at')
+            ->where('started_at', '>=', $now)
+            ->where('started_at', '<', $tomorrow)
+            ->orderBy('started_at', 'ASC');
+    }
+
+    /**
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeTomorrow(Builder $query)
+    {
+        $tomorrow = getToday()
+            ->startOfDay()
+            ->addDay();
+        return $query->whereNotNull('started_at')
+            ->whereDate('started_at', $tomorrow)
             ->orderBy('started_at', 'ASC');
     }
 
@@ -230,9 +277,9 @@ class Tournament extends Model
     public function scopeLastMonth(Builder $query)
     {
         $today = getToday();
-        $lastMonth = \Carbon\Carbon::createFromFormat('Y-m-d', $today)
-            ->subMonth()
-            ->format('Y-m-d');
+        $lastMonth = getToday()
+            ->startOfDay()
+            ->subMonth();
         return $query->whereNotNull('started_at')
             ->whereDate('started_at', '<', $today)
             ->whereDate('started_at', '>=', $lastMonth)
@@ -247,12 +294,12 @@ class Tournament extends Model
      */
     public function scopeWithActiveMatch(Builder $query)
     {
-        $now = date('Y-m-d H:i:s');
+        $now = \Carbon\Carbon::now();
         return $query->whereNotNull('started_at')
-            ->whereDate('started_at', '<=', $now)
+            ->where('started_at', '<=', $now)
             ->whereHas('matches', function (Builder $matches) use ($now) {
                 $matches->whereNotNull('started_at')
-                    ->whereDate('started_at', '<=', $now)
+                    ->where('started_at', '<=', $now)
                     ->whereNull('winner_team_id');
             })
             ->orderBy('started_at', 'DESC');
@@ -264,11 +311,11 @@ class Tournament extends Model
      */
     public function scopeLive(Builder $query)
     {
-        $now = date('Y-md H:i:s');
+        $now = \Carbon\Carbon::now();
         return $query->whereNotNull('started_at')
             ->whereNotNull('ended_at')
-            ->whereDate('started_at', '<=', $now)
-            ->whereDate('ended_at', '>=', $now)
+            ->where('started_at', '<=', $now)
+            ->where('ended_at', '>=', $now)
             ->orderBy('started_at', 'DESC');
     }
 

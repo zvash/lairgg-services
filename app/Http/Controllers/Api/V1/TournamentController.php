@@ -161,6 +161,42 @@ class TournamentController extends Controller
 
     /**
      * @param Request $request
+     * @param TournamentRepository $tournamentRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function laterToday(Request $request, TournamentRepository $tournamentRepository)
+    {
+        $user = Auth::user();
+        $tournaments = $tournamentRepository->getLaterTodayTournaments($user);
+        return $this->success($tournaments);
+    }
+
+    /**
+     * @param Request $request
+     * @param TournamentRepository $tournamentRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function tomorrow(Request $request, TournamentRepository $tournamentRepository)
+    {
+        $user = Auth::user();
+        $tournaments = $tournamentRepository->getTomorrowTournaments($user);
+        return $this->success($tournaments);
+    }
+
+    /**
+     * @param Request $request
+     * @param TournamentRepository $tournamentRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function willStartAfterTomorrow(Request $request, TournamentRepository $tournamentRepository)
+    {
+        $user = Auth::user();
+        $tournaments = $tournamentRepository->getAfterTomorrowTournaments($user);
+        return $this->success($tournaments);
+    }
+
+    /**
+     * @param Request $request
      * @return array
      */
     private function validateCreateTournament(Request $request)

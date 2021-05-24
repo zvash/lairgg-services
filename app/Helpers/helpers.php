@@ -16,9 +16,8 @@ function get_available_languages()
     return array_values(array_diff(scandir($langResourcePath), ['.', '..']));
 }
 
-function getToday($format = 'Y-m-d')
+function getToday()
 {
     return \Carbon\Carbon::now('UTC')
-        ->addMinutes(config('app.request_utc_offset', 0))
-        ->format($format);
+        ->addMinutes(config('app.request_utc_offset', 0));
 }
