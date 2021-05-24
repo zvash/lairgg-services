@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Game;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SetIdentifiersRequest;
 use App\Http\Requests\StoreUser;
 use App\Http\Resources\UserResource;
+use App\Repositories\GameRepository;
 use App\Repositories\TournamentRepository;
 use App\Traits\Responses\ResponseMaker;
 use App\User;
@@ -104,6 +106,41 @@ class UserController extends Controller
         $limit = min(10, $limit);
         $tournaments = $tournamentRepository->getUserFirstFewUpcomingTournaments($user, $limit);
         return $this->success($tournaments);
+    }
+
+    /**
+     * @param Request $request
+     * @param GameRepository $gameRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function updateUserGames(Request $request, GameRepository $gameRepository)
+    {
+        $request->validate([
+            'game_ids' => 'array',
+            'game_ids.*' => 'int|min:1|exists:games,id'
+        ]);
+        $user = Auth::user();
+        if ($user) {
+            $inputs = $request->all();
+            $userGames = $gameRepository->syncUserGames($user, $inputs['game_ids']);
+            return $this->success($userGames);
+        }
+        return $this->failNotFound();
+    }
+
+    /**
+     * @param Request $request
+     * @param GameRepository $gameRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function listAllGames(Request $request, GameRepository $gameRepository)
+    {
+        $user = Auth::user();
+        if ($user) {
+            $allGames = $gameRepository->getAllGamesAndUserSelectionStatus($user);
+            return $this->success($allGames);
+        }
+        return $this->failNotFound();
     }
 
     /**
