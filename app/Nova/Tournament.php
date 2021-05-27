@@ -234,7 +234,7 @@ class Tournament extends Resource
             DateTime::make('Started at')
                 ->hideFromIndex()
                 ->required()
-                ->rules('required', 'date', 'after:now'),
+                ->rules('required', 'date'),
 
             DateTime::make('Ended at')
                 ->hideFromIndex()
