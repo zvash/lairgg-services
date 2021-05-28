@@ -20,7 +20,6 @@ class InvitationRepository extends BaseRepository
      * @param string $identifier
      * @param User $user
      * @param User|null $invitee
-     * @throws \Exception
      */
     public function createTournamentInvitation(Tournament $tournament, string $identifier, User $user, ?User $invitee)
     {
@@ -35,7 +34,14 @@ class InvitationRepository extends BaseRepository
             ]);
             $this->fireCreationEvents($invitation, $invitee);
         } catch (QueryException $exception) {
-            throw new \Exception('You have already invited this person to the tournament.');
+            $invitation = Invitation::where('invited_by', $user->id)
+                ->where('invite_aware_type', Tournament::class)
+                ->where('invite_aware_id', $tournament->id)
+                ->where('email', $email)
+                ->first();
+            if ($invitation) {
+                $this->fireCreationEvents($invitation, $invitee);
+            }
         }
     }
 

@@ -237,13 +237,8 @@ class TournamentController extends Controller
         }
 
         list($identifier, $user) = $this->validateParticipantIdentifier($request);
-        try {
-            $invitationRepository->createTournamentInvitation($tournament, $identifier, Auth::user(), $user);
-            return $this->success(['message' => "{$identifier} is invited to join the {$tournament->title} tournament."]);
-        } catch (\Exception $exception) {
-            return $this->failData(['message' => $exception->getMessage()], 400);
-        }
-
+        $invitationRepository->createTournamentInvitation($tournament, $identifier, Auth::user(), $user);
+        return $this->success(['message' => "{$identifier} is invited to join the {$tournament->title} tournament."]);
     }
 
 
