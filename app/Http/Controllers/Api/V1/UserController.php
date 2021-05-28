@@ -116,7 +116,7 @@ class UserController extends Controller
     public function updateUserGames(Request $request, GameRepository $gameRepository)
     {
         $request->validate([
-            'game_ids' => 'required|array|min:3',
+            'game_ids' => 'required|array|min:1',
             'game_ids.*' => 'int|min:1|exists:games,id'
         ]);
         $user = Auth::user();
