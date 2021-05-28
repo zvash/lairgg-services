@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\HttpStatusCode;
+use App\Invitation;
+use App\Participant;
+use App\Repositories\InvitationRepository;
+use App\User;
 use DateTimeZone;
 use App\Tournament;
 use App\Organization;
@@ -114,7 +118,7 @@ class TournamentController extends Controller
         }
         return $this->success($tournament->participants->load(['participantable', 'participantable.players']));
     }
-    
+
     /**
      * @param Tournament $tournament
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
@@ -193,6 +197,73 @@ class TournamentController extends Controller
         $user = Auth::user();
         $tournaments = $tournamentRepository->getAfterTomorrowTournaments($user);
         return $this->success($tournaments);
+    }
+
+    /**
+     * @param Request $request
+     * @param Tournament $tournament
+     * @param string $participantable
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function joinParticipantablesToTournament(Request $request, Tournament $tournament, string $participantable)
+    {
+        try {
+            $participantable = $this->getParticipantablesType($participantable);
+        } catch (\Exception $exception) {
+            return $this->failNotFound();
+        }
+
+        $gate = Gate::inspect('canAddParticipants', $tournament);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+        }
+
+        $this->validateJoinParticipantsRequest($request, $participantable);
+        $participantsIds = $this->addNewParticipantsToTournament($request, $tournament, $participantable);
+        return $this->success($participantsIds);
+    }
+
+    /**
+     * @param Request $request
+     * @param Tournament $tournament
+     * @param InvitationRepository $invitationRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function invite(Request $request, Tournament $tournament, InvitationRepository $invitationRepository)
+    {
+        $gate = Gate::inspect('canInviteParticipant', $tournament);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+        }
+
+        list($identifier, $user) = $this->validateParticipantIdentifier($request);
+        try {
+            $invitationRepository->createTournamentInvitation($tournament, $identifier, Auth::user(), $user);
+            return $this->success(['message' => "{$identifier} is invited to join the {$tournament->title} tournament."]);
+        } catch (\Exception $exception) {
+            return $this->failData(['message' => $exception->getMessage()], 400);
+        }
+
+    }
+
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    private function validateParticipantIdentifier(Request $request)
+    {
+        $request->validate(['identifier' => 'required|string|filled']);
+        $identifier = $request->get('identifier');
+        $atSignPosition = strpos($identifier, '@');
+        if ($atSignPosition === false) {
+            $request->validate(['identifier' => 'exists:users,username']);
+            $user = User::where('username', $identifier)->first();
+            return [$identifier, $user];
+        }
+        $request->validate(['identifier' => 'email:rfc,dns']);
+        $user = User::where('email', $identifier)->first();
+        return [$identifier, $user];
     }
 
     /**
@@ -293,5 +364,71 @@ class TournamentController extends Controller
             'game_id' => 'int|exists:games,id'
         ];
         return $this->validateRules($request, $rules);
+    }
+
+    /**
+     * @param Request $request
+     * @param string $participantable
+     */
+    private function validateJoinParticipantsRequest(Request $request, string $participantable): void
+    {
+        $rules = [
+            'participants' => 'required|array|min:1'
+        ];
+        if ($participantable == \App\User::class) {
+            $rules[] = [
+                'participants.*' => 'required|int|exists:users,id',
+            ];
+        } else if ($participantable == \App\Team::class) {
+            $rules[] = [
+                'participants.*' => 'required|int|exists:teams,id',
+            ];
+        }
+        $request->validate($rules);
+    }
+
+    /**
+     * @param Request $request
+     * @param Tournament $tournament
+     * @param string $participantable
+     * @return array|mixed
+     */
+    private function addNewParticipantsToTournament(Request $request, Tournament $tournament, string $participantable)
+    {
+        $participantsIds = $request->get('participants');
+        $joinedParticipantsIds = $tournament->participants->pluck('participantable_id')->toArray();
+        $participantsIds = array_filter($participantsIds, function ($item) use ($joinedParticipantsIds) {
+            return !in_array($item, $joinedParticipantsIds);
+        });
+        if ($participantsIds) {
+            $newParticipants = [];
+            foreach ($participantsIds as $id) {
+                $newParticipants[] = new Participant([
+                    'participantable_type' => $participantable,
+                    'participantable_id' => $id
+                ]);
+            }
+            $tournament->participants()->saveMany($newParticipants);
+        }
+        return $participantsIds;
+    }
+
+    /**
+     * @param string $participantable
+     * @return mixed|string
+     * @throws \Exception
+     */
+    private function getParticipantablesType(string $participantable)
+    {
+        $participantables = [
+            'users' => \App\User::class,
+            'teams' => \App\Team::class,
+        ];
+        if (array_key_exists(strtolower($participantable), $participantables)) {
+            $participantable = $participantables[$participantable];
+        } else {
+            throw new \Exception('Not Found');
+        }
+        return $participantable;
     }
 }

@@ -40,19 +40,76 @@ class TournamentPolicy extends BasePolicy
      */
     public function update(User $user, Tournament $tournament)
     {
+        return $this->onlyAdminOfTournament($user, $tournament, 'You do not have administrative access to edit this tournament');
+    }
+
+    /**
+     * @param User $user
+     * @param Tournament $tournament
+     * @return Response
+     */
+    public function canAddParticipants(User $user, Tournament $tournament)
+    {
+        return $this->onlyAdminOfTournament($user, $tournament, 'You cannot add participants to this tournament');
+    }
+
+    /**
+     * @param User $user
+     * @param Tournament $tournament
+     * @return Response
+     */
+    public function canInviteParticipant(User $user, Tournament $tournament)
+    {
+        return $this->onlyAdminOfTournament($user, $tournament, 'You cannot invite participants');
+    }
+
+    /**
+     * @param User $user
+     * @param Tournament $tournament
+     * @param string $message
+     * @return Response
+     */
+    private function onlyAdminOfTournament(User $user, Tournament $tournament, string $message)
+    {
         $staffTypeIds = StaffType::whereIn('title', ['Admin'])
             ->pluck('id')
             ->all();
 
-        $isAdminOrModerator = $tournament
+        $isAdmin = $tournament
             ->organization
             ->staff()
             ->whereIn('staff_type_id', $staffTypeIds)
             ->where('user_id', $user->id)
             ->count();
-        return $isAdminOrModerator
+        return $isAdmin
             ? Response::allow()
-            : Response::deny('You do not have administrative access to edit this tournament');
+            : Response::deny($message);
+    }
+
+    /**
+     * @param User $user
+     * @param Tournament $tournament
+     * @param string $message
+     * @return Response
+     */
+    private function onlyTournamentStaff(User $user, Tournament $tournament, string $message)
+    {
+        $staffTypeIds = StaffType::whereIn('title', ['Admin'])
+            ->pluck('id')
+            ->all();
+
+        $isAdmin = $tournament
+            ->organization
+            ->staff()
+            ->whereIn('staff_type_id', $staffTypeIds)
+            ->where('user_id', $user->id)
+            ->count();
+
+        $isModerator = in_array($user->id, $tournament->moderators()->pluck('id')->toArray());
+
+        return $isAdmin || $isModerator
+            ? Response::allow()
+            : Response::deny($message);
     }
 
 }

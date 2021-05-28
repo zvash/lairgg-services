@@ -4,8 +4,7 @@ namespace App;
 
 use App\Enums\Status;
 use App\Traits\Eloquents\{
-    Joinable,
-    Linkable
+    InviteAware, Joinable, Linkable
 };
 use Illuminate\Database\Eloquent\{
     Builder, Model, SoftDeletes
@@ -20,7 +19,8 @@ class Tournament extends Model
     use Actionable,
         SoftDeletes,
         Linkable,
-        Joinable;
+        Joinable,
+        InviteAware;
 
     protected $fillable = [
         'title',

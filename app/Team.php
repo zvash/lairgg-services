@@ -3,10 +3,7 @@
 namespace App;
 
 use App\Traits\Eloquents\{
-    Followable,
-    Joinable,
-    Linkable,
-    Participantable
+    Followable, InviteAware, Joinable, Linkable, Participantable
 };
 use Illuminate\Database\Eloquent\{
     Model,
@@ -21,7 +18,8 @@ class Team extends Model
         Followable,
         Linkable,
         Joinable,
-        Participantable;
+        Participantable,
+        InviteAware;
 
     /**
      * The attributes that aren't mass assignable.

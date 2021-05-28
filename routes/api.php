@@ -72,6 +72,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->get('/tomorrow', 'TournamentController@tomorrow');
                     $router->get('/after-tomorrow', 'TournamentController@willStartAfterTomorrow');
 
+                    $router->post('/{tournament}/invite', 'TournamentController@invite');
+
                     $router->post('/{tournament}/edit', 'TournamentController@edit');
 
                     $router->get('/{tournament}/overview', 'TournamentController@overview');
@@ -80,11 +82,20 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->get('/{tournament}/participants', 'TournamentController@participants');
 
+                    $router->post('/{tournament}/participantable/{participantable}', 'TournamentController@joinParticipantablesToTournament');
+
                 });
 
                 $router->group(['prefix' => 'games'], function ($router) {
 
                     $router->get('/all', 'GameController@all');
+
+                });
+
+                $router->group(['prefix' => 'invitations'], function ($router) {
+
+                    $router->get('/flash', 'InvitationController@flash');
+                    $router->post('/flashed', 'InvitationController@flashed');
 
                 });
 
