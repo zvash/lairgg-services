@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Enums\ParticipantAcceptanceState;
 use App\Enums\Status;
 use App\Traits\Eloquents\{
     InviteAware, Joinable, Linkable
@@ -107,6 +108,9 @@ class Tournament extends Model
 
     protected $appends = [
         'check_in_is_allowed',
+        'region_title',
+        'accepted_count',
+        'tournament_game',
     ];
 
     /**
@@ -345,6 +349,32 @@ class Tournament extends Model
             }
         }
         return false;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRegionTitleAttribute()
+    {
+        return $this->region()->get()->first()->title;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAcceptedCountAttribute()
+    {
+        return $this->participants()
+            ->where('status', ParticipantAcceptanceState::ACCEPTED)
+            ->count();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTournamentGameAttribute()
+    {
+        return $this->game()->get(['title', 'logo'])->first();
     }
 
     /**
