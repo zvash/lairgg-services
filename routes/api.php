@@ -71,6 +71,7 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->get('/later-today', 'TournamentController@laterToday');
                     $router->get('/tomorrow', 'TournamentController@tomorrow');
                     $router->get('/after-tomorrow', 'TournamentController@willStartAfterTomorrow');
+                    $router->get('/after-now', 'TournamentController@willStartAfterNow');
 
                     $router->post('/{tournament}/invite', 'TournamentController@invite');
 

@@ -201,6 +201,18 @@ class TournamentController extends Controller
 
     /**
      * @param Request $request
+     * @param TournamentRepository $tournamentRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function willStartAfterNow(Request $request, TournamentRepository $tournamentRepository)
+    {
+        $user = Auth::user();
+        $tournaments = $tournamentRepository->getAfterNowTournaments($user);
+        return $this->success($tournaments);
+    }
+
+    /**
+     * @param Request $request
      * @param Tournament $tournament
      * @param string $participantable
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response

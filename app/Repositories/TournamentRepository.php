@@ -214,6 +214,22 @@ class TournamentRepository extends BaseRepository
     }
 
     /**
+     * Tournaments that will start in future
+     *
+     * @param User $user
+     * @param int $paginate
+     * @return array|\Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getAfterNowTournaments(User $user, int $paginate = 0)
+    {
+        $tournaments = $this->withGames(Tournament::upcomingMoment(), $user);
+        if ($paginate) {
+            return $tournaments->paginate($paginate);
+        }
+        return $tournaments->get()->toArray();
+    }
+
+    /**
      * @param Request $request
      * @return array
      */
