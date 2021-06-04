@@ -125,10 +125,13 @@ class InvitationRepository extends BaseRepository
             $invitedToObject = $groupedInvitation->invite_aware_type::find($groupedInvitation->invite_aware_id);
             $imageField = $invitationTypeMap[$groupedInvitation->invite_aware_type]['image'];
             $coverField = $invitationTypeMap[$groupedInvitation->invite_aware_type]['cover'];
+            $tournamentDetails = null;
+            $teamDetails = null;
             if ($invitedToObject) {
                 $title = $invitedToObject->title;
                 if ($groupedInvitation->invite_aware_type == Tournament::class) {
                     $organizationTitle = $invitedToObject->organization->title;
+                    $organizationLogo = $invitedToObject->organization->logo;
                     $gameTitle = $invitedToObject->game->title;
                     $prizeValue = null;
                     $prizeType = null;
@@ -139,13 +142,17 @@ class InvitationRepository extends BaseRepository
                     }
                     $tournamentDetails = [
                         'organization' => $organizationTitle,
+                        'organization_logo' => $organizationLogo,
                         'game' => $gameTitle,
                         'prize_value' => $prizeValue,
                         'prize_type' => $prizeType,
                         'starts_at' => $invitedToObject->startted_at
                     ];
                 } else {
-                    $tournamentDetails = null;
+                    $gameTitle = $invitedToObject->game->title;
+                    $tournamentDetails = [
+                        'game' => $gameTitle,
+                    ];
                 }
                 $flashInvitations['invitations'][] = [
                     'invitation_type' => $invitationTypeMap[$groupedInvitation->invite_aware_type]['type'],
@@ -157,7 +164,8 @@ class InvitationRepository extends BaseRepository
                         'usernames' => $usernames,
                         'with_avatar' => $withAvatar
                     ],
-                    'tournament_details' => $tournamentDetails
+                    'tournament_details' => $tournamentDetails,
+                    'team_details' => $teamDetails,
                 ];
             }
 
