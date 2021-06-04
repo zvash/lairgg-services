@@ -45,6 +45,36 @@ class InvitationRepository extends BaseRepository
         }
     }
 
+    /**
+     * @param Team $team
+     * @param string $identifier
+     * @param User $user
+     * @param User|null $invitee
+     */
+    public function createTeamInvitation(Team $team, string $identifier, User $user, ?User $invitee)
+    {
+        $email = $invitee ? $invitee->email : $identifier;
+        try {
+            $invitation = Invitation::create([
+                'invited_by' => $user->id,
+                'organization_id' => null,
+                'invite_aware_type' => Team::class,
+                'invite_aware_id' => $team->id,
+                'email' => $email,
+            ]);
+            $this->fireCreationEvents($invitation, $invitee);
+        } catch (QueryException $exception) {
+            $invitation = Invitation::where('invited_by', $user->id)
+                ->where('invite_aware_type', Team::class)
+                ->where('invite_aware_id', $team->id)
+                ->where('email', $email)
+                ->first();
+            if ($invitation) {
+                $this->fireCreationEvents($invitation, $invitee);
+            }
+        }
+    }
+
     public function flashInvitations(User $user)
     {
         $invitationTypeMap = [

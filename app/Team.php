@@ -21,6 +21,14 @@ class Team extends Model
         Participantable,
         InviteAware;
 
+    protected $fillable = [
+        'title',
+        'bio',
+        'logo',
+        'cover',
+        'game_id',
+    ];
+
     /**
      * The attributes that aren't mass assignable.
      *

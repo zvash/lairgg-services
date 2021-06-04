@@ -87,6 +87,13 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                 });
 
+                $router->group(['prefix' => 'teams'], function ($router) {
+
+                    $router->post('create', 'TeamController@store');
+                    $router->post('/{team}/invite', 'TeamController@invite');
+
+                });
+
                 $router->group(['prefix' => 'games'], function ($router) {
 
                     $router->get('/all', 'GameController@all');

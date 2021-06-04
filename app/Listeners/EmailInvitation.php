@@ -3,7 +3,9 @@
 namespace App\Listeners;
 
 use App\Events\InvitationCreated;
+use App\Mail\InviteToTeamMail;
 use App\Mail\InviteToTournamentMail;
+use App\Team;
 use App\Tournament;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -34,6 +36,8 @@ class EmailInvitation implements ShouldQueue
         $invitee = $event->invitee;
         if ($invitation->invite_aware_type == Tournament::class) {
             Mail::to($invitation->email)->send(new InviteToTournamentMail($invitation, $invitee == null));
+        } else if ($invitation->invite_aware_type == Team::class) {
+            Mail::to($invitation->email)->send(new InviteToTeamMail($invitation, $invitee == null));
         }
     }
 }

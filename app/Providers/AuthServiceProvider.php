@@ -10,7 +10,9 @@ use App\Policies\DisputePolicy;
 use App\Policies\MatchPolicy;
 use App\Policies\OrganizationPolicy;
 use App\Policies\PlayPolicy;
+use App\Policies\TeamPolicy;
 use App\Policies\TournamentPolicy;
+use App\Team;
 use App\Tournament;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Laravel\Passport\Passport;
@@ -29,7 +31,8 @@ class AuthServiceProvider extends ServiceProvider
         Dispute::class => DisputePolicy::class,
         Match::class => MatchPolicy::class,
         Organization::class => OrganizationPolicy::class,
-        Play::class => PlayPolicy::class
+        Play::class => PlayPolicy::class,
+        Team::class => TeamPolicy::class,
     ];
 
     /**
