@@ -150,7 +150,7 @@ class InvitationRepository extends BaseRepository
                     ];
                 } else {
                     $gameTitle = $invitedToObject->game->title;
-                    $tournamentDetails = [
+                    $teamDetails = [
                         'game' => $gameTitle,
                     ];
                 }
