@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\InvitationActionRequest;
 use App\Repositories\InvitationRepository;
 use App\Traits\Responses\ResponseMaker;
 use Illuminate\Http\Request;
@@ -34,5 +35,12 @@ class InvitationController extends Controller
         $user = $request->user();
         $invitationRepository->flashedOnce($user, $request->get('token'));
         return $this->success(['message' => 'done']);
+    }
+
+    public function accept(InvitationActionRequest $request, InvitationRepository $invitationRepository)
+    {
+        $user = $request->user();
+        $validated = $request->validated();
+
     }
 }

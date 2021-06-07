@@ -10,4 +10,5 @@ class ParticipantAcceptanceState extends Enum
     const ACCEPTED = 'accepted';
     const REJECTED = 'rejected';
     const RESERVED = 'reserved';
+    const ACCEPTED_NOT_READY = 'accepted_not_ready';
 }

@@ -75,6 +75,10 @@ class InvitationRepository extends BaseRepository
         }
     }
 
+    /**
+     * @param User $user
+     * @return array
+     */
     public function flashInvitations(User $user)
     {
         $invitationTypeMap = [
@@ -146,7 +150,8 @@ class InvitationRepository extends BaseRepository
                         'game' => $gameTitle,
                         'prize_value' => $prizeValue,
                         'prize_type' => $prizeType,
-                        'starts_at' => $invitedToObject->startted_at
+                        'starts_at' => $invitedToObject->startted_at,
+                        'participantables' => $this->participantablesForTournament($user, $invitedToObject),
                     ];
                 } else {
                     $gameTitle = $invitedToObject->game->title;
@@ -185,11 +190,93 @@ class InvitationRepository extends BaseRepository
     }
 
     /**
+     * @param User $user
+     * @param int $teamId
+     */
+    public function acceptTeamInvitation(User $user, int $teamId)
+    {
+        $invitations = $this->getInvitations($user, $teamId, Team::class);
+        if ($invitations) {
+            $firstInvitation = $invitations->first();
+            $team = Team::find($firstInvitation->invite_aware_id);
+            $team->players()->syncWithoutDetaching([$user->id], ['captain' => false]);
+        }
+        $this->removeInvitations($invitations->all());
+    }
+
+    /**
      * @param Invitation $invitation
      * @param User|null $invitee
      */
     private function fireCreationEvents(Invitation $invitation, ?User $invitee)
     {
         event(new InvitationCreated($invitation, $invitee));
+    }
+
+    /**
+     * @param User $user
+     * @param int $inviteAwareId
+     * @param string $inviteeAwareType
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     */
+    private function getInvitations(User $user, int $inviteAwareId, string $inviteeAwareType)
+    {
+        return Invitation::query()
+            ->where('invite_aware_id', $inviteAwareId)
+            ->where('invite_aware_type', $inviteeAwareType)
+            ->where('email', $user->email)
+            ->get();
+    }
+
+    /**
+     * @param array $invitations
+     */
+    private function removeInvitations(array $invitations)
+    {
+        foreach ($invitations as $invitation) {
+            $invitation->delete();
+        }
+    }
+
+    /**
+     * @param User $user
+     * @param Tournament $tournament
+     * @return array
+     */
+    private function participantablesForTournament(User $user, Tournament $tournament)
+    {
+        if ($tournament->players == 1) {
+            $participantables = [
+                'candidates' => [
+                    [
+                        'id' => $user->id,
+                        'logo' => $user->avatar,
+                        'title' => $user->username,
+                        'members_count' => 1,
+                    ]
+                ],
+                'minimum_members_count' => 1,
+                'can_create_more' => false,
+            ];
+        } else {
+            $participantables = [
+                'can_create_more' => true,
+                'minimum_members_count' => $tournament->players,
+                'candidates' => [],
+            ];
+            $teams = $user->teams()
+                ->where('game_id', $tournament->game->id)
+                ->wherePivot('captain', 1)
+                ->get()->all();
+            foreach ($teams as $team) {
+                $participantables['candidates'][] = [
+                    'id' => $team->id,
+                    'logo' => $team->logo,
+                    'title' => $team->title,
+                    'members_count' => $team->players()->count(),
+                ];
+            }
+        }
+        return $participantables;
     }
 }
