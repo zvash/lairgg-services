@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\InvitationActionRequest;
+use App\Http\Requests\JoinTeamRequest;
+use App\Http\Requests\JoinTournamentRequest;
 use App\Repositories\InvitationRepository;
 use App\Traits\Responses\ResponseMaker;
 use Illuminate\Http\Request;
@@ -37,10 +39,27 @@ class InvitationController extends Controller
         return $this->success(['message' => 'done']);
     }
 
-    public function accept(InvitationActionRequest $request, InvitationRepository $invitationRepository)
+    /**
+     * @param JoinTeamRequest $request
+     * @param InvitationRepository $invitationRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function joinTeam(JoinTeamRequest $request, InvitationRepository $invitationRepository)
     {
         $user = $request->user();
         $validated = $request->validated();
+        return $this->success($invitationRepository->acceptTeamInvitation($user, $validated['invitation_id']));
+    }
 
+    /**
+     * @param JoinTournamentRequest $request
+     * @param InvitationRepository $invitationRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function joinTournament(JoinTournamentRequest $request, InvitationRepository $invitationRepository)
+    {
+        $user = $request->user();
+        $validated = $request->validated();
+        return $this->success($invitationRepository->acceptTournamentInvitation($user, $validated['participantable_id'], $validated['invitation_id']));
     }
 }

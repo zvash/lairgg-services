@@ -3,8 +3,10 @@
 namespace App\Repositories;
 
 
+use App\Enums\ParticipantAcceptanceState;
 use App\Events\InvitationCreated;
 use App\Invitation;
+use App\Participant;
 use App\Team;
 use App\Tournament;
 use App\User;
@@ -192,6 +194,7 @@ class InvitationRepository extends BaseRepository
     /**
      * @param User $user
      * @param int $teamId
+     * @return
      */
     public function acceptTeamInvitation(User $user, int $teamId)
     {
@@ -199,9 +202,70 @@ class InvitationRepository extends BaseRepository
         if ($invitations) {
             $firstInvitation = $invitations->first();
             $team = Team::find($firstInvitation->invite_aware_id);
-            $team->players()->syncWithoutDetaching([$user->id], ['captain' => false]);
+            if ($team->players()->where('user_id', $user->id)->count() == 0) {
+                $team->players()->syncWithoutDetaching([$user->id], ['captain' => false]);
+            }
+            $this->removeInvitations($invitations->all());
+            return $team->players()->where('user_id', $user->id)->get();
         }
-        $this->removeInvitations($invitations->all());
+        return [];
+    }
+
+    /**
+     * @param User $user
+     * @param int $participantableId
+     * @param int $tournamentId
+     * @return array
+     */
+    public function acceptTournamentInvitation(User $user, int $participantableId, int $tournamentId)
+    {
+        $invitations = $this->getInvitations($user, $tournamentId, Tournament::class);
+        if ($invitations) {
+            $firstInvitation = $invitations->first();
+            $tournament = Tournament::find($firstInvitation->invite_aware_id);
+            if ($tournament->players == 1) {
+                if (
+                    $user->id == $participantableId &&
+                    $tournament->participants()
+                        ->where('participantable_type', User::class)
+                        ->where('participantable_id', $user->id)
+                        ->count() == 0
+                ) {
+                    $participant = new Participant([
+                        'participantable_type' => User::class,
+                        'participantable_id' => $user->id,
+                        'status' => ParticipantAcceptanceState::ACCEPTED
+                    ]);
+                    $tournament->participants()->save($participant);
+                    $this->removeInvitations($invitations->all());
+                    return $tournament->participants()
+                        ->where('participantable_type', User::class)
+                        ->where('participantable_id', $user->id)
+                        ->get();
+                }
+            } else {
+                $team = Team::find($participantableId);
+                if ($team->players()->wherePivot('captain', 1)->first()->user_id == $user->id) {
+                    if ($team->players()->count() >= $tournament->players) {
+                        $status = ParticipantAcceptanceState::ACCEPTED;
+                    } else {
+                        $status = ParticipantAcceptanceState::ACCEPTED_NOT_READY;
+                    }
+                    $participant = new Participant([
+                        'participantable_type' => Team::class,
+                        'participantable_id' => $team->id,
+                        'status' => $status
+                    ]);
+                    $tournament->participants()->save($participant);
+                }
+                $this->removeInvitations($invitations->all());
+                return $tournament->participants()
+                    ->where('participantable_type', Team::class)
+                    ->where('participantable_id', $team->id)
+                    ->get();
+            }
+        }
+        return [];
     }
 
     /**

@@ -4,18 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class InvitationActionRequest extends FormRequest
+class JoinTournamentRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
-    {
-        return false;
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -24,7 +14,8 @@ class InvitationActionRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'invitation_id' => 'required|exists:tournaments,id',
+            'participantable_id' => 'required|int|min:1',
         ];
     }
 }

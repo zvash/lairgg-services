@@ -95,8 +95,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
                 });
 
                 $router->group(['prefix' => 'invitations'], function ($router) {
-                    $router->post('accept/team', 'InvitationController@accept');
-                    $router->post('accept/tournament', 'InvitationController@accept');
+                    $router->post('accept/team', 'InvitationController@joinTeam');
+                    $router->post('accept/tournament', 'InvitationController@joinTournament');
                 });
 
                 $router->group(['prefix' => 'games'], function ($router) {
