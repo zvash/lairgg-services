@@ -52,6 +52,18 @@ class InvitationController extends Controller
     }
 
     /**
+     * @param JoinTeamRequest $request
+     * @param InvitationRepository $invitationRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function declineTeamInvitation(JoinTeamRequest $request, InvitationRepository $invitationRepository)
+    {
+        $user = $request->user();
+        $validated = $request->validated();
+        return $this->success($invitationRepository->declineTeamInvitation($user, $validated['invitation_id']));
+    }
+
+    /**
      * @param JoinTournamentRequest $request
      * @param InvitationRepository $invitationRepository
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
@@ -62,4 +74,18 @@ class InvitationController extends Controller
         $validated = $request->validated();
         return $this->success($invitationRepository->acceptTournamentInvitation($user, $validated['participantable_id'], $validated['invitation_id']));
     }
+
+    /**
+     * @param JoinTournamentRequest $request
+     * @param InvitationRepository $invitationRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function declineTournamentInvitation(JoinTournamentRequest $request, InvitationRepository $invitationRepository)
+    {
+        $user = $request->user();
+        $validated = $request->validated();
+        return $this->success($invitationRepository->declineTournamentInvitation($user, $validated['invitation_id']));
+    }
+
+
 }

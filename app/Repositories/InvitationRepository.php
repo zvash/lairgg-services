@@ -213,6 +213,20 @@ class InvitationRepository extends BaseRepository
 
     /**
      * @param User $user
+     * @param int $teamId
+     * @return
+     */
+    public function declineTeamInvitation(User $user, int $teamId)
+    {
+        $invitations = $this->getInvitations($user, $teamId, Team::class);
+        if ($invitations) {
+            $this->removeInvitations($invitations->all());
+        }
+        return [];
+    }
+
+    /**
+     * @param User $user
      * @param int $participantableId
      * @param int $tournamentId
      * @return array
@@ -264,6 +278,20 @@ class InvitationRepository extends BaseRepository
                     ->where('participantable_id', $team->id)
                     ->get();
             }
+        }
+        return [];
+    }
+
+    /**
+     * @param User $user
+     * @param int $tournamentId
+     * @return array
+     */
+    public function declineTournamentInvitation(User $user, int $tournamentId)
+    {
+        $invitations = $this->getInvitations($user, $tournamentId, Tournament::class);
+        if ($invitations) {
+            $this->removeInvitations($invitations->all());
         }
         return [];
     }
