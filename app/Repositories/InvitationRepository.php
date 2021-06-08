@@ -152,7 +152,7 @@ class InvitationRepository extends BaseRepository
                         'game' => $gameTitle,
                         'prize_value' => $prizeValue,
                         'prize_type' => $prizeType,
-                        'starts_at' => $invitedToObject->startted_at,
+                        'starts_at' => $invitedToObject->started_at,
                         'participantables' => $this->participantablesForTournament($user, $invitedToObject),
                     ];
                 } else {
