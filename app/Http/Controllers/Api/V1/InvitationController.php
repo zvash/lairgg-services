@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DeclineTournamentInvitationRequest;
 use App\Http\Requests\InvitationActionRequest;
 use App\Http\Requests\JoinTeamRequest;
 use App\Http\Requests\JoinTournamentRequest;
@@ -76,11 +77,11 @@ class InvitationController extends Controller
     }
 
     /**
-     * @param JoinTournamentRequest $request
+     * @param DeclineTournamentInvitationRequest $request
      * @param InvitationRepository $invitationRepository
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
-    public function declineTournamentInvitation(JoinTournamentRequest $request, InvitationRepository $invitationRepository)
+    public function declineTournamentInvitation(DeclineTournamentInvitationRequest $request, InvitationRepository $invitationRepository)
     {
         $user = $request->user();
         $validated = $request->validated();
