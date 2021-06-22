@@ -163,6 +163,7 @@ class InvitationRepository extends BaseRepository
                     $gameTitle = $invitedToObject->game->title;
                     $teamDetails = [
                         'game' => $gameTitle,
+                        'members_count' => $invitedToObject->playesrs()->count(),
                     ];
                 }
                 $flashInvitations['invitations'][] = [

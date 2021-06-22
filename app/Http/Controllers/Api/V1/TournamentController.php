@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\HttpStatusCode;
+use App\Enums\ParticipantAcceptanceState;
 use App\Invitation;
 use App\Participant;
 use App\Repositories\InvitationRepository;
@@ -117,6 +118,28 @@ class TournamentController extends Controller
             return $this->failNotFound();
         }
         return $this->success($tournament->participants->load(['participantable', 'participantable.players']));
+    }
+
+    /**
+     * @param Request $request
+     * @param Tournament $tournament
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function acceptedParticipants(Request $request, Tournament $tournament)
+    {
+        if (!$tournament) {
+            return $this->failNotFound();
+        }
+        return $this->success(
+            $tournament
+                ->participants()
+                ->whereIn('status', [
+                    ParticipantAcceptanceState::ACCEPTED,
+                    ParticipantAcceptanceState::ACCEPTED_NOT_READY,
+                ])
+                ->get()
+                ->load(['participantable', 'participantable.players'])
+        );
     }
 
     /**

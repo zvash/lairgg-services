@@ -86,6 +86,7 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->post('/{tournament}/allow-check-in', 'TournamentController@allowCheckIn');
 
+                    $router->get('/{tournament}/participants/accepted', 'TournamentController@acceptedParticipants');
                     $router->get('/{tournament}/participants', 'TournamentController@participants');
 
                     $router->post('/{tournament}/participantable/{participantable}', 'TournamentController@joinParticipantablesToTournament');
