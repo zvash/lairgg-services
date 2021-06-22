@@ -236,6 +236,15 @@ class TournamentController extends Controller
     }
 
     /**
+     * @param Tournament $tournament
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function rules(Tournament $tournament)
+    {
+        return $this->success(['rules' => $tournament->rules]);
+    }
+
+    /**
      * @param Request $request
      * @param Tournament $tournament
      * @param InvitationRepository $invitationRepository

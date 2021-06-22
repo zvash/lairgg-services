@@ -154,6 +154,10 @@ class InvitationRepository extends BaseRepository
                         'prize_type' => $prizeType,
                         'starts_at' => $invitedToObject->started_at,
                         'participantables' => $this->participantablesForTournament($user, $invitedToObject),
+                        'accepted_count' => $invitedToObject->participants()->whereIn('status', [
+                            ParticipantAcceptanceState::ACCEPTED,
+                            ParticipantAcceptanceState::ACCEPTED_NOT_READY,
+                        ])->count(),
                     ];
                 } else {
                     $gameTitle = $invitedToObject->game->title;

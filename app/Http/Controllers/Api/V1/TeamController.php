@@ -47,6 +47,15 @@ class TeamController extends Controller
     }
 
     /**
+     * @param Team $team
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function players(Team $team)
+    {
+        return $this->success($team->players->makeHidden('pivot'));
+    }
+
+    /**
      * @param Request $request
      * @return array
      */

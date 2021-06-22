@@ -172,6 +172,19 @@ class OrganizationController extends Controller
     }
 
     /**
+     * @param int $organizationId
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function bio(int $organizationId)
+    {
+        $organization = Organization::find($organizationId);
+        if (!$organization) {
+            return $this->failNotFound();
+        }
+        return $this->success(['bio' => $organization->bio]);
+    }
+
+    /**
      * Check if given user id is a valid one
      *
      * @param Request $request

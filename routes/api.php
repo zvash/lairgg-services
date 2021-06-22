@@ -52,6 +52,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                 $router->group(['prefix' => 'organizations'], function ($router) {
 
+                    $router->get('/{organizationId}/bio', 'OrganizationController@bio');
+
                     $router->post('/create', 'OrganizationController@create');
                     $router->post('/{organizationId}/edit', 'OrganizationController@edit');
 
@@ -61,6 +63,7 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->post('/{organizationId}/tournaments/create', 'TournamentController@create');
                     $router->post('/{organizationId}/admins/add', 'OrganizationController@addAdmin');
                     $router->post('/{organizationId}/moderators/add', 'OrganizationController@addModerator');
+
 
                 });
 
@@ -79,6 +82,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->get('/{tournament}/overview', 'TournamentController@overview');
 
+                    $router->get('/{tournament}/rules', 'TournamentController@rules');
+
                     $router->post('/{tournament}/allow-check-in', 'TournamentController@allowCheckIn');
 
                     $router->get('/{tournament}/participants', 'TournamentController@participants');
@@ -91,6 +96,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->post('create', 'TeamController@store');
                     $router->post('/{team}/invite', 'TeamController@invite');
+
+                    $router->get('/{team}/players', 'TeamController@players');
 
                 });
 

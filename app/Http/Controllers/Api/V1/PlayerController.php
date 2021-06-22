@@ -24,7 +24,7 @@ class PlayerController extends Controller
             return $this->failNotFound();
         }
 
-        $detailedPlayer = $player->detailed->makeHidden('pivot');
+        $detailedPlayer = $player->load('team')->makeHidden('pivot');
         return $this->success($detailedPlayer);
     }
 }
