@@ -67,6 +67,12 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                 });
 
+                $router->group(['prefix' => 'banners'], function ($router) {
+
+                    $router->get('/all', 'BannerController@all');
+
+                });
+
                 $router->group(['prefix' => 'tournaments'], function ($router) {
 
                     $router->get('/featured', 'TournamentController@featured');
