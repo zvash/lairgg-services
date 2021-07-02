@@ -3,7 +3,7 @@
 namespace App;
 
 use App\Traits\Eloquents\{
-    Followable, InviteAware, Joinable, Linkable, Participantable
+    Bannerable, Followable, InviteAware, Joinable, Linkable, Participantable
 };
 use Illuminate\Database\Eloquent\{
     Model,
@@ -19,7 +19,8 @@ class Team extends Model
         Linkable,
         Joinable,
         Participantable,
-        InviteAware;
+        InviteAware,
+        Bannerable;
 
     protected $fillable = [
         'title',
