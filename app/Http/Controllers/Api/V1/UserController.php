@@ -130,6 +130,16 @@ class UserController extends Controller
 
     /**
      * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function authenticated(Request $request)
+    {
+        return $this->success(['user' => $request->user()]);
+
+    }
+
+    /**
+     * @param Request $request
      * @param GameRepository $gameRepository
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */

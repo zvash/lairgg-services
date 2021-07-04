@@ -48,6 +48,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->post('games/update', 'UserController@updateUserGames');
                     $router->get('games/all', 'UserController@listAllGames');
 
+                    $router->get('authenticated', 'UserController@authenticated');
+
                 });
 
                 $router->group(['prefix' => 'organizations'], function ($router) {
