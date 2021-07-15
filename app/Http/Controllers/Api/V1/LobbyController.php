@@ -22,7 +22,7 @@ class LobbyController extends Controller
     {
         $user = $request->user();
         $lobby = Lobby::where('name', $lobbyName)->first();
-        if ($lobby && $lobbyRepository->userHasAccessToLobby($user, $lobby)) {
+        if ($lobby /*&& $lobbyRepository->userHasAccessToLobby($user, $lobby)*/) {
             return $this->success($user);
         }
         return $this->failNotFound();
