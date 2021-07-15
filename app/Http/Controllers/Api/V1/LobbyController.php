@@ -32,7 +32,7 @@ class LobbyController extends Controller
     {
         $params = [
             'token' => $token,
-            'url' => env('LOBBY_URL', 'http://lobby.dev.lair.gg:3000')
+            'url' => env('LOBBY_URL', 'https://lobby.dev.lair.gg')
         ];
         return view('lobby.sample')->with(compact('params'));
     }
