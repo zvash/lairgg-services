@@ -35,4 +35,6 @@ Route::group(['namespace' => 'Api\V1'], function ($router) {
 
     });
 
+    Route::get('lobby/{token}', 'LobbyController@sampleLobby');
+
 });

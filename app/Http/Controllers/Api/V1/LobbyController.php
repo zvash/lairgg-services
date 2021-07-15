@@ -27,4 +27,13 @@ class LobbyController extends Controller
         }
         return $this->failNotFound();
     }
+
+    public function sampleLobby(Request $request, string $token)
+    {
+        $params = [
+            'token' => $token,
+            'url' => env('LOBBY_URL', 'http://lobby.dev.lair.gg:3000')
+        ];
+        return view('lobby.sample')->with(compact('params'));
+    }
 }
