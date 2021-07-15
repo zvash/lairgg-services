@@ -7,6 +7,7 @@ use App\Enums\ParticipantAcceptanceState;
 use App\Invitation;
 use App\Participant;
 use App\Repositories\InvitationRepository;
+use App\Repositories\LobbyRepository;
 use App\User;
 use DateTimeZone;
 use App\Tournament;
@@ -31,9 +32,10 @@ class TournamentController extends Controller
      * @param Request $request
      * @param int $organizationId
      * @param TournamentRepository $tournamentRepository
+     * @param LobbyRepository $lobbyRepository
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
-    public function create(Request $request, int $organizationId, TournamentRepository $tournamentRepository)
+    public function create(Request $request, int $organizationId, TournamentRepository $tournamentRepository, LobbyRepository $lobbyRepository)
     {
         $organization = Organization::find($organizationId);
         if (!$organization) {
@@ -50,7 +52,7 @@ class TournamentController extends Controller
             return $this->failValidation($validator->errors());
         }
 
-        $tournament = $tournamentRepository->createTournamentWithRequest($request, $organization);
+        $tournament = $tournamentRepository->createTournamentWithRequest($request, $organization, $lobbyRepository);
         return $this->success($tournament);
     }
 
@@ -281,8 +283,23 @@ class TournamentController extends Controller
         }
 
         list($identifier, $user) = $this->validateParticipantIdentifier($request);
-        $invitationRepository->createTournamentInvitation($tournament, $identifier, Auth::user(), $user);
+        $invitationRepository->createTournamentInvitation($tournament, $identifier, $request->user(), $user);
         return $this->success(['message' => "{$identifier} is invited to join the {$tournament->title} tournament."]);
+    }
+
+    /**
+     * @param Request $request
+     * @param Tournament $tournament
+     * @param LobbyRepository $lobbyRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function getLobbyName(Request $request, Tournament $tournament, LobbyRepository $lobbyRepository)
+    {
+        $lobby = $tournament->lobby;
+        if ($lobby && $lobbyRepository->userHasAccessToLobby($request->user(), $lobby)) {
+            return $this->success(['lobby_name' => $lobby->name]);
+        }
+        return $this->failNotFound();
     }
 
 

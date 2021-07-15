@@ -8,6 +8,7 @@ use App\Match;
 use App\Participant;
 use App\Party;
 use App\Play;
+use App\Repositories\LobbyRepository;
 use App\Tournament;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -182,6 +183,8 @@ abstract class TournamentEngine
         ]);
         $match->save();
         $this->createPlaysForMatch($match);
+        $lobbyRepository = new LobbyRepository();
+        $lobbyRepository->createBy($match);
         return $match;
     }
 

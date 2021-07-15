@@ -99,6 +99,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->post('/{tournament}/participantable/{participantable}', 'TournamentController@joinParticipantablesToTournament');
 
+                    $router->get('/{tournament}/lobby', 'TournamentController@getLobbyName');
+
                 });
 
                 $router->group(['prefix' => 'teams'], function ($router) {
@@ -152,11 +154,19 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->get('/{match}/disputes', 'MatchController@getDisputes');
 
+                    $router->get('/{match}/lobby', 'MatchController@getLobbyName');
+
                 });
 
                 $router->group(['prefix' => 'disputes'], function ($router) {
 
                     $router->post('/{dispute}/close', 'DisputeController@close');
+
+                });
+
+                $router->group(['prefix' => 'lobbies'], function ($router) {
+
+                    $router->get('/{lobbyName}/user', 'LobbyController@getUserByLobbyName');
 
                 });
 

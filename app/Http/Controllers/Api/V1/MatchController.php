@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Engines\BracketCreator;
 use App\Match;
+use App\Repositories\LobbyRepository;
 use App\Repositories\MatchRepository;
 use Illuminate\Http\Request;
 use App\Enums\HttpStatusCode;
@@ -82,6 +83,21 @@ class MatchController extends Controller
 
         $disputes = $matchRepository->getDisputes($match);
         return $this->success($disputes);
+    }
+
+    /**
+     * @param Request $request
+     * @param Match $match
+     * @param LobbyRepository $lobbyRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function getLobbyName(Request $request, Match $match, LobbyRepository $lobbyRepository)
+    {
+        $lobby = $match->lobby;
+        if ($lobby && $lobbyRepository->userHasAccessToLobby($request->user(), $lobby)) {
+            return $this->success(['lobby_name' => $lobby->name]);
+        }
+        return $this->failNotFound();
     }
 
     /**

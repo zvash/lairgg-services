@@ -40,15 +40,18 @@ class TournamentRepository extends BaseRepository
      *
      * @param Request $request
      * @param Organization $organization
+     * @param LobbyRepository $lobbyRepository
      * @return mixed
      */
-    public function createTournamentWithRequest(Request $request, Organization $organization)
+    public function createTournamentWithRequest(Request $request, Organization $organization, LobbyRepository $lobbyRepository)
     {
         $inputs = $this->filterRequest($request);
         $inputs['organization_id'] = $organization->id;
         $inputs['image'] = $this->saveImageFromRequest($request, 'image', 'tournaments/images');
         $inputs['cover'] = $this->saveImageFromRequest($request, 'cover', 'tournaments/covers');
-        return Tournament::create($inputs);
+        $tournament = Tournament::create($inputs);
+        $lobbyRepository->createBy($tournament);
+        return $tournament;
     }
 
     /**

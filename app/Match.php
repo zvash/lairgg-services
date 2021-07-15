@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Traits\Eloquents\LobbyAware;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Actions\Actionable;
@@ -13,7 +14,8 @@ use Laravel\Nova\Actions\Actionable;
  */
 class Match extends Model
 {
-    use Actionable;
+    use Actionable,
+        LobbyAware;
 
     /**
      * The attributes that aren't mass assignable.
