@@ -153,6 +153,20 @@ class TournamentRepository extends BaseRepository
     }
 
     /**
+     * @param User $user
+     * @param int $paginate
+     * @return array|\Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function recentlyFinished(User $user, int $paginate = 0)
+    {
+        $tournaments = $this->withGames(Tournament::recentlyFinished(), $user);
+        if ($paginate) {
+            return $tournaments->paginate($paginate);
+        }
+        return $tournaments->get()->toArray();
+    }
+
+    /**
      * Get Live tournaments
      *
      * @param User $user

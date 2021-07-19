@@ -186,6 +186,20 @@ class Tournament extends Model
     }
 
     /**
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeRecentlyFinished(Builder $query)
+    {
+        $now = \Carbon\Carbon::now();
+        return $query->whereNotNull('started_at')
+            ->whereNotNull('ended_at')
+            ->where('ended_at', '<=', $now)
+            ->orderBy('ended_at', 'DESC');
+
+    }
+
+    /**
      * Filter only today tournaments
      *
      * @param Builder $query
