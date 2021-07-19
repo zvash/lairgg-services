@@ -183,6 +183,22 @@ class TournamentRepository extends BaseRepository
     }
 
     /**
+     * Get Live and Later Today tournaments
+     *
+     * @param User $user
+     * @param int $paginate
+     * @return mixed
+     */
+    public function getLivePlusLaterToday(User $user, int $paginate = 0)
+    {
+        $tournaments = $this->withGames(Tournament::todayOrLive(), $user);
+        if ($paginate) {
+            return $tournaments->paginate($paginate);
+        }
+        return $tournaments->get()->toArray();
+    }
+
+    /**
      * Tournaments that will start later today
      *
      * @param User $user

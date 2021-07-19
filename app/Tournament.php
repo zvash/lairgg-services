@@ -214,6 +214,25 @@ class Tournament extends Model
     }
 
     /**
+     * Filter live or start today tournaments
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeTodayOrLive(Builder $query)
+    {
+        $now = \Carbon\Carbon::now();
+        $tomorrow = getToday()
+            ->startOfDay()
+            ->addDay();
+        return $query->whereNotNull('started_at')
+            ->whereNotNull('ended_at')
+            ->where('started_at', '<', $tomorrow)
+            ->where('ended_at', '>=', $now)
+            ->orderBy('started_at', 'ASC');
+    }
+
+    /**
      * Filter upcoming tournaments
      *
      * @param Builder $query

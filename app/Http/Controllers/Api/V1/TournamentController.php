@@ -193,6 +193,18 @@ class TournamentController extends Controller
      * @param TournamentRepository $tournamentRepository
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
+    public function today(Request $request, TournamentRepository $tournamentRepository)
+    {
+        $user = Auth::user();
+        $tournaments = $tournamentRepository->getLivePlusLaterToday($user, 10);
+        return $this->success($tournaments);
+    }
+
+    /**
+     * @param Request $request
+     * @param TournamentRepository $tournamentRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function recentlyFinished(Request $request, TournamentRepository $tournamentRepository)
     {
         $user = Auth::user();
