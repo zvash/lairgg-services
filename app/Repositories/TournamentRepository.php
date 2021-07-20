@@ -241,7 +241,7 @@ class TournamentRepository extends BaseRepository
     {
         $tournaments = $this->withGames(Tournament::startAfterTomorrow(), $user);
         if ($paginate) {
-            return $tournaments->paginate($paginate);
+            return $tournaments->paginate($paginate, 10);
         }
         return $tournaments->get()->toArray();
     }

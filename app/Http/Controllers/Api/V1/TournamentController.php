@@ -232,7 +232,7 @@ class TournamentController extends Controller
     public function tomorrow(Request $request, TournamentRepository $tournamentRepository)
     {
         $user = Auth::user();
-        $tournaments = $tournamentRepository->getTomorrowTournaments($user);
+        $tournaments = $tournamentRepository->getTomorrowTournaments($user, 10);
         return $this->success($tournaments);
     }
 
