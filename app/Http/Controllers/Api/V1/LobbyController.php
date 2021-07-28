@@ -23,6 +23,10 @@ class LobbyController extends Controller
         $user = $request->user();
         $lobby = Lobby::where('name', $lobbyName)->first();
         if ($lobby /*&& $lobbyRepository->userHasAccessToLobby($user, $lobby)*/) {
+            $isOrganizer = $lobbyRepository->userIsAnOrganizerForLobby($user, $lobby);
+            $team = $lobbyRepository->getUserTeamInLobby($user, $lobby);
+            $user->is_organizer = $isOrganizer;
+            $user->team = $team;
             return $this->success($user);
         }
         return $this->failNotFound();

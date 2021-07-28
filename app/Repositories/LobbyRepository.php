@@ -9,6 +9,7 @@ use App\Match;
 use App\Team;
 use App\Tournament;
 use App\User;
+use Illuminate\Database\Eloquent\Builder;
 
 class LobbyRepository extends BaseRepository
 {
@@ -42,6 +43,40 @@ class LobbyRepository extends BaseRepository
             }
             throw $e;
         }
+    }
+
+    /**
+     * @param User $user
+     * @param Lobby $lobby
+     * @return bool
+     */
+    public function userIsAnOrganizerForLobby(User $user, Lobby $lobby)
+    {
+        $tournament = $this->getTournamentOfLobby($lobby);
+        $staffUserIds = $tournament->tournament->organization->staff->pluck('user_id')->toArray();
+        return in_array($user->id, $staffUserIds);
+    }
+
+    /**
+     * @param User $user
+     * @param Lobby $lobby
+     * @return mixed
+     */
+    public function getUserTeamInLobby(User $user, Lobby $lobby)
+    {
+        $userTeamIds = $user->teams()->pluck('team_id')->toArray();
+        if ($userTeamIds) {
+            $tournament = $this->getTournamentOfLobby($lobby);
+            $participant = $tournament->participants()
+                ->where('participantable_type', Team::class)
+                ->whereIn('participantable_id', $userTeamIds)
+                ->first();
+            if ($participant) {
+                return Team::find($participant->participantable_id);
+            }
+        }
+        return null;
+
     }
 
     /**
@@ -95,6 +130,20 @@ class LobbyRepository extends BaseRepository
             return true;
         }
         return false;
+    }
+
+    /**
+     * @param Lobby $lobby
+     * @return Tournament
+     */
+    private function getTournamentOfLobby(Lobby $lobby)
+    {
+        $owner = $lobby->owner;
+        $tournament = $owner;
+        if ($owner instanceof Match) {
+            $tournament = $owner->tournament;
+        }
+        return $tournament;
     }
 
 }
