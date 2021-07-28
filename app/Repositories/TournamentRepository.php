@@ -327,8 +327,13 @@ class TournamentRepository extends BaseRepository
      */
     private function withGames(Builder $query, User $user)
     {
-        $gameIds = $user->games()->pluck('game_id');
-        return $query->whereHas('game', function($game) use ($gameIds) {
+        $request = request();
+        if ($request->has('game_id')) {
+            $gameIds = [$request->get('game_id')];
+        } else {
+            $gameIds = $user->games()->pluck('game_id');
+        }
+        return $query->whereHas('game', function ($game) use ($gameIds) {
             return $game->whereIn('id', $gameIds);
         });
     }
