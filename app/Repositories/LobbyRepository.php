@@ -53,7 +53,7 @@ class LobbyRepository extends BaseRepository
     public function userIsAnOrganizerForLobby(User $user, Lobby $lobby)
     {
         $tournament = $this->getTournamentOfLobby($lobby);
-        $staffUserIds = $tournament->tournament->organization->staff->pluck('user_id')->toArray();
+        $staffUserIds = $tournament->organization->staff->pluck('user_id')->toArray();
         return in_array($user->id, $staffUserIds);
     }
 
