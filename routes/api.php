@@ -178,6 +178,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                 });
 
+                $router->get('/search', 'SearchController@search');
+
 
             });
 
