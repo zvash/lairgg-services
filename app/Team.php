@@ -55,6 +55,10 @@ class Team extends Model
         'join_request' => false,
     ];
 
+    protected $appends = [
+        'player_count'
+    ];
+
     /**
      * Get the game that owns the team.
      *
@@ -96,5 +100,13 @@ class Team extends Model
     public function parties()
     {
         return $this->hasMany(Party::class);
+    }
+
+    /**
+     * @return int
+     */
+    public function getPlayerCountAttribute()
+    {
+        return $this->players()->count();
     }
 }
