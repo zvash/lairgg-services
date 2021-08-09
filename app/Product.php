@@ -30,6 +30,7 @@ class Product extends Model
         'points' => 'integer',
         'quantity' => 'integer',
         'status' => 'integer',
+        'attributes' => 'array',
     ];
 
     /**

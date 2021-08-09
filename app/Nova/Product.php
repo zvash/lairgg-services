@@ -5,15 +5,7 @@ namespace App\Nova;
 use App\Enums\ProductStatus;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
-    Avatar,
-    Badge,
-    Code,
-    Currency,
-    HasMany,
-    ID,
-    Number,
-    Select,
-    Text
+    Avatar, Badge, Code, Currency, HasMany, ID, KeyValue, Number, Select, Text
 };
 use Laravel\Nova\Panel;
 use App\Nova\ProductImage;
@@ -146,6 +138,9 @@ class Product extends Resource
                 'Active' => 'success',
                 'Coming Soon' => 'warning',
             ])->exceptOnForms(),
+
+            KeyValue::make('Attributes')
+                ->rules('json'),
         ];
     }
 
@@ -157,8 +152,8 @@ class Product extends Resource
     protected function relations()
     {
         return [
+            Hasmany::make('Product Images', 'images', ProductImage::class),
             HasMany::make('Orders'),
-            Hasmany::make('Product Images', 'images', ProductImage::class)
         ];
     }
 }
