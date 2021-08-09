@@ -43,6 +43,8 @@ class productImage extends Resource
         'id',
     ];
 
+    public static $displayInNavigation = false;
+
     /**
      * Get the logical group associated with the resource.
      *

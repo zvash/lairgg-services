@@ -16,6 +16,7 @@ use Laravel\Nova\Fields\{
     Text
 };
 use Laravel\Nova\Panel;
+use App\Nova\ProductImage;
 
 class Product extends Resource
 {
@@ -157,7 +158,7 @@ class Product extends Resource
     {
         return [
             HasMany::make('Orders'),
-            Hasmany::make('ProductImages')
+            Hasmany::make('Product Images', 'images', ProductImage::class)
         ];
     }
 }
