@@ -94,17 +94,6 @@ class Product extends Resource
         return [
             ID::make()->sortable(),
 
-            Avatar::make('Image')
-                ->disk('s3')
-                ->squared()
-                ->path('products/images')
-                ->prunable()
-                ->deletable(false)
-                ->required()
-                ->creationRules('required')
-                ->updateRules('nullable')
-                ->rules('mimes:jpeg,jpg,png'),
-
             Text::make('Title')
                 ->required()
                 ->rules('required', 'max:254'),
@@ -168,6 +157,7 @@ class Product extends Resource
     {
         return [
             HasMany::make('Orders'),
+            Hasmany::make('ProductImages')
         ];
     }
 }
