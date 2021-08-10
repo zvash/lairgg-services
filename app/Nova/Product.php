@@ -5,7 +5,7 @@ namespace App\Nova;
 use App\Enums\ProductStatus;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\{
-    Avatar, Badge, Code, Currency, HasMany, ID, KeyValue, Number, Select, Text
+    Avatar, Badge, Boolean, Code, Currency, HasMany, ID, KeyValue, Number, Select, Text
 };
 use Laravel\Nova\Panel;
 use App\Nova\ProductImage;
@@ -35,7 +35,6 @@ class Product extends Resource
         'id',
         'title',
         'description',
-        'price',
         'points',
         'quantity',
     ];
@@ -47,7 +46,7 @@ class Product extends Resource
      */
     public function subtitle()
     {
-        return '$'.$this->price.' | '.$this->points.' Points';
+        return $this->points . ' Points';
     }
 
     /**
@@ -63,7 +62,7 @@ class Product extends Resource
     /**
      * Get the fields displayed by the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return array
      */
     public function fields(Request $request)
@@ -96,15 +95,16 @@ class Product extends Resource
                 ->required()
                 ->rules('required'),
 
-            Currency::make('Price')
-                ->currency('USD')
-                ->required()
-                ->rules('required', 'numeric', 'gte:0'),
+            Boolean::make('Is Featured'),
 
             Number::make('Points')
                 ->min(0)
                 ->required()
                 ->rules('required', 'integer', 'gte:0'),
+
+            Number::make('Original Points')
+                ->min(0)
+                ->rules('nullable', 'integer', 'gte:points'),
 
             Number::make('Quantity')
                 ->min(0)

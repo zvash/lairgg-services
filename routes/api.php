@@ -166,6 +166,13 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                 });
 
+                $router->group(['prefix' => 'products'], function ($router) {
+
+                    $router->get('/{product}/get', 'ShopController@getProductById');
+                    $router->get('/list', 'ShopController@products');
+
+                });
+
                 $router->group(['prefix' => 'lobbies'], function ($router) {
 
                     $router->get('/{lobbyName}/user', 'LobbyController@getUserByLobbyName');

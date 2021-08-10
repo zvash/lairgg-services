@@ -26,7 +26,6 @@ class Product extends Model
      * @var array
      */
     protected $casts = [
-        'price' => 'float',
         'points' => 'integer',
         'quantity' => 'integer',
         'status' => 'integer',
@@ -39,10 +38,13 @@ class Product extends Model
      * @var array
      */
     protected $attributes = [
-        'price' => 0,
         'points' => 0,
         'quantity' => 0,
         'status' => ProductStatus::ACTIVE,
+    ];
+
+    protected $hidden = [
+        'quantity'
     ];
 
     /**
