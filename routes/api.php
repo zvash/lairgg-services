@@ -173,6 +173,19 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                 });
 
+                $router->group(['prefix' => 'orders'], function ($router) {
+
+                    $router->post('/register', 'ShopController@storeOrder');
+                    $router->get('/{order}/get', 'ShopController@getOrder');
+
+                });
+
+                $router->group(['prefix' => 'shop'], function ($router) {
+
+                    $router->get('/countries', 'ShopController@getCountries');
+
+                });
+
                 $router->group(['prefix' => 'lobbies'], function ($router) {
 
                     $router->get('/{lobbyName}/user', 'LobbyController@getUserByLobbyName');
@@ -184,6 +197,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->post('/{play}/update', 'PlayController@update');
 
                 });
+
+
 
                 $router->get('/search', 'SearchController@search');
 

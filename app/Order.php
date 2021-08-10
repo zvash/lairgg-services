@@ -11,6 +11,20 @@ class Order extends Model
 {
     use Actionable, Transactionable;
 
+    protected $fillable = [
+        'product_id',
+        'user_id',
+        'redeem_points',
+        'name',
+        'address',
+        'state',
+        'city',
+        'country',
+        'postal_code',
+        'status',
+        'is_final',
+    ];
+
     /**
      * Indicates if all mass assignment is enabled.
      *
@@ -36,6 +50,10 @@ class Order extends Model
     protected $attributes = [
         'status' => OrderStatus::PENDING,
         'redeem_points' => 0,
+    ];
+
+    protected $hidden = [
+        'is_final'
     ];
 
     /**

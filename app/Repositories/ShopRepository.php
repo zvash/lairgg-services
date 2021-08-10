@@ -3,11 +3,14 @@
 namespace App\Repositories;
 
 
+use App\Enums\OrderStatus;
 use App\Enums\ProductStatus;
 use App\Game;
+use App\Order;
 use App\Product;
 use App\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class ShopRepository extends BaseRepository
 {
@@ -36,5 +39,29 @@ class ShopRepository extends BaseRepository
             return $list->paginate($paginate);
         }
         return $list->get();
+    }
+
+    /**
+     * @param User $user
+     * @param array $inputs
+     * @param CountryRepository $repository
+     * @return Builder|\Illuminate\Database\Eloquent\Model
+     * @throws \Exception
+     */
+    public function createPendingOrder(User $user, array $inputs, CountryRepository $repository)
+    {
+        $product = Product::query()->find($inputs['product_id']);
+        if ($product->quantity < 1) {
+            throw new \Exception('We are out of stock for this item at the moment.');
+        }
+        if ($product->points > $user->points) {
+            throw new \Exception('You don\'t have enough gems to buy this product.');
+        }
+        $inputs['redeem_points'] = $product->points;
+        $inputs['user_id'] = $user->id;
+        $inputs['country'] = $repository->getAlpha2($inputs['country']);
+        $inputs['status'] = OrderStatus::PENDING;
+        $inputs['is_final'] = false;
+        return Order::query()->create($inputs);
     }
 }
