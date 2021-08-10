@@ -58,5 +58,6 @@ class ProcessNotFinalOrders implements ShouldQueue
                 DB::rollBack();
             }
         }
+        Order::query()->whereIn('id', $toDeleteIds)->delete();
     }
 }
