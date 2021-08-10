@@ -36,7 +36,7 @@ class ShopController extends Controller
             $product->status == ProductStatus::COMING_SOON ||
             ($product->status == ProductStatus::ACTIVE && $product->quantity > 0)
         ) {
-            return $this->success($product);
+            return $this->success($product->load('images'));
         }
         return $this->failNotFound();
     }
