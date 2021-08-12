@@ -51,7 +51,7 @@ class ShopRepository extends BaseRepository
     public function createPendingOrder(User $user, array $inputs, CountryRepository $repository)
     {
         $product = Product::query()->find($inputs['product_id']);
-        if ($product->quantity < 1) {
+        if ($product->quantity - $product->orders()->where('is_final', false)->count() < 1) {
             throw new \Exception('We are out of stock for this item at the moment.');
         }
         if ($product->points > $user->points) {
