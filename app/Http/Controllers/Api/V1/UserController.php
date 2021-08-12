@@ -134,7 +134,10 @@ class UserController extends Controller
      */
     public function authenticated(Request $request)
     {
-        return $this->success(['user' => $request->user()]);
+        $user = $request->user();
+        $pendingOrdersPoints = $user->orders()->where('is_final', false)->sum('redeem_points');
+        $user->points = $user->points - $pendingOrdersPoints;
+        return $this->success(['user' => $user]);
 
     }
 
