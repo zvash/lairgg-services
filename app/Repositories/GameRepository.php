@@ -21,10 +21,34 @@ class GameRepository extends BaseRepository
         foreach ($gameIds as $id) {
             $pivotRows[] = [
                 'game_id' => $id,
-                'username' =>$user->username,
+                'username' => $user->username,
             ];
         }
         $user->games()->sync($pivotRows);
+        return $user->games()->get();
+    }
+
+    /**
+     * @param User $user
+     * @param int $gameId
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function addUserGame(User $user, int $gameId)
+    {
+        if(! $user->games()->where('game_id', 1)->first()) {
+            $user->games()->attach([['game_id' => $gameId, 'username' => $user->username]]);
+        }
+        return $user->games()->get();
+    }
+
+    /**
+     * @param User $user
+     * @param int $gameId
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function removeUserGame(User $user, int $gameId)
+    {
+        $user->games()->detach([$gameId]);
         return $user->games()->get();
     }
 

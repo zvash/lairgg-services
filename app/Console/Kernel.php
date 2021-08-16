@@ -25,7 +25,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->job(new ProcessNotFinalOrders())->everyMinute();
+        $schedule->job(new ProcessNotFinalOrders())->everyMinute()
+            ->withoutOverlapping(5);
     }
 
     /**

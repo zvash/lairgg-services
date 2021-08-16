@@ -130,6 +130,38 @@ class UserController extends Controller
 
     /**
      * @param Request $request
+     * @param Game $game
+     * @param GameRepository $gameRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function addGame(Request $request, Game $game, GameRepository $gameRepository)
+    {
+        $user = Auth::user();
+        if ($user) {
+            $userGames = $gameRepository->addUserGame($user, $game->id);
+            return $this->success($userGames);
+        }
+        return $this->failNotFound();
+    }
+
+    /**
+     * @param Request $request
+     * @param Game $game
+     * @param GameRepository $gameRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function removeGame(Request $request, Game $game, GameRepository $gameRepository)
+    {
+        $user = Auth::user();
+        if ($user) {
+            $userGames = $gameRepository->removeUserGame($user, $game->id);
+            return $this->success($userGames);
+        }
+        return $this->failNotFound();
+    }
+
+    /**
+     * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
     public function authenticated(Request $request)

@@ -46,6 +46,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->get('tournaments', 'UserController@tournaments');
 
                     $router->post('games/update', 'UserController@updateUserGames');
+                    $router->post('games/{game}/add', 'UserController@addGame');
+                    $router->post('games/{game}/remove', 'UserController@removeGame');
                     $router->get('games/all', 'UserController@listAllGames');
 
                     $router->get('authenticated', 'UserController@authenticated');
