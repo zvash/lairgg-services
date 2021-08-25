@@ -38,7 +38,7 @@ class TournamentRepository extends BaseRepository
             })
             ->sum('value');
         $participants = $tournament->participants()
-            ->where('status', ParticipantAcceptanceState::ACCEPTED)
+            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
             ->with('participantable')
             ->get()
             ->toArray();

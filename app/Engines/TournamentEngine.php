@@ -3,6 +3,7 @@
 namespace App\Engines;
 
 
+use App\Enums\ParticipantAcceptanceState;
 use App\Exceptions\TournamentIsActiveException;
 use App\Match;
 use App\Participant;
@@ -236,7 +237,10 @@ abstract class TournamentEngine
      */
     protected function participantCount(Tournament $tournament)
     {
-        return $tournament->participants()->count();
+        return $tournament
+            ->participants()
+            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
+            ->count();
     }
 
     /**
@@ -246,6 +250,7 @@ abstract class TournamentEngine
     protected function getAllParticipantsWithRandomOrder(Tournament $tournament)
     {
         return $tournament->participants()
+            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
             ->get()
             ->shuffle()
             ->all();
