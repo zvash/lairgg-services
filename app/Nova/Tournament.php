@@ -168,6 +168,13 @@ class Tournament extends Resource
     protected function configuration()
     {
         return [
+
+            Number::make('Min Teams')
+                ->help('Minimum number of participate teams.')
+                ->min(0)
+                ->required()
+                ->rules('required', 'integer', 'gte:0'),
+
             Number::make('Max Teams')
                 ->help('Maximum number of participate teams.')
                 ->min(1)

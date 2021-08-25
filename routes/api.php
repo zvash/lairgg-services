@@ -92,6 +92,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->post('/{tournament}/edit', 'TournamentController@edit');
 
+                    $router->get('/{tournament}/organizer-overview', 'TournamentController@organizerOverview');
+
                     $router->get('/{tournament}/overview', 'TournamentController@overview');
 
                     $router->get('/{tournament}/rules', 'TournamentController@rules');

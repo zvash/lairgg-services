@@ -148,21 +148,34 @@ class TournamentController extends Controller
      * @param Tournament $tournament
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
-    public function overview(Tournament $tournament)
+    public function organizerOverview(Tournament $tournament)
     {
         if ($tournament) {
             $tournament->load([
                 'game',
                 'region',
                 'participants',
+                'participants.participantable',
                 'prizes',
                 'matches',
                 'matches.plays',
-                'game.gameType'
+                'game.gameType',
+                'links',
             ]);
             return $this->success($tournament);
         }
         return $this->failNotFound();
+    }
+
+    /**
+     * @param Request $request
+     * @param Tournament $tournament
+     * @param TournamentRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function overview(Request $request, Tournament $tournament, TournamentRepository $repository)
+    {
+        return $this->success($repository->getTournamentOverview($request->user(), $tournament));
     }
 
     /**
@@ -371,6 +384,7 @@ class TournamentController extends Controller
             'image' => 'required|mimes:jpeg,jpg,png',
             'cover' => 'mimes:jpeg,jpg,png',
             'timezone' => 'required|string|in:' . implode(',', $timezones),
+            'min_teams' => 'required|int|min:1|max:128',
             'max_teams' => 'required|int|min:1|max:128',
             'reserve_teams' => 'required|int|min:0',
             'players' => 'required|int|min:1',

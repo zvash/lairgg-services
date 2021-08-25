@@ -3,7 +3,9 @@
 namespace App\Repositories;
 
 
+use App\Enums\ParticipantAcceptanceState;
 use App\Organization;
+use App\Participant;
 use App\Team;
 use App\Tournament;
 use App\User;
@@ -14,6 +16,76 @@ use Illuminate\Database\Eloquent\Builder;
 class TournamentRepository extends BaseRepository
 {
     protected $modelClass = Tournament::class;
+
+    /**
+     * @param User $user
+     * @param Tournament $tournament
+     * @return Tournament|array
+     */
+    public function getTournamentOverview(User $user, Tournament $tournament)
+    {
+        $tournament->load([
+            'organization',
+            'tournamentType',
+            'matches',
+            'matches.plays',
+            'prizes',
+            'links',
+        ]);
+        $totalPrize = $tournament->prizes()
+            ->whereHas('valueType', function ($query) {
+                return $query->where('title', 'Point');
+            })
+            ->sum('value');
+        $participants = $tournament->participants()
+            ->where('status', ParticipantAcceptanceState::ACCEPTED)
+            ->with('participantable')
+            ->get()
+            ->toArray();
+
+        $userCanJoin = false;
+        $userJoinStatus = 'not-joined';
+
+        $teamParticipants = $tournament->players > 1;
+        if ($teamParticipants) {
+            $currentUserTeams = $user->teams()->pluck('id')->all();
+            $participationRecord = Participant::query()
+                ->where('tournament_id', $tournament->id)
+                ->where('participantable_type', Team::class)
+                ->whereIn('participantable_id', $currentUserTeams)
+                ->first();
+        } else {
+            $participationRecord = Participant::query()
+                ->where('tournament_id', $tournament->id)
+                ->where('participantable_type', User::class)
+                ->where('participantable_id', $user->id)
+                ->first();
+        }
+        if ($participationRecord) {
+            $userJoinStatus = $participationRecord->status;
+        }
+        $now = \Carbon\Carbon::now();
+        $startTime = $tournament->started_at;
+        $joinRequestDeadline = $startTime->subMinutes($tournament->check_in_period);
+        if ($tournament->listed && $now < $joinRequestDeadline) {
+            $userCanJoin = true;
+        }
+        $startsInMinutes = $tournament->started_at->diffInMinutes($now);
+        $endsInMinutes = $tournament->ended_at->diffInMinutes($now);
+        $tournament = $tournament->toArray();
+        $tournament['total_prize'] = $totalPrize;
+        $tournament['starts_in_minutes'] = $startsInMinutes;
+        $tournament['ends_in_minutes'] = $endsInMinutes;
+        $tournament['check_in_date'] = $joinRequestDeadline;
+        $tournament['participants_type'] = $teamParticipants ? 'team' : 'player';
+        $tournament['participants'] = $participants;
+        $tournament['current_size'] = count($participants);
+        $tournament['join_status'] = [
+            'can_join' => $userCanJoin,
+            'status' => $userJoinStatus,
+        ];
+        return $tournament;
+    }
 
     /**
      * Retrieves a list of tournaments for given organization
@@ -274,6 +346,7 @@ class TournamentRepository extends BaseRepository
                 'description',
                 'rules',
                 'timezone',
+                'min_teams',
                 'max_teams',
                 'reserve_teams',
                 'players',
