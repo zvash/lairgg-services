@@ -48,6 +48,16 @@ class TournamentPolicy extends BasePolicy
      * @param Tournament $tournament
      * @return Response
      */
+    public function createBracket(User $user, Tournament $tournament)
+    {
+        return $this->onlyAdminOfTournament($user, $tournament, 'You do not have administrative access to create a bracket this tournament');
+    }
+
+    /**
+     * @param User $user
+     * @param Tournament $tournament
+     * @return Response
+     */
     public function canAddParticipants(User $user, Tournament $tournament)
     {
         return $this->onlyAdminOfTournament($user, $tournament, 'You cannot add participants to this tournament');

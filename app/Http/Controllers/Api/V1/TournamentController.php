@@ -108,6 +108,25 @@ class TournamentController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @param Tournament $tournament
+     * @param TournamentRepository $tournamentRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function createBracket(Request $request, Tournament $tournament, TournamentRepository $tournamentRepository)
+    {
+        $gate = Gate::inspect('createBracket', $tournament);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+        }
+        $bracket = $tournamentRepository->createBracket($tournament);
+        if ($bracket) {
+            return $this->success($bracket);
+        }
+        return $this->failMessage('Could not create a bracket for this tournament', 400);
+    }
+
+    /**
      * Retrieves all participants of the given tournament
      *
      * @param Request $request

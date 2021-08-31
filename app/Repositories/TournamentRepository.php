@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 
+use App\Engines\BracketCreator;
 use App\Enums\ParticipantAcceptanceState;
 use App\Organization;
 use App\Participant;
@@ -332,6 +333,12 @@ class TournamentRepository extends BaseRepository
             return $tournaments->paginate($paginate);
         }
         return $tournaments->get()->toArray();
+    }
+
+    public function createBracket(Tournament $tournament)
+    {
+        $bracketCreator = new BracketCreator($tournament);
+        $bracket = $bracketCreator->createBracket();
     }
 
     /**

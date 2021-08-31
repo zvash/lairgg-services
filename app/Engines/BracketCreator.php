@@ -24,6 +24,19 @@ class BracketCreator
     /**
      * @return array|null
      */
+    public function createBracket()
+    {
+        $engine = $this->engineSelector();
+        if ($engine) {
+            $engine->createBracket();
+            return $this->getBracket();
+        }
+        return null;
+    }
+
+    /**
+     * @return array|null
+     */
     public function getBracket()
     {
         $engine = $this->engineSelector();
