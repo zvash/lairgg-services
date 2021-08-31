@@ -49,7 +49,7 @@ class TournamentRepository extends BaseRepository
 
         $teamParticipants = $tournament->players > 1;
         if ($teamParticipants) {
-            $currentUserTeams = $user->teams()->pluck('id')->all();
+            $currentUserTeams = $user->teams->pluck('id')->all();
             $participationRecord = Participant::query()
                 ->where('tournament_id', $tournament->id)
                 ->where('participantable_type', Team::class)
