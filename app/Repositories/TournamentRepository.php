@@ -335,10 +335,14 @@ class TournamentRepository extends BaseRepository
         return $tournaments->get()->toArray();
     }
 
+    /**
+     * @param Tournament $tournament
+     * @return array|null
+     */
     public function createBracket(Tournament $tournament)
     {
         $bracketCreator = new BracketCreator($tournament);
-        $bracket = $bracketCreator->createBracket();
+        return $bracketCreator->createBracket();
     }
 
     /**

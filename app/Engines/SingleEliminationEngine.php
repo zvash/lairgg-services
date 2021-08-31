@@ -32,7 +32,8 @@ class SingleEliminationEngine extends TournamentEngine
     public function __construct(Tournament $tournament)
     {
         $this->tournament = $tournament;
-        $this->rounds = $this->totalRounds($this->participantCount($this->tournament));
+        //$this->rounds = $this->totalRounds($this->participantCount($this->tournament));
+        $this->rounds = $this->totalRounds($this->tournament->max_teams);
     }
 
     /**
@@ -49,10 +50,10 @@ class SingleEliminationEngine extends TournamentEngine
             DB::commit();
         } catch (TournamentIsActiveException $exception) {
             DB::rollBack();
-            dd($exception->getMessage());
+            dd([$exception->getMessage(), 'TournamentIsActiveException']);
         } catch (\Exception $exception) {
             DB::rollBack();
-            dd($exception->getMessage());
+            dd($exception->getMessage(), 'Exception', $exception->getFile(), $exception->getLine());
         }
     }
 
