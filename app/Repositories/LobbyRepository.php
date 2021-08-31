@@ -27,7 +27,8 @@ class LobbyRepository extends BaseRepository
         $attributes['lobby_aware_id'] = $owner->id;
         $attributes['name'] = 'lobby_' . make_random_hash();
         $attributes['is_active'] = $isActive;
-        $lobby = Lobby::query()->with('lobby_aware_type', $attributes['lobby_aware_type'])
+        $lobby = Lobby::query()
+            ->where('lobby_aware_type', $attributes['lobby_aware_type'])
             ->where('lobby_aware_id', $attributes['lobby_aware_id'])
             ->first();
         if ($lobby) {
