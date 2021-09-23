@@ -97,17 +97,24 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->get('/{tournament}/organizer-overview', 'TournamentController@organizerOverview');
 
                     $router->get('/{tournament}/overview', 'TournamentController@overview');
+                    $router->get('/{tournament}/prizes', 'TournamentController@prizes');
+                    $router->get('/{tournament}/matches/brackets/{bracket}/rounds', 'TournamentController@rounds');
+                    $router->get('/{tournament}/matches/brackets/{bracket}/rounds/{round}', 'TournamentController@matches');
 
                     $router->get('/{tournament}/rules', 'TournamentController@rules');
 
                     $router->post('/{tournament}/allow-check-in', 'TournamentController@allowCheckIn');
 
+                    $router->post('/{tournament}/participants/status/{status}', 'TournamentController@updateParticipantStatus');
                     $router->get('/{tournament}/participants/accepted', 'TournamentController@acceptedParticipants');
                     $router->get('/{tournament}/participants', 'TournamentController@participants');
+                    $router->get('/{tournament}/participants/{participantableId}/get', 'TournamentController@getParticipant');
 
                     $router->post('/{tournament}/participantable/{participantable}', 'TournamentController@joinParticipantablesToTournament');
 
                     $router->get('/{tournament}/lobby', 'TournamentController@getLobbyName');
+
+                    $router->post('/{tournament}/join', 'TournamentController@joinRequest');
 
                 });
 

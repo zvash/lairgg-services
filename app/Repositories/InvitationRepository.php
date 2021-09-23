@@ -5,6 +5,7 @@ namespace App\Repositories;
 
 use App\Enums\ParticipantAcceptanceState;
 use App\Events\InvitationCreated;
+use App\Events\ParticipantStatusWasUpdated;
 use App\Invitation;
 use App\Participant;
 use App\Team;
@@ -276,6 +277,7 @@ class InvitationRepository extends BaseRepository
                         'status' => $status
                     ]);
                     $tournament->participants()->save($participant);
+                    event(new ParticipantStatusWasUpdated($participant));
                 }
                 $this->removeInvitations($invitations->all());
                 return $tournament->participants()

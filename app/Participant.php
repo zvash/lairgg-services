@@ -10,6 +10,12 @@ class Participant extends Model
 {
     use Actionable, Transactionable;
 
+    protected $fillable = [
+        'tournament_id',
+        'participantable_type',
+        'participantable_id',
+    ];
+
     /**
      * The attributes that aren't mass assignable.
      *
@@ -56,5 +62,43 @@ class Participant extends Model
     public function prize()
     {
         return $this->belongsTo(Prize::class);
+    }
+
+    /**
+     * @return null
+     */
+    public function getName()
+    {
+        if ($this->participantable_type == User::class) {
+            $user = User::find($this->participantable_id);
+            if ($user) {
+                return $user->username;
+            }
+        } else if ($this->participantable_type == Team::class) {
+            $team = Team::find($this->participantable_id);
+            if ($team) {
+                return $team->title;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return null
+     */
+    public function getAvatar()
+    {
+        if ($this->participantable_type == User::class) {
+            $user = User::find($this->participantable_id);
+            if ($user) {
+                return $user->avatar;
+            }
+        } else if ($this->participantable_type == Team::class) {
+            $team = Team::find($this->participantable_id);
+            if ($team) {
+                return $team->logo;
+            }
+        }
+        return null;
     }
 }

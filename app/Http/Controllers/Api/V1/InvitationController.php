@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DeclineTournamentInvitationRequest;
-use App\Http\Requests\InvitationActionRequest;
 use App\Http\Requests\JoinTeamRequest;
 use App\Http\Requests\JoinTournamentRequest;
 use App\Repositories\InvitationRepository;

@@ -3,8 +3,7 @@
 namespace App\Nova;
 
 use App\Enums\{
-    Status,
-    TournamentStructure
+    Platform, Status, TournamentStructure
 };
 use App\Nova\Filters\Featured;
 use App\Nova\Filters\FeaturedTournament;
@@ -237,6 +236,17 @@ class Tournament extends Resource
                     TournamentStructure::ONE => '1v1',
                     TournamentStructure::OTHER => 'Other',
                 ]),
+
+            Select::make('Platform')
+                ->displayUsingLabels()
+                ->required()
+                ->rules('required')
+                ->options([
+                    Platform::PC => Platform::PC,
+                    Platform::CONSOLE => Platform::CONSOLE,
+                    Platform::MOBILE => Platform::MOBILE,
+                ]),
+
 
             DateTime::make('Started at')
                 ->hideFromIndex()

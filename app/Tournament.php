@@ -2,6 +2,9 @@
 
 namespace App;
 
+use App\Engines\BattleRoyaleEngine;
+use App\Engines\DoubleEliminationEngine;
+use App\Engines\SingleEliminationEngine;
 use App\Enums\ParticipantAcceptanceState;
 use App\Enums\Status;
 use App\Traits\Eloquents\{
@@ -418,5 +421,47 @@ class Tournament extends Model
     public function moderators()
     {
         return $this->belongsToMany(User::class, 'tournament_moderators', 'tournament_id', 'user_id');
+    }
+
+    /**
+     * @return BattleRoyaleEngine|DoubleEliminationEngine|SingleEliminationEngine|null
+     */
+    public function engine()
+    {
+        $tournamentType = TournamentType::where('id', $this->tournament_type_id)->first();
+        if ($tournamentType->title == 'Single Elimination') {
+            return new SingleEliminationEngine($this);
+        }
+        if ($tournamentType->title == 'Double Elimination') {
+            return new DoubleEliminationEngine($this);
+        }
+        if ($tournamentType->title == 'Battle Royale') {
+            return new BattleRoyaleEngine($this);
+        }
+        return null;
+    }
+
+    /**
+     * @return bool
+     */
+    public function numberOfMatchParticipantsIsTwo()
+    {
+        $tournamentType = TournamentType::where('id', $this->tournament_type_id)->first();
+        if ($tournamentType->title == 'Battle Royale') {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getBracket()
+    {
+        $engine = $this->engine();
+        if ($engine) {
+            return $engine->getBracket($this);
+        }
+        return null;
     }
 }

@@ -5,10 +5,16 @@ namespace App\Repositories;
 
 use App\Engines\BracketCreator;
 use App\Enums\ParticipantAcceptanceState;
+use App\Events\ParticipantStatusWasUpdated;
+use App\Http\Requests\JoinTournamentRequest;
+use App\Http\Requests\TournamentJoinRequest;
+use App\Http\Requests\UpdateParticipantStatus;
+use App\Match;
 use App\Organization;
 use App\Participant;
 use App\Team;
 use App\Tournament;
+use App\TournamentType;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,10 +34,11 @@ class TournamentRepository extends BaseRepository
         $tournament->load([
             'organization',
             'tournamentType',
-            'matches',
-            'matches.plays',
-            'prizes',
+            //'matches',
+            //'matches.plays',
+            //'prizes',
             'links',
+            'links.linkType'
         ]);
         $totalPrize = $tournament->prizes()
             ->whereHas('valueType', function ($query) {
@@ -86,6 +93,211 @@ class TournamentRepository extends BaseRepository
             'status' => $userJoinStatus,
         ];
         return $tournament;
+    }
+
+    /**
+     * @param Tournament $tournament
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getPrizes(Tournament $tournament)
+    {
+        return $tournament->prizes()->get();
+    }
+
+    /**
+     * @param Tournament $tournament
+     * @param string $bracket
+     * @return array
+     */
+    public function rounds(Tournament $tournament, string $bracket)
+    {
+        $maxRounds = ceil(log($tournament->max_teams, 2));
+        $isDoubleElimination = false;
+        $tournamentType = TournamentType::where('id', $tournament->tournament_type_id)->first();
+        if ($tournamentType->title == 'Double Elimination') {
+            $isDoubleElimination = true;
+        }
+        $rounds = [];
+        if ($bracket == 'winners') {
+            for ($i = 1; $i <= $maxRounds; $i++) {
+                if ($i == $maxRounds) {
+                    $rounds[] = [
+                        'round' => $i,
+                        'name' => 'Final',
+                    ];
+                } else if ($i == $maxRounds - 1) {
+                    $rounds[] = [
+                        'round' => $i,
+                        'name' => 'Semifinals',
+                    ];
+                } else if ($i == $maxRounds - 2) {
+                    $rounds[] = [
+                        'round' => $i,
+                        'name' => 'Quarterfinals',
+                    ];
+                } else {
+                    $playersCount = pow(2, $maxRounds + 1 - $i);
+                    $rounds[] = [
+                        'round' => $i,
+                        'name' => 'Round of ' . $playersCount,
+                    ];
+                }
+            }
+        } else if ($isDoubleElimination) {
+            $losersMaxRounds = ($maxRounds - 1) * 2;
+            for ($i = 1; $i <= $losersMaxRounds; $i++) {
+                if ($i == $losersMaxRounds) {
+                    $rounds[] = [
+                        'round' => $i,
+                        'name' => 'Loser\'s Final',
+                    ];
+                } else {
+                    $rounds[] = [
+                        'round' => $i,
+                        'name' => 'Loser\'s Round ' . $i,
+                    ];
+                }
+            }
+        }
+        return $rounds;
+    }
+
+    /**
+     * @param Tournament $tournament
+     * @param string $bracket
+     * @param int $round
+     * @return array
+     */
+    public function matches(Tournament $tournament, string $bracket, int $round)
+    {
+        $winnerGroup = 1;
+        $loserGroup = 0;
+        $thirdRankGroup = 0;
+        $tournamentType = TournamentType::where('id', $tournament->tournament_type_id)->first();
+        if ($tournamentType->title == 'Single Elimination') {
+            $thirdRankGroup = 2;
+        } else if ($tournamentType->title == 'Double Elimination') {
+            $loserGroup = 2;
+            $thirdRankGroup = 3;
+        }
+        if ($bracket == 'winners') {
+            $matches = $tournament->matches()
+                ->where(function ($query) use ($winnerGroup, $round) {
+                    return $query->where('group', $winnerGroup)
+                        ->where('round', $round);
+                });
+
+            if ($round == ceil(log($tournament->max_teams, 2))) {
+                $matches = $matches->orWhere(function ($query) use ($thirdRankGroup, $tournament) {
+                        return $query->where('tournament_id', $tournament->id)
+                            ->where('group', $thirdRankGroup)
+                            ->where('round', 1);
+                    });
+            }
+        } else if ($bracket == 'losers') {
+            $matches = $tournament->matches()
+                ->where('group', $loserGroup)
+                ->where('round', $round);
+        }
+        $matches = $matches->get();
+        $list = [];
+        foreach ($matches as $match) {
+            $matchData = $match->toArray();
+            $participants = $match->getParticipants();
+            $participantsScoreById = [];
+            foreach ($participants as $participant) {
+                $participantsScoreById[$participant->id] = $match->getParticipantScore($participant);
+            }
+            $participants = $participants->toArray();
+            foreach ($participants as $index => $participant) {
+                $participants[$index]['score'] = $participantsScoreById[$participant['id']];
+            }
+            $matchData['participants'] = $participants;
+            $list[] = $matchData;
+        }
+        return $list;
+    }
+
+    public function getParticipant(Tournament $tournament, int $participantableId)
+    {
+        $type = $tournament->players > 1 ? Team::class : User::class;
+        $participant = $tournament->participants()
+            ->where('participantable_type', $type)
+            ->where('participantable_id', $participantableId)
+            ->with('participantable')
+            ->first();
+
+        $players = [];
+        $matches = [];
+        if ($participant) {
+            if ($type == Team::class) {
+                $tournamentPlayers = $participant->participantable->players;
+                foreach ($tournamentPlayers as $tournamentPlayer) {
+                    $players[] = [
+                        'user_id' => $tournamentPlayer->user_id,
+                        'username' => $tournamentPlayer->username,
+                        'avatar' => $tournamentPlayer->avatar,
+                    ];
+                }
+            }
+            $tournamentMatches = Match::query()
+                ->where('tournament_id', $tournament->id)
+                ->whereHas('plays', function ($plays) use ($participant) {
+                    return $plays->whereHas('parties', function($parties) use ($participant) {
+                        return $parties->where('team_id', $participant->id);
+                    });
+                })
+                ->orderBy('id', 'desc')
+                ->get();
+            foreach ($tournamentMatches as $tournamentMatch) {
+                $winner = $tournamentMatch->winner;
+                $match = [
+                    'id' => $tournamentMatch->id,
+                    'started_at' => $tournamentMatch->started_at,
+                ];
+                $participants = $tournamentMatch->getParticipants();
+                foreach ($participants as $participant) {
+                    $match['participants'][] = [
+                        'title' => $participant->getName(),
+                        'avatar' => $participant->getAvatar(),
+                        'is_winner' => $winner && $winner->id == $participant->id,
+                        'score' => $tournamentMatch->getParticipantScore($participant),
+                    ];
+
+                }
+                $participantsCount = $participants->count();
+                if ($tournament->numberOfMatchParticipantsIsTwo() && $participantsCount < 2) {
+                    for ($i = $participantsCount; $i < 2; $i++) {
+                        $previousMatch = $tournamentMatch->getPreviousMatchWithoutParticipant($participant);
+                        if (! $previousMatch) {
+                            $match['participants'][] = [
+                                'title' => null,
+                                'avatar' => null,
+                                'is_winner' => false,
+                                'score' => null,
+                            ];
+                        } else {
+                            $previousMatchParticipants = $previousMatch->getParticipants();
+                            $titles = [];
+                            foreach ($previousMatchParticipants as $previousMatchParticipant)  {
+                                $titles[] = $previousMatchParticipant->getName();
+                            }
+                            $match['participants'][] = [
+                                'title' => implode(' - ', $titles),
+                                'avatar' => null,
+                                'is_winner' => false,
+                                'score' => null,
+                            ];
+                        }
+                    }
+                }
+                $matches[] = $match;
+            }
+        }
+        return [
+            'players' => $players,
+            'matches' => $matches
+        ];
     }
 
     /**
@@ -343,6 +555,70 @@ class TournamentRepository extends BaseRepository
     {
         $bracketCreator = new BracketCreator($tournament);
         return $bracketCreator->createBracket();
+    }
+
+    /**
+     * @param Tournament $tournament
+     * @param TournamentJoinRequest $request
+     * @return Builder|\Illuminate\Database\Eloquent\Model|null|object
+     */
+    public function registerJoinRequest(Tournament $tournament, TournamentJoinRequest $request)
+    {
+        $user = $request->user();
+        $inputs = $request->validated();
+        $participantableId = $inputs['participantable_id'];
+        $teamTournament = $tournament->players > 1;
+
+        if ($teamTournament) {
+            $team = $user->teams()->where('teams.id', $participantableId)->first();
+            if (! $team) {
+                //throw error
+            }
+            $participantable = $team;
+            $participantableType = Team::class;
+        } else {
+            if ($participantableId != $user->id) {
+                //throw error
+            }
+            $participantable = $user;
+            $participantableType = User::class;
+        }
+        $participant = Participant::query()
+            ->where('tournament_id', $tournament->id)
+            ->where('participantable_type', $participantableType)
+            ->where('participantable_id', $participantable->id)
+            ->first();
+        if ($participant) {
+            return $participant;
+        }
+        return Participant::query()->create([
+            'tournament_id' => $tournament->id,
+            'participantable_type' => $participantableType,
+            'participantable_id' => $participantable->id,
+        ]);
+    }
+
+    /**
+     * @param UpdateParticipantStatus $request
+     * @param Tournament $tournament
+     * @param string $status
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|null|object
+     * @throws \Exception
+     */
+    public function updateParticipantStatus(UpdateParticipantStatus $request, Tournament $tournament, string $status)
+    {
+        $inputs = $request->validated();
+        $participantId = $inputs['participant_id'];
+        $participant = $tournament->participants()->where('participants.id', $participantId)->first();
+        if ($participant) {
+            if ($participant->status != $status) {
+                $participant->status = $status;
+                $participant->save();
+                event(new ParticipantStatusWasUpdated($participant));
+            }
+            return $participant;
+        }
+        throw new \Exception('This operation is not performable');
     }
 
     /**

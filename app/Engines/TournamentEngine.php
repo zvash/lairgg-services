@@ -17,6 +17,11 @@ abstract class TournamentEngine
 {
 
     /**
+     * @var array
+     */
+    protected $matchesByNextMatch = [];
+
+    /**
      * Number of participants in a match
      *
      * @return int
@@ -105,6 +110,21 @@ abstract class TournamentEngine
             'tournament' => $tournament->toArray(),
             'matches' => $separatedMatches
         ];
+    }
+
+    /**
+     * @param Match $match
+     * @return Match[]|null
+     */
+    public function getPreviousMatches(Match $match)
+    {
+        if (!$this->matchesByNextMatch) {
+            $this->getBracket($match->tournament);
+        }
+        if (array_key_exists($match->id, $this->matchesByNextMatch)) {
+            return $this->matchesByNextMatch[$match->id];
+        }
+        return null;
     }
 
     /**
@@ -282,6 +302,44 @@ abstract class TournamentEngine
     }
 
     /**
+     * @param Participant $participant
+     */
+    public function assignParticipantToFirstEmptyMatch(Participant $participant)
+    {
+        $tournament = $participant->tournament;
+        $match = $this->getFirstEmptyMatchSlot($tournament);
+        if ($match) {
+            $plays = $match->plays;
+            foreach ($plays as $play) {
+                $parties = $play->parties;
+                foreach ($parties as $party) {
+                    if (! $party->team_id) {
+                        $party->team_id = $participant->id;
+                        $party->save();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param Tournament $tournament
+     * @return null|Match
+     */
+    public function getFirstEmptyMatchSlot(Tournament $tournament)
+    {
+        return $tournament->matches()
+            ->firstRoundOfGroup(1)
+            ->whereHas('plays', function ($plays) {
+                return $plays->whereHas('parties', function ($parties) {
+                    return $parties->whereNull('team_id');
+                });
+            })
+            ->first();
+    }
+
+    /**
      * @param Match $match
      * @param Participant ...$participants
      */
@@ -340,7 +398,7 @@ abstract class TournamentEngine
      */
     protected function assignParticipantToParty(Party $party, Participant $participant)
     {
-        $party->setAttribute('team_id', $participant->participantable_id)->save();
+        $party->setAttribute('team_id', $participant->id)->save();
     }
 
     /**

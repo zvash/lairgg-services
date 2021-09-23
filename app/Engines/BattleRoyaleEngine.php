@@ -25,6 +25,11 @@ class BattleRoyaleEngine extends TournamentEngine
     protected $bracket = [];
 
     /**
+     * @var array
+     */
+    protected $matchesByNextMatch = [];
+
+    /**
      * SingleEliminationEngine constructor.
      * @param $tournament
      */

@@ -26,6 +26,11 @@ class SingleEliminationEngine extends TournamentEngine
     protected $bracket = [];
 
     /**
+     * @var array
+     */
+    protected $matchesByNextMatch = [];
+
+    /**
      * SingleEliminationEngine constructor.
      * @param $tournament
      */
@@ -146,6 +151,11 @@ class SingleEliminationEngine extends TournamentEngine
             ->limit(1)
             ->offset($nextMatchOffset)
             ->first();
+
+        if ($nextMatch) {
+            $this->matchesByNextMatch[$nextMatch->id][] = $match;
+        }
+
         return $nextMatch;
     }
 
@@ -162,9 +172,13 @@ class SingleEliminationEngine extends TournamentEngine
             $match->round == $this->rounds - 1 &&
             $this->tournament->match_third_rank
         ) {
-            return Match::where('tournament_id', $this->tournament->id)
+            $nextMatch = Match::where('tournament_id', $this->tournament->id)
                 ->where('group', 2)
                 ->first();
+            if ($nextMatch) {
+                $this->matchesByNextMatch[$nextMatch->id][] = $match;
+            }
+            return $nextMatch;
         }
         return null;
     }

@@ -68,6 +68,16 @@ class TournamentPolicy extends BasePolicy
      * @param Tournament $tournament
      * @return Response
      */
+    public function canUpdateParticipantStatus(User $user, Tournament $tournament)
+    {
+        return $this->onlyAdminOfTournament($user, $tournament, 'You cannot update participant status for this tournament');
+    }
+
+    /**
+     * @param User $user
+     * @param Tournament $tournament
+     * @return Response
+     */
     public function canInviteParticipant(User $user, Tournament $tournament)
     {
         return $this->onlyAdminOfTournament($user, $tournament, 'You cannot invite participants');

@@ -69,7 +69,7 @@ class Match extends Model
      */
     public function winner()
     {
-        return $this->belongsTo(Team::class, 'winner_team_id');
+        return $this->belongsTo(Participant::class, 'winner_team_id');
     }
 
     /**
@@ -136,5 +136,63 @@ class Match extends Model
             return false;
         }
         return strtotime($this->started_at->format('Y-m-d H:i:s')) < time();
+    }
+
+    /**
+     * @return Match[]|null
+     */
+    public function getPreviousMatches()
+    {
+        $tournament = $this->tournament;
+        $engine = $tournament->engine();
+        return $engine->getPreviousMatches($this);
+    }
+
+    /**
+     * @param Participant $participant
+     * @return Match|null
+     */
+    public function getPreviousMatchWithoutParticipant(Participant $participant)
+    {
+        $previousMatches = $this->getPreviousMatches();
+        if ($previousMatches) {
+           foreach ($previousMatches as $match) {
+               $participantIds = $match->getParticipants()->pluck('id')->toArray();
+               if (! in_array($participant->id, $participantIds)) {
+                   return $match;
+               }
+           }
+        }
+        return null;
+    }
+
+    /**
+     * @return Builder[]|\Illuminate\Database\Eloquent\Collection
+     */
+    public function getParticipants()
+    {
+        $firstPlay = $this->plays()->first();
+        $participantIds = $firstPlay->parties->pluck('team_id');
+        return Participant::query()
+            ->whereIn('id', $participantIds)
+            ->with('participantable')
+            ->get();
+    }
+
+    /**
+     * @param Participant $participant
+     * @return int|null
+     */
+    public function getParticipantScore(Participant $participant)
+    {
+        if (! $this->winner) {
+            return null;
+        }
+        return $this->plays()
+            ->whereHas('parties', function ($parties) use ($participant) {
+                return $parties->where('team_id', $participant->id)
+                    ->where('is_winner', true);
+            })->count();
+
     }
 }

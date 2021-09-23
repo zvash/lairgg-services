@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\HttpStatusCode;
 use App\Enums\ParticipantAcceptanceState;
+use App\Http\Requests\TournamentJoinRequest;
+use App\Http\Requests\UpdateParticipantStatus;
 use App\Invitation;
 use App\Participant;
 use App\Repositories\InvitationRepository;
@@ -142,6 +144,26 @@ class TournamentController extends Controller
     }
 
     /**
+     * @param UpdateParticipantStatus $request
+     * @param Tournament $tournament
+     * @param string $status
+     * @param TournamentRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function updateParticipantStatus(UpdateParticipantStatus $request, Tournament $tournament, string $status, TournamentRepository $repository)
+    {
+        $gate = Gate::inspect('canUpdateParticipantStatus', $tournament);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+        }
+        try {
+            return $this->success($repository->updateParticipantStatus($request, $tournament, $status));
+        } catch (\Exception $exception) {
+            return $this->failMessage($exception->getMessage(), 400);
+        }
+    }
+    
+    /**
      * @param Request $request
      * @param Tournament $tournament
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
@@ -197,6 +219,41 @@ class TournamentController extends Controller
         return $this->success($repository->getTournamentOverview($request->user(), $tournament));
     }
 
+    /**
+     * @param Request $request
+     * @param Tournament $tournament
+     * @param TournamentRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function prizes(Request $request, Tournament $tournament, TournamentRepository $repository)
+    {
+        return $this->success($repository->getPrizes($tournament));
+    }
+
+    /**
+     * @param Request $request
+     * @param Tournament $tournament
+     * @param string $bracket
+     * @param int $round
+     * @param TournamentRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function matches(Request $request, Tournament $tournament, string $bracket, int $round, TournamentRepository $repository)
+    {
+        return $this->success($repository->matches($tournament, $bracket, $round));
+    }
+
+    /**
+     * @param Request $request
+     * @param Tournament $tournament
+     * @param string $bracket
+     * @param TournamentRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function rounds(Request $request, Tournament $tournament, string $bracket, TournamentRepository $repository)
+    {
+        return $this->success($repository->rounds($tournament, $bracket));
+    }
     /**
      * @param Request $request
      * @param TournamentRepository $tournamentRepository
@@ -292,6 +349,11 @@ class TournamentController extends Controller
         return $this->success($tournaments);
     }
 
+    public function getParticipant(Request $request, Tournament $tournament, int $participantableId, TournamentRepository $tournamentRepository)
+    {
+        return $this->success($tournamentRepository->getParticipant($tournament, $participantableId));
+    }
+
     /**
      * @param Request $request
      * @param Tournament $tournament
@@ -314,6 +376,21 @@ class TournamentController extends Controller
         $this->validateJoinParticipantsRequest($request, $participantable);
         $participantsIds = $this->addNewParticipantsToTournament($request, $tournament, $participantable);
         return $this->success($participantsIds);
+    }
+
+    /**
+     * @param TournamentJoinRequest $request
+     * @param Tournament $tournament
+     * @param TournamentRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function joinRequest(TournamentJoinRequest $request, Tournament $tournament, TournamentRepository $repository)
+    {
+        try {
+            return $this->success($repository->registerJoinRequest($tournament, $request));
+        } catch (\Exception $exception) {
+            return $this->failMessage($exception->getMessage(), 400);
+        }
     }
 
     /**
