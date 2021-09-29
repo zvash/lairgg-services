@@ -195,4 +195,86 @@ class Match extends Model
             })->count();
 
     }
+
+    /**
+     * @return array
+     */
+    public function getCandidates()
+    {
+        $candidates = [];
+        $engine = $this->tournament->engine();
+        $numberOfPlayers = $engine->matchPlayerCount();
+        $participants = $this->getParticipants();
+        $definiteParticipant = null;
+        for ($i = 0; $i < $numberOfPlayers; $i++) {
+            if (isset($participants[$i])) {
+                $definiteParticipant = $participants[$i];
+                $logo = $definiteParticipant->getAvatar();
+                $title = $definiteParticipant->getName();
+                $score = $this->getParticipantScore($definiteParticipant);
+                $isWinner = $this->winner_team_id == $definiteParticipant->id;
+                $candidates[] = [
+                    'logo' => $logo,
+                    'title' => $title,
+                    'score' => $score,
+                    'is_winner' => $isWinner,
+                ];
+            } else if ($this->group == 1 && $this->round == 1) {
+                $candidates[] = [
+                    'logo' => null,
+                    'title' => null,
+                    'score' => null,
+                    'is_winner' => null,
+                ];
+            } else if ($definiteParticipant) {
+                $previousMatch = $this->getPreviousMatchWithoutParticipant($definiteParticipant);
+                $previousParticipants = $previousMatch->getParticipants();
+                if ($previousParticipants->count() == $numberOfPlayers) {
+                    $names = [];
+                    foreach ($previousParticipants as $previousParticipant) {
+                        $names[] = $previousParticipant->getName();
+                    }
+                    $candidates[] = [
+                        'logo' => null,
+                        'title' => implode(' vs. ', $names),
+                        'score' => null,
+                        'is_winner' => null,
+                    ];
+                } else {
+                    $candidates[] = [
+                        'logo' => null,
+                        'title' => null,
+                        'score' => null,
+                        'is_winner' => null,
+                    ];
+                }
+            } else {
+                $previousMatches = $this->getPreviousMatches();
+                foreach ($previousMatches as $previousMatch) {
+                    $previousParticipants = $previousMatch->getParticipants();
+                    if ($previousParticipants->count() == $numberOfPlayers) {
+                        $names = [];
+                        foreach ($previousParticipants as $previousParticipant) {
+                            $names[] = $previousParticipant->getName();
+                        }
+                        $candidates[] = [
+                            'logo' => null,
+                            'title' => implode(' vs. ', $names),
+                            'score' => null,
+                            'is_winner' => null,
+                        ];
+                    } else {
+                        $candidates[] = [
+                            'logo' => null,
+                            'title' => null,
+                            'score' => null,
+                            'is_winner' => null,
+                        ];
+                    }
+                }
+                break;
+            }
+        }
+        return $candidates;
+    }
 }

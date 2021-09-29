@@ -44,7 +44,7 @@ class BattleRoyaleEngine extends TournamentEngine
      *
      * @return int
      */
-    protected function matchPlayerCount()
+    public function matchPlayerCount()
     {
         return $this->participantCount($this->tournament);
     }

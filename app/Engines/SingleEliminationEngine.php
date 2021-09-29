@@ -104,7 +104,7 @@ class SingleEliminationEngine extends TournamentEngine
      *
      * @return int
      */
-    protected function matchPlayerCount()
+    public function matchPlayerCount()
     {
         return 2;
     }

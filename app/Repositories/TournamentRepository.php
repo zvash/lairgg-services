@@ -222,9 +222,11 @@ class TournamentRepository extends BaseRepository
             ->whereIn('group', $bracketGroup)
             ->orderBy('id')
             ->get();
-        //dd($rounds);
+
         foreach ($matches as $match) {
-            $bracketMatches[$rounds[$match->group][$match->round]][] = $match;
+            $bracketMatch = $match->toArray();
+            $bracketMatch['candidates'] = $match->getCandidates();
+            $bracketMatches[$rounds[$match->group][$match->round]][] = $bracketMatch;
         }
         $allMatches = [];
         foreach ($bracketMatches as $title => $roundMatches) {

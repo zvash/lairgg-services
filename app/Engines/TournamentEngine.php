@@ -26,7 +26,7 @@ abstract class TournamentEngine
      *
      * @return int
      */
-    abstract protected function matchPlayerCount();
+    abstract public function matchPlayerCount();
 
     /**
      * Randomly assigns participants to the matches of the tournament
