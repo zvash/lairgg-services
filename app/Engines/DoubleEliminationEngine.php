@@ -37,7 +37,7 @@ class DoubleEliminationEngine extends TournamentEngine
     public function __construct(Tournament $tournament)
     {
         $this->tournament = $tournament;
-        $this->rounds = $this->totalRounds($this->participantCount($this->tournament));
+        $this->rounds = $this->totalRounds($this->tournament->max_teams);
     }
 
     /**

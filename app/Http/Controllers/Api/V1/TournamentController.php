@@ -250,6 +250,18 @@ class TournamentController extends Controller
      * @param TournamentRepository $repository
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
+    public function bracketMatches(Request $request, Tournament $tournament, string $bracket, TournamentRepository $repository)
+    {
+        return $this->success($repository->bracketMatches($tournament, $bracket));
+    }
+
+    /**
+     * @param Request $request
+     * @param Tournament $tournament
+     * @param string $bracket
+     * @param TournamentRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function rounds(Request $request, Tournament $tournament, string $bracket, TournamentRepository $repository)
     {
         return $this->success($repository->rounds($tournament, $bracket));

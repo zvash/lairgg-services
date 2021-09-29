@@ -98,6 +98,7 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->get('/{tournament}/overview', 'TournamentController@overview');
                     $router->get('/{tournament}/prizes', 'TournamentController@prizes');
+                    $router->get('/{tournament}/matches/brackets/{bracket}', 'TournamentController@bracketMatches');
                     $router->get('/{tournament}/matches/brackets/{bracket}/rounds', 'TournamentController@rounds');
                     $router->get('/{tournament}/matches/brackets/{bracket}/rounds/{round}', 'TournamentController@matches');
 

@@ -113,46 +113,69 @@ class TournamentRepository extends BaseRepository
     {
         $maxRounds = ceil(log($tournament->max_teams, 2));
         $isDoubleElimination = false;
+        $isSingleElimination = false;
         $tournamentType = TournamentType::where('id', $tournament->tournament_type_id)->first();
         if ($tournamentType->title == 'Double Elimination') {
             $isDoubleElimination = true;
+        }
+        if ($tournamentType->title == 'Single Elimination') {
+            $isSingleElimination = true;
         }
         $rounds = [];
         if ($bracket == 'winners') {
             for ($i = 1; $i <= $maxRounds; $i++) {
                 if ($i == $maxRounds) {
                     $rounds[] = [
+                        'group' => 1,
                         'round' => $i,
                         'name' => 'Final',
                     ];
                 } else if ($i == $maxRounds - 1) {
                     $rounds[] = [
+                        'group' => 1,
                         'round' => $i,
                         'name' => 'Semifinals',
                     ];
                 } else if ($i == $maxRounds - 2) {
                     $rounds[] = [
+                        'group' => 1,
                         'round' => $i,
                         'name' => 'Quarterfinals',
                     ];
                 } else {
                     $playersCount = pow(2, $maxRounds + 1 - $i);
                     $rounds[] = [
+                        'group' => 1,
                         'round' => $i,
                         'name' => 'Round of ' . $playersCount,
                     ];
                 }
+            }
+            if ($isDoubleElimination) {
+                $rounds[] = [
+                    'group' => 3,
+                    'round' => 1,
+                    'name' => 'Grand Final',
+                ];
+            } else if ($isSingleElimination) {
+                $rounds[] = [
+                    'group' => 2,
+                    'round' => 1,
+                    'name' => 'Third Rank',
+                ];
             }
         } else if ($isDoubleElimination) {
             $losersMaxRounds = ($maxRounds - 1) * 2;
             for ($i = 1; $i <= $losersMaxRounds; $i++) {
                 if ($i == $losersMaxRounds) {
                     $rounds[] = [
+                        'group' => 2,
                         'round' => $i,
                         'name' => 'Loser\'s Final',
                     ];
                 } else {
                     $rounds[] = [
+                        'group' => 2,
                         'round' => $i,
                         'name' => 'Loser\'s Round ' . $i,
                     ];
@@ -160,6 +183,57 @@ class TournamentRepository extends BaseRepository
             }
         }
         return $rounds;
+    }
+
+    private function roundsTitleByGroupAndRound(Tournament $tournament, string $bracket)
+    {
+        $rounds = $this->rounds($tournament, $bracket);
+        $roundsMap = [];
+        foreach ($rounds as $round) {
+            $roundsMap[$round['group']][$round['round']] = $round['name'];
+        }
+        return $roundsMap;
+    }
+
+    /**
+     * @param Tournament $tournament
+     * @param string $bracket
+     * @return array
+     */
+    public function bracketMatches(Tournament $tournament, string $bracket)
+    {
+        $winnerGroup = [1];
+        $loserGroup = [0];
+        $tournamentType = TournamentType::where('id', $tournament->tournament_type_id)->first();
+        if ($tournamentType->title == 'Single Elimination') {
+            $winnerGroup = [1, 2];
+        } else if ($tournamentType->title == 'Double Elimination') {
+            $loserGroup = [2];
+            $winnerGroup = [1, 3];
+        }
+        $rounds = $this->roundsTitleByGroupAndRound($tournament, $bracket);
+        $bracketMatches = [];
+        if ($bracket == 'winners') {
+            $bracketGroup = $winnerGroup;
+        } else {
+            $bracketGroup = $loserGroup;
+        }
+        $matches = $tournament->matches()
+            ->whereIn('group', $bracketGroup)
+            ->orderBy('id')
+            ->get();
+        //dd($rounds);
+        foreach ($matches as $match) {
+            $bracketMatches[$rounds[$match->group][$match->round]][] = $match;
+        }
+        $allMatches = [];
+        foreach ($bracketMatches as $title => $roundMatches) {
+            $allMatches[] = [
+                'title' => $title,
+                'matches'=> $roundMatches,
+            ];
+        }
+        return $allMatches;
     }
 
     /**
