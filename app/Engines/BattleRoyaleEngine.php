@@ -50,6 +50,15 @@ class BattleRoyaleEngine extends TournamentEngine
     }
 
     /**
+     * @param Tournament $tournament
+     * @return int|mixed
+     */
+    public function getMaxRoundNumber(Tournament $tournament)
+    {
+        return 1;
+    }
+
+    /**
      * Randomly assigns participants to the matches of the tournament
      *
      * @return mixed

@@ -57,6 +57,14 @@ abstract class TournamentEngine
     abstract public function getNextMatchForLoser(Match $match);
 
     /**
+     * Get maximum number of games a team has to play to win the tournament
+     *
+     * @param Tournament $tournament
+     * @return int
+     */
+    abstract public function getMaxRoundNumber(Tournament $tournament);
+
+    /**
      * Get bracket for tournament
      *
      * @param Tournament $tournament
@@ -125,6 +133,52 @@ abstract class TournamentEngine
             return $this->matchesByNextMatch[$match->id];
         }
         return null;
+    }
+
+    /**
+     * @param Tournament $tournament
+     */
+    public function setTournamentMatchesDate(Tournament $tournament)
+    {
+        $startTime = $tournament->started_at;
+        $tournamentDuration = $tournament->started_at->diffInMinutes($tournament->ended_at);
+        $maxNumberOfGames = $this->getMaxRoundNumber($tournament);
+        $minMatchLength = $tournament->match_play_count * 30;
+        $matchLength = intval($tournamentDuration / $maxNumberOfGames);
+        $matchLength = max($minMatchLength, $matchLength);
+        $firstRoundMatches = $tournament->matches()
+            ->where('group', 1)
+            ->where('round', 1)
+            ->get();
+        foreach ($firstRoundMatches as $match) {
+            $this->setMatchDate($match, $startTime, $matchLength);
+        }
+
+
+    }
+
+    /**
+     * @param Match|null $match
+     * @param \Carbon\Carbon $date
+     * @param int $matchLength
+     */
+    private function setMatchDate(?Match $match, \Carbon\Carbon $date, int $matchLength)
+    {
+        if (!$match) {
+            return;
+        }
+        if ($match->started_at == null || $match->started_at->timestamp < $date->timestamp) {
+            $match->started_at = $date;
+            $match->save();
+            $nextMatchForWinner = $this->getNextMatchForWinner($match);
+            $nextMatchForLoser = $this->getNextMatchForLoser($match);
+            $nextDate = $date->clone();
+            $nextDate->addMinutes($matchLength);
+            $this->setMatchDate($nextMatchForWinner, $nextDate, $matchLength);
+            $nextDate = $date->clone();
+            $nextDate->addMinutes($matchLength);
+            $this->setMatchDate($nextMatchForLoser, $nextDate, $matchLength);
+        }
     }
 
     /**

@@ -51,6 +51,7 @@ class SingleEliminationEngine extends TournamentEngine
             $this->removeEmptyBracket($this->tournament);
             $this->generateRounds();
             $this->generateThirdRankMatchIfNeeded();
+            $this->setTournamentMatchesDate($this->tournament);
             $this->randomlyAssignParticipantsToMatches();
             DB::commit();
         } catch (TournamentIsActiveException $exception) {
@@ -60,6 +61,17 @@ class SingleEliminationEngine extends TournamentEngine
             DB::rollBack();
             dd($exception->getMessage(), 'Exception', $exception->getFile(), $exception->getLine());
         }
+    }
+
+    /**
+     * @param Tournament $tournament
+     * @return int|mixed
+     */
+    public function getMaxRoundNumber(Tournament $tournament)
+    {
+        return $tournament->matches()
+                ->where('group', 1)
+                ->max('round') - 1;
     }
 
     /**
