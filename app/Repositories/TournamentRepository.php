@@ -97,11 +97,49 @@ class TournamentRepository extends BaseRepository
 
     /**
      * @param Tournament $tournament
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return array
      */
     public function getPrizes(Tournament $tournament)
     {
-        return $tournament->prizes()->get();
+        $engine = $tournament->engine();
+        $maxRank = $this->findMaxRank($tournament);
+        $standing = [];
+        for ($i = 1; $i <= $maxRank; $i++) {
+            $standing[] = [
+                'rank' => $i,
+                'prizes' => $tournament->prizes()
+                    ->where('rank', $i)
+                    ->with('valueType')
+                    ->get()
+                    ->all(),
+                'winner' => $engine->getParticipantByRank($i)
+            ];
+        }
+        return $standing;
+    }
+
+    /**
+     * @param Tournament $tournament
+     * @return float|int
+     */
+    private function findMaxRank(Tournament $tournament)
+    {
+        $tournamentType = TournamentType::where('id', $tournament->tournament_type_id)->first();
+        if ($tournamentType->title == 'Single Elimination') {
+            if ($tournament->match_third_rank) {
+                return 4;
+            } else {
+                return 2;
+            }
+        }
+        if ($tournamentType->title == 'Double Elimination') {
+            return $tournament->matches()
+                ->where('group', 1)
+                ->where('round', 1)
+                ->count() * 2;
+        }
+
+        return $tournament->participants()->count() * 2;
     }
 
     /**

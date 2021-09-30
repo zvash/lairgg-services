@@ -65,6 +65,14 @@ abstract class TournamentEngine
     abstract public function getMaxRoundNumber(Tournament $tournament);
 
     /**
+     * Get participant for the given rank
+     *
+     * @param int $rank
+     * @return mixed|null
+     */
+    abstract public function getParticipantByRank(int $rank);
+
+    /**
      * Get bracket for tournament
      *
      * @param Tournament $tournament
@@ -136,6 +144,42 @@ abstract class TournamentEngine
     }
 
     /**
+     * @param Match $match
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\BelongsTo|Participant
+     */
+    public function getWinnerOfTheMatch(?Match $match)
+    {
+        if (!$match) {
+            return null;
+        }
+        return $match->winner()
+            ->with('participantable')
+            ->first();
+    }
+
+    /**
+     * @param Match $match
+     * @return \Illuminate\Database\Eloquent\Builder[]|Collection|null
+     */
+    public function getLosersOfTheMatch(?Match $match)
+    {
+        if (!$match || !$match->winner_team_id) {
+            return null;
+        }
+        $allParticipantsIds = $match->getParticipants()->pluck('id');
+        $participantIds = [];
+        foreach ($allParticipantsIds as $id) {
+            if ($match->winner_team_id != $id) {
+                $participantIds[] = $id;
+            }
+        }
+        return Participant::query()
+            ->whereIn('id', $participantIds)
+            ->with('participantable')
+            ->get();
+    }
+
+    /**
      * @param Tournament $tournament
      */
     public function setTournamentMatchesDate(Tournament $tournament)
@@ -153,8 +197,6 @@ abstract class TournamentEngine
         foreach ($firstRoundMatches as $match) {
             $this->setMatchDate($match, $startTime, $matchLength);
         }
-
-
     }
 
     /**
@@ -367,7 +409,7 @@ abstract class TournamentEngine
             foreach ($plays as $play) {
                 $parties = $play->parties;
                 foreach ($parties as $party) {
-                    if (! $party->team_id) {
+                    if (!$party->team_id) {
                         $party->team_id = $participant->id;
                         $party->save();
                         break;

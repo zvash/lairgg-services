@@ -108,4 +108,15 @@ class BattleRoyaleEngine extends TournamentEngine
     {
         return 1;
     }
+
+    /**
+     * Get participant for the given rank
+     *
+     * @param int $rank
+     * @return mixed|null
+     */
+    public function getParticipantByRank(int $rank)
+    {
+        // TODO: Implement getParticipantByRank() method.
+    }
 }

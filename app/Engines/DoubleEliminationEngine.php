@@ -253,4 +253,63 @@ class DoubleEliminationEngine extends TournamentEngine
         return false;
     }
 
+    /**
+     * Get participant for the given rank
+     *
+     * @param int $rank
+     * @return mixed|null
+     */
+    public function getParticipantByRank(int $rank)
+    {
+        if (in_array($rank, [1, 2])) {
+            $match = $this->getGrandFinalMatch();
+            if ($rank == 1) {
+                return $this->getWinnerOfTheMatch($match);
+            } else {
+                $losers = $this->getLosersOfTheMatch($match);
+                if ($losers) {
+                    return $losers->first();
+                }
+                return null;
+            }
+        } else if ($rank > 2) {
+            $match = $this->getLoserBracketMatchForRank($rank);
+            if (! $match) {
+                return null;
+            }
+            $losers = $this->getLosersOfTheMatch($match);
+            if ($losers) {
+                return $losers->first();
+            }
+            return null;
+        }
+        return null;
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|null|Match
+     */
+    private function getGrandFinalMatch()
+    {
+        return $this->tournament->matches()
+            ->where('group', 3)
+            ->where('round', 1)
+            ->first();
+    }
+
+    /**
+     * @param int $rank
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|null|Match
+     */
+    private function getLoserBracketMatchForRank(int $rank)
+    {
+        $lastRound = $this->tournament->matches()
+            ->where('group', 2)
+            ->max('round');
+        $round = $lastRound - $rank + 3;
+        return $this->tournament->matches()
+            ->where('group', 2)
+            ->where('round', $round)
+            ->first();
+    }
 }

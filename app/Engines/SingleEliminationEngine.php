@@ -5,6 +5,7 @@ namespace App\Engines;
 
 use App\Exceptions\TournamentIsActiveException;
 use App\Match;
+use App\Participant;
 use App\Tournament;
 use Illuminate\Support\Facades\DB;
 
@@ -191,6 +192,71 @@ class SingleEliminationEngine extends TournamentEngine
                 $this->matchesByNextMatch[$nextMatch->id][] = $match;
             }
             return $nextMatch;
+        }
+        return null;
+    }
+
+    /**
+     * Get participant for the given rank
+     *
+     * @param int $rank
+     * @return mixed|null
+     */
+    public function getParticipantByRank(int $rank)
+    {
+        if (in_array($rank, [1, 2])) {
+            $match = $this->getFinalMatch();
+            if ($rank == 1) {
+                return $this->getWinnerOfTheMatch($match);
+            } else {
+                $losers = $this->getLosersOfTheMatch($match);
+                if ($losers) {
+                    return $losers->first();
+                }
+                return null;
+            }
+        } else if (in_array($rank, [3, 4])) {
+            $match = $this->getThirdRankMatch();
+            if (! $match) {
+                return null;
+            }
+            if ($rank == 3) {
+                return $this->getWinnerOfTheMatch($match);
+            }  else {
+                $losers = $this->getLosersOfTheMatch($match);
+                if ($losers) {
+                    return $losers->first();
+                }
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|null|Match
+     */
+    private function getFinalMatch()
+    {
+        $lastRound = $this->tournament->matches()
+            ->where('group', 1)
+            ->max('round');
+        return $this->tournament->matches()
+            ->where('group', 1)
+            ->where('round', $lastRound)
+            ->first();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|null|Match
+     */
+    private function getThirdRankMatch()
+    {
+        if ($this->tournament->match_third_rank) {
+            return $this->tournament->matches()
+                ->where('group', 2)
+                ->where('round', 1)
+                ->first();
         }
         return null;
     }
