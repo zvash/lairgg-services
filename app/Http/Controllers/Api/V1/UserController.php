@@ -9,6 +9,7 @@ use App\Http\Requests\StoreUser;
 use App\Http\Resources\UserResource;
 use App\Repositories\GameRepository;
 use App\Repositories\TournamentRepository;
+use App\Tournament;
 use App\Traits\Responses\ResponseMaker;
 use App\User;
 use Illuminate\Auth\Events\Registered;
@@ -186,6 +187,18 @@ class UserController extends Controller
             return $this->success($allGames);
         }
         return $this->failNotFound();
+    }
+
+    /**
+     * @param Request $request
+     * @param Tournament $tournament
+     * @param TournamentRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function teamsForTournament(Request $request, Tournament $tournament, TournamentRepository $repository)
+    {
+        $user = $request->user();
+        return $this->success($repository->getUserTeamsForTournament($user, $tournament));
     }
 
     /**

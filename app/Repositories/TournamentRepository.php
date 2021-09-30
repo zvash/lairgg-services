@@ -332,6 +332,11 @@ class TournamentRepository extends BaseRepository
         return $list;
     }
 
+    /**
+     * @param Tournament $tournament
+     * @param int $participantableId
+     * @return array
+     */
     public function getParticipant(Tournament $tournament, int $participantableId)
     {
         $type = $tournament->players > 1 ? Team::class : User::class;
@@ -411,6 +416,35 @@ class TournamentRepository extends BaseRepository
         return [
             'players' => $players,
             'matches' => $matches
+        ];
+    }
+
+    /**
+     * @param User $user
+     * @param Tournament $tournament
+     * @return array
+     */
+    public function getUserTeamsForTournament(User $user, Tournament $tournament)
+    {
+        $teams = $user->teams()->with('players')->get();
+        $gameId = $tournament->game_id;
+        $playerCount = $tournament->players;
+        $availableTeams = [];
+        $unavailableTeams = [];
+        foreach ($teams as $team) {
+            if (
+                $team->game_id == $gameId
+                && $team->pivot->captain
+                && $team->players()->count() >= $playerCount
+            ) {
+                $availableTeams[] = $team->toArray();
+            } else {
+                $unavailableTeams[] = $team->toArray();
+            }
+        }
+        return [
+            'available_teams' => $availableTeams,
+            'unavailable_teams' => $unavailableTeams
         ];
     }
 
