@@ -450,13 +450,16 @@ abstract class TournamentEngine
     /**
      * @param Match $match
      * @param Participant $participant
+     * @return array
      */
-    protected function assignParticipantToMatch(Match $match, Participant $participant)
+    public function assignParticipantToMatch(Match $match, Participant $participant)
     {
         $plays = $match->plays->all();
+        $parties = [];
         foreach ($plays as $play) {
-            $this->assignParticipantToPlay($play, $participant);
+            $parties[] = $this->assignParticipantToPlay($play, $participant);
         }
+        return $parties;
     }
 
     /**
