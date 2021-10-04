@@ -115,6 +115,9 @@ class TournamentTeamCreator
     {
         $local = 'public/storage/tests';
         $file = $this->faker->image($local, $width, $height);
-        return Storage::putFile($path, $file);
+        if ($file) {
+            return Storage::putFile($path, $file);
+        }
+        return null;
     }
 }
