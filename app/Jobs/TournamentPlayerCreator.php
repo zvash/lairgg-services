@@ -43,7 +43,7 @@ class TournamentPlayerCreator implements ShouldQueue
         }
         $this->tournament->engine()->createBracket();
         $playersCount = $this->tournament->max_teams;
-        $users = User::query()->orderBy('id', 'desc')->limit($playersCount);
+        $users = User::query()->orderBy('id', 'desc')->limit($playersCount)->get();
         foreach ($users as $user) {
             $participant = new Participant([
                 'participantable_type' => User::class,
