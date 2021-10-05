@@ -14,6 +14,7 @@ class Participant extends Model
         'tournament_id',
         'participantable_type',
         'participantable_id',
+        'status',
     ];
 
     /**
