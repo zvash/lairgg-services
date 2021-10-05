@@ -165,6 +165,9 @@ class DoubleEliminationEngine extends TournamentEngine
         }
 
         $nextMatch = $this->getMatchWithOffsetInRound($this->tournament, $match->group, $nextRound, $offset);
+        if ($nextMatch) {
+            $this->matchesByNextMatch[$nextMatch->id][] = $match;
+        }
         return $nextMatch;
     }
 

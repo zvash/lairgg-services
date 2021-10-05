@@ -250,6 +250,15 @@ class Match extends Model
                 }
             } else {
                 $previousMatches = $this->getPreviousMatches();
+                if (! $previousMatches) {
+                    $candidates[] = [
+                        'logo' => null,
+                        'title' => null,
+                        'score' => null,
+                        'is_winner' => null,
+                    ];
+                    continue;
+                }
                 foreach ($previousMatches as $previousMatch) {
                     $previousParticipants = $previousMatch->getParticipants();
                     if ($previousParticipants->count() == $numberOfPlayers) {
