@@ -173,16 +173,18 @@ class TournamentController extends Controller
         if (!$tournament) {
             return $this->failNotFound();
         }
-        return $this->success(
-            $tournament
-                ->participants()
-                ->whereIn('status', [
-                    ParticipantAcceptanceState::ACCEPTED,
-                    ParticipantAcceptanceState::ACCEPTED_NOT_READY,
-                ])
-                ->get()
-                ->load(['participantable', 'participantable.players'])
-        );
+        $participants = $tournament
+            ->participants()
+            ->whereIn('status', [
+                ParticipantAcceptanceState::ACCEPTED,
+                ParticipantAcceptanceState::ACCEPTED_NOT_READY,
+            ])
+            ->get()
+            ->load('participantable');
+        if ($tournament->players > 1) {
+            $participants->load('participantable.players');
+        }
+        return $this->success($participants);
     }
 
     /**
