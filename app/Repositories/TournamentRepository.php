@@ -369,47 +369,8 @@ class TournamentRepository extends BaseRepository
                 ->orderBy('id', 'desc')
                 ->get();
             foreach ($tournamentMatches as $tournamentMatch) {
-                $winner = $tournamentMatch->winner;
-                $match = [
-                    'id' => $tournamentMatch->id,
-                    'started_at' => $tournamentMatch->started_at,
-                ];
-                $participants = $tournamentMatch->getParticipants();
-                foreach ($participants as $participant) {
-                    $match['participants'][] = [
-                        'title' => $participant->getName(),
-                        'avatar' => $participant->getAvatar(),
-                        'is_winner' => $winner && $winner->id == $participant->id,
-                        'score' => $tournamentMatch->getParticipantScore($participant),
-                    ];
-
-                }
-                $participantsCount = $participants->count();
-                if ($tournament->numberOfMatchParticipantsIsTwo() && $participantsCount < 2) {
-                    for ($i = $participantsCount; $i < 2; $i++) {
-                        $previousMatch = $tournamentMatch->getPreviousMatchWithoutParticipant($participant);
-                        if (! $previousMatch) {
-                            $match['participants'][] = [
-                                'title' => null,
-                                'avatar' => null,
-                                'is_winner' => false,
-                                'score' => null,
-                            ];
-                        } else {
-                            $previousMatchParticipants = $previousMatch->getParticipants();
-                            $titles = [];
-                            foreach ($previousMatchParticipants as $previousMatchParticipant)  {
-                                $titles[] = $previousMatchParticipant->getName();
-                            }
-                            $match['participants'][] = [
-                                'title' => implode(' - ', $titles),
-                                'avatar' => null,
-                                'is_winner' => false,
-                                'score' => null,
-                            ];
-                        }
-                    }
-                }
+                $match = $tournamentMatch->toArray();
+                $match['candidates'] = $tournamentMatch->getCandidates();
                 $matches[] = $match;
             }
         }
@@ -417,6 +378,43 @@ class TournamentRepository extends BaseRepository
             'players' => $players,
             'matches' => $matches
         ];
+    }
+
+    /**
+     * @param User $user
+     * @param Tournament $tournament
+     * @return Builder|\Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|null|Match
+     */
+    public function getCurrentMatchInTournament(User $user, Tournament $tournament)
+    {
+
+        $teamTournament = $tournament->players > 1;
+        if ($teamTournament) {
+            $userTeams = $user->teams()->pluck('teams.id')->all();
+            $userTeams[] = 0;
+            $participant = $tournament
+                ->participants()
+                ->where('participantable_type', Team::class)
+                ->whereIn('participantable_id', $userTeams)
+                ->first();
+        } else {
+            $participant = $tournament->participants()
+                ->where('participantable_type', User::class)
+                ->where('participantable_id', $user->id)
+                ->first();
+        }
+        if (! $participant) {
+            return null;
+        }
+        $match = $tournament->matches()
+            ->whereNull('winner_team_id')
+            ->whereHas('plays', function (Builder $plays) use ($participant) {
+                return $plays->whereHas('parties', function (Builder $parties) use ($participant) {
+                    return $parties->where('team_id', $participant->id);
+                });
+            })
+            ->first();
+        return $match;
     }
 
     /**
