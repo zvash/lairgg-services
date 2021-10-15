@@ -191,6 +191,19 @@ class UserController extends Controller
 
     /**
      * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function listAllTeams(Request $request)
+    {
+        $user = $request->user();
+        if ($user) {
+            return $this->success($user->teams->load('players'));
+        }
+        return $this->failNotFound();
+    }
+
+    /**
+     * @param Request $request
      * @param Tournament $tournament
      * @param TournamentRepository $repository
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
@@ -200,6 +213,8 @@ class UserController extends Controller
         $user = $request->user();
         return $this->success($repository->getUserTeamsForTournament($user, $tournament));
     }
+
+
 
     /**
      * Dispatch user jobs and events.

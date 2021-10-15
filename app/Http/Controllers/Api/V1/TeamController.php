@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Enums\HttpStatusCode;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTeamRequest;
+use App\Http\Requests\UpdateTeamRequest;
 use App\Repositories\InvitationRepository;
 use App\Repositories\TeamRepository;
 use App\Team;
@@ -26,6 +27,31 @@ class TeamController extends Controller
     public function store(StoreTeamRequest $request, TeamRepository $teamRepository)
     {
         return $this->success($teamRepository->createTeamFromRequest($request));
+    }
+
+    /**
+     * @param UpdateTeamRequest $request
+     * @param Team $team
+     * @param TeamRepository $teamRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function update(UpdateTeamRequest $request, Team $team, TeamRepository $teamRepository)
+    {
+        $gate = Gate::inspect('canUpdate', $team);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+        }
+        return $this->success($teamRepository->updateTeam($request, $team));
+    }
+
+    /**
+     * @param Request $request
+     * @param Team $team
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function get(Request $request, Team $team)
+    {
+        return $this->success($team->load(['players', 'links', 'links.linkType']));
     }
 
     /**

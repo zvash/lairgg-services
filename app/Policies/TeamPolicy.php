@@ -26,6 +26,18 @@ class TeamPolicy
     /**
      * @param User $user
      * @param Team $team
+     * @return Response
+     */
+    public function canUpdate(User $user, Team $team)
+    {
+        return $this->userIsCaptain($user, $team)
+            ? Response::allow()
+            : Response::deny('Only captains can update the team');
+    }
+
+    /**
+     * @param User $user
+     * @param Team $team
      * @return bool
      */
     private function userIsCaptain(User $user, Team $team)

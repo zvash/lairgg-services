@@ -51,6 +51,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->post('games/{game}/remove', 'UserController@removeGame');
                     $router->get('games/all', 'UserController@listAllGames');
 
+                    $router->get('teams/all', 'UserController@listAllTeams');
+
                     $router->get('authenticated', 'UserController@authenticated');
 
                 });
@@ -123,9 +125,11 @@ $router->group(['prefix' => 'v1'], function ($router) {
                 $router->group(['prefix' => 'teams'], function ($router) {
 
                     $router->post('create', 'TeamController@store');
+                    $router->post('/{team}/update', 'TeamController@update');
                     $router->post('/{team}/invite', 'TeamController@invite');
 
                     $router->get('/{team}/players', 'TeamController@players');
+                    $router->get('{team}/get', 'TeamController@get');
 
                 });
 
