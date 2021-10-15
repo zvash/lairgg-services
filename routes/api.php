@@ -138,6 +138,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->post('decline/team', 'InvitationController@declineTeamInvitation');
                     $router->post('accept/tournament', 'InvitationController@joinTournament');
                     $router->post('decline/tournament', 'InvitationController@declineTournamentInvitation');
+
+                    $router->get('count', 'InvitationController@count');
                 });
 
                 $router->group(['prefix' => 'games'], function ($router) {

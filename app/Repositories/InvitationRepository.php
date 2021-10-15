@@ -80,6 +80,18 @@ class InvitationRepository extends BaseRepository
 
     /**
      * @param User $user
+     * @return int
+     */
+    public function countInvitations(User $user)
+    {
+        return Invitation::query()
+            ->where('email', $user->email)
+            ->whereNull('accepted')
+            ->count();
+    }
+
+    /**
+     * @param User $user
      * @return array
      */
     public function flashInvitations(User $user)

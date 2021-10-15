@@ -19,6 +19,18 @@ class InvitationController extends Controller
      * @param InvitationRepository $invitationRepository
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
+    public function count(Request $request, InvitationRepository $invitationRepository)
+    {
+        $user = $request->user();
+        $count = $invitationRepository->countInvitations($user);
+        return $this->success(['invitations_count' => $count]);
+    }
+
+    /**
+     * @param Request $request
+     * @param InvitationRepository $invitationRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function flash(Request $request, InvitationRepository $invitationRepository)
     {
         $user = $request->user();
