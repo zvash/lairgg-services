@@ -9,6 +9,7 @@ use App\Http\Requests\StoreUser;
 use App\Http\Resources\UserResource;
 use App\Repositories\GameRepository;
 use App\Repositories\TournamentRepository;
+use App\Repositories\UserRepository;
 use App\Tournament;
 use App\Traits\Responses\ResponseMaker;
 use App\User;
@@ -214,7 +215,17 @@ class UserController extends Controller
         return $this->success($repository->getUserTeamsForTournament($user, $tournament));
     }
 
-
+    /**
+     * @param Request $request
+     * @param string $status
+     * @param UserRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function listOrders(Request $request, string $status, UserRepository $repository)
+    {
+        $user = $request->user();
+        return $this->success($repository->getUserOrders($user, $status));
+    }
 
     /**
      * Dispatch user jobs and events.
