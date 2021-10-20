@@ -53,6 +53,7 @@ class TournamentRepository extends BaseRepository
 
         $userCanJoin = false;
         $userJoinStatus = 'not-joined';
+        $userCheckedIn = false;
 
         $teamParticipants = $tournament->players > 1;
         if ($teamParticipants) {
@@ -71,6 +72,7 @@ class TournamentRepository extends BaseRepository
         }
         if ($participationRecord) {
             $userJoinStatus = $participationRecord->status;
+            $userCheckedIn = $participationRecord->checked_in_at != null;
         }
         $now = \Carbon\Carbon::now();
         $startTime = $tournament->started_at;
@@ -91,6 +93,7 @@ class TournamentRepository extends BaseRepository
         $tournament['join_status'] = [
             'can_join' => $userCanJoin,
             'status' => $userJoinStatus,
+            'checked_in' => $userCheckedIn,
         ];
         return $tournament;
     }
@@ -383,26 +386,33 @@ class TournamentRepository extends BaseRepository
     /**
      * @param User $user
      * @param Tournament $tournament
+     * @return |null
+     */
+    public function getUserMatchesInTournament(User $user, Tournament $tournament)
+    {
+        $participant = $this->getUserParticipantInTournament($user, $tournament);
+        if (! $participant) {
+            return null;
+        }
+        $matches = $tournament->matches()
+            ->whereHas('plays', function (Builder $plays) use ($participant) {
+                return $plays->whereHas('parties', function (Builder $parties) use ($participant) {
+                    return $parties->where('team_id', $participant->id);
+                });
+            })
+            ->orderBy('id', 'desc')
+            ->get();
+    }
+
+    /**
+     * @param User $user
+     * @param Tournament $tournament
      * @return Builder|\Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|null|Match
      */
     public function getCurrentMatchInTournament(User $user, Tournament $tournament)
     {
 
-        $teamTournament = $tournament->players > 1;
-        if ($teamTournament) {
-            $userTeams = $user->teams()->pluck('teams.id')->all();
-            $userTeams[] = 0;
-            $participant = $tournament
-                ->participants()
-                ->where('participantable_type', Team::class)
-                ->whereIn('participantable_id', $userTeams)
-                ->first();
-        } else {
-            $participant = $tournament->participants()
-                ->where('participantable_type', User::class)
-                ->where('participantable_id', $user->id)
-                ->first();
-        }
+        $participant = $this->getUserParticipantInTournament($user, $tournament);
         if (! $participant) {
             return null;
         }
@@ -842,5 +852,30 @@ class TournamentRepository extends BaseRepository
         return $query->whereHas('game', function ($game) use ($gameIds) {
             return $game->whereIn('id', $gameIds);
         });
+    }
+
+    /**
+     * @param User $user
+     * @param Tournament $tournament
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|object|null
+     */
+    private function getUserParticipantInTournament(User $user, Tournament $tournament)
+    {
+        $teamTournament = $tournament->players > 1;
+        if ($teamTournament) {
+            $userTeams = $user->teams()->pluck('teams.id')->all();
+            $userTeams[] = 0;
+            $participant = $tournament
+                ->participants()
+                ->where('participantable_type', Team::class)
+                ->whereIn('participantable_id', $userTeams)
+                ->first();
+        } else {
+            $participant = $tournament->participants()
+                ->where('participantable_type', User::class)
+                ->where('participantable_id', $user->id)
+                ->first();
+        }
+        return $participant;
     }
 }
