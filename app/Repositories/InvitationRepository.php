@@ -90,6 +90,29 @@ class InvitationRepository extends BaseRepository
             ->count();
     }
 
+    public function unansweredInvitations(User $user, string $type)
+    {
+        $typeMap = [
+            'teams' => Team::class,
+            'tournaments' => Tournament::class,
+        ];
+        if (array_key_exists($type, $typeMap)) {
+            $type = $typeMap[$type];
+        }
+        $relations = ['inviteAware'];
+        if ($type == Team::class) {
+            $relations[] = 'inviteAware.players';
+        } else if ($type == Tournament::class) {
+            $relations[] = 'inviteAware.organization';
+        }
+        return Invitation::query()
+            ->where('email', $user->email)
+            ->where('invite_aware_type', $type)
+            ->whereNull('accepted')
+            ->with($relations)
+            ->paginate(10);
+    }
+
     /**
      * @param User $user
      * @return array

@@ -13,4 +13,12 @@ class Invitation extends Model
         'invite_aware_id',
         'email',
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function inviteAware()
+    {
+        return $this->morphTo();
+    }
 }

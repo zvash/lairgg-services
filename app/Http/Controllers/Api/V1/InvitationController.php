@@ -28,6 +28,18 @@ class InvitationController extends Controller
 
     /**
      * @param Request $request
+     * @param string $type
+     * @param InvitationRepository $invitationRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function getInvitations(Request $request, string $type, InvitationRepository $invitationRepository)
+    {
+        $user = $request->user();
+        return $this->success($invitationRepository->unansweredInvitations($user, $type));
+    }
+
+    /**
+     * @param Request $request
      * @param InvitationRepository $invitationRepository
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */

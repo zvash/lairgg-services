@@ -189,6 +189,50 @@ class Tournament extends Model
     }
 
     /**
+     * @return Builder|\Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function authenticatedUserMatches()
+    {
+        $user = request()->user();
+        if (!$user) {
+            return $this->matches()->where('id', 0);
+        }
+        if ($this->players == 1) {
+            $participant = Participant::query()
+                ->where('tournament_id', $this->id)
+                ->where('participantable_type', User::class)
+                ->where('participantable_id', $user->id)
+                ->first();
+            if (!$participant) {
+                return $this->matches()->where('id', 0);
+            }
+            return $this->matches()
+                ->whereHas('plays', function (Builder $plays) use ($participant) {
+                    return $plays->whereHas('parties', function ($parties) use ($participant) {
+                        return $parties->where('team_id', $participant->id);
+                    });
+                });
+        } else {
+            $teamIds = $user->teams()->pluck('teams.id')->all();
+            $teamIds[] = 0;
+            $participant = Participant::query()
+                ->where('tournament_id', $this->id)
+                ->where('participantable_type', Team::class)
+                ->whereIn('participantable_id', $teamIds)
+                ->first();
+            if (!$participant) {
+                return $this->matches()->where('id', 0);
+            }
+            return $this->matches()
+                ->whereHas('plays', function (Builder $plays) use ($participant) {
+                    return $plays->whereHas('parties', function ($parties) use ($participant) {
+                        return $parties->where('team_id', $participant->id);
+                    });
+                });
+        }
+    }
+
+    /**
      * @param Builder $query
      * @return Builder
      */

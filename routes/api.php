@@ -142,6 +142,7 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->post('decline/tournament', 'InvitationController@declineTournamentInvitation');
 
                     $router->get('count', 'InvitationController@count');
+                    $router->get('/unanswered/{type}/all', 'InvitationController@getInvitations');
                 });
 
                 $router->group(['prefix' => 'games'], function ($router) {
