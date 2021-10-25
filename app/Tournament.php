@@ -119,6 +119,14 @@ class Tournament extends Model
     ];
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function announcements()
+    {
+        return $this->hasMany(TournamentAnnouncement::class);
+    }
+
+    /**
      * Get the region that owns the tournament.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

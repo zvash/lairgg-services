@@ -188,6 +188,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function lastTournamentAnnouncement()
+    {
+        return $this->hasMany(UserLastTournamentAnnouncement::class);
+    }
+
+    /**
      * Add or subtract point from the user.
      *
      * @param  int  $points

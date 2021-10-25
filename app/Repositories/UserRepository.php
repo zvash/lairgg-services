@@ -7,7 +7,9 @@ use App\Match;
 use App\Participant;
 use App\Team;
 use App\Tournament;
+use App\TournamentAnnouncement;
 use App\User;
+use App\UserLastTournamentAnnouncement;
 use Illuminate\Database\Eloquent\Builder;
 
 class UserRepository extends BaseRepository
@@ -90,5 +92,53 @@ class UserRepository extends BaseRepository
             $result[] = $tournamentArray;
         }
         return $result;
+    }
+
+    /**
+     * @param User $user
+     * @param Tournament $tournament
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getTournamentAnnouncements(User $user, Tournament $tournament)
+    {
+        $announcements = TournamentAnnouncement::query()
+            ->where('tournament_id', $tournament->id)
+            ->orderBy('id', 'desc')
+            ->paginate(10)
+            ->toArray();
+
+        $lastAnnouncement = TournamentAnnouncement::query()
+            ->where('tournament_id', $tournament->id)
+            ->orderBy('id', 'desc')
+            ->first();
+        if ($lastAnnouncement) {
+            UserLastTournamentAnnouncement::query()
+                ->updateOrCreate(
+                    ['user_id' => $user->id, 'tournament_id' => $tournament->id],
+                    ['tournament_announcement_id' => $lastAnnouncement->id]
+                );
+        }
+
+        return $announcements;
+    }
+
+    /**
+     * @param User $user
+     * @param Tournament $tournament
+     * @return int
+     */
+    public function getTournamentAnnouncementsUnreadCount(User $user, Tournament $tournament)
+    {
+        $lastId = 0;
+        $lastAnnouncement = $user->lastTournamentAnnouncement()
+            ->where('tournament_id', $tournament->id)
+            ->first();
+        if ($lastAnnouncement) {
+            $lastId = $lastAnnouncement->tournament_announcement_id;
+        }
+        return TournamentAnnouncement::query()
+            ->where('tournament_id', $tournament->id)
+            ->where('id', '>', $lastId)
+            ->count();
     }
 }

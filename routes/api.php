@@ -45,6 +45,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->get('tournaments/upcoming/few', 'UserController@getLimitedUpcomingTournaments');
                     $router->get('tournaments/upcoming/all', 'UserController@getUpcomingTournaments');
                     $router->get('tournaments', 'UserController@tournaments');
+                    $router->get('tournaments/{tournament}/announcements', 'UserController@getTournamentAnnouncements');
+                    $router->get('tournaments/{tournament}/announcements/unread-count', 'UserController@getTournamentAnnouncementsUnreadCount');
 
                     $router->post('games/update', 'UserController@updateUserGames');
                     $router->post('games/{game}/add', 'UserController@addGame');

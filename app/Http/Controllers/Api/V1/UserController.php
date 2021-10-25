@@ -89,6 +89,30 @@ class UserController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @param Tournament $tournament
+     * @param UserRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function getTournamentAnnouncements(Request $request, Tournament $tournament, UserRepository $repository)
+    {
+        $user = $request->user();
+        return $this->success($repository->getTournamentAnnouncements($user, $tournament));
+    }
+
+    /**
+     * @param Request $request
+     * @param Tournament $tournament
+     * @param UserRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function getTournamentAnnouncementsUnreadCount(Request $request, Tournament $tournament, UserRepository $repository)
+    {
+        $user = $request->user();
+        return $this->success(['count' => $repository->getTournamentAnnouncementsUnreadCount($user, $tournament)]);
+    }
+
+    /**
      * User all upcoming tournaments
      *
      * @param Request $request
