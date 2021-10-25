@@ -78,6 +78,17 @@ class UserController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @param UserRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function matches(Request $request, UserRepository $repository)
+    {
+        $user = $request->user();
+        return $this->success($repository->getUserTournamentsWithMatches($user));
+    }
+
+    /**
      * User all upcoming tournaments
      *
      * @param Request $request

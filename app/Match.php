@@ -196,6 +196,11 @@ class Match extends Model
 
     }
 
+    public function getRoundTitle()
+    {
+
+    }
+
     /**
      * @return array
      */

@@ -290,6 +290,42 @@ class DoubleEliminationEngine extends TournamentEngine
     }
 
     /**
+     * @param Match $match
+     * @return mixed|string
+     */
+    public function getRoundTitle(Match $match)
+    {
+        if ($match->group == 3) {
+            return 'Grand Final';
+        } else if ($match->group == 1) {
+            $lastRound = $this->tournament->matches()
+                ->where('group', 1)
+                ->max('round');
+            if ($match->round == $lastRound) {
+                return 'Final';
+            }
+            if ($match->round == $lastRound - 1) {
+                return 'Semifinals';
+            }
+            if ($match->round == $lastRound - 2) {
+                return 'Quarterfinals';
+            }
+            return 'Round of ' . (pow(2, $lastRound + 1 - $match->round));
+        } else if ($match->group == 2) {
+            $lastRound = $this->tournament->matches()
+                ->where('group', 1)
+                ->max('round') ;
+            $losersMaxRounds = ($lastRound - 1) * 2;
+            if ($match->round == $losersMaxRounds) {
+                return 'Loser\'s Final';
+            } else {
+                return 'Loser\'s Round ' . $match->round;
+            }
+        }
+        return '';
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|null|Match
      */
     private function getGrandFinalMatch()

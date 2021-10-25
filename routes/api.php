@@ -53,6 +53,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->get('teams/all', 'UserController@listAllTeams');
 
+                    $router->get('matches/all', 'UserController@matches');
+
                     $router->get('orders/{status}/get', 'UserController@listOrders');
 
                     $router->get('authenticated', 'UserController@authenticated');

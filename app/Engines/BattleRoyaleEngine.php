@@ -119,4 +119,12 @@ class BattleRoyaleEngine extends TournamentEngine
     {
         // TODO: Implement getParticipantByRank() method.
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRoundTitle(Match $match)
+    {
+        return '';
+    }
 }

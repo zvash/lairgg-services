@@ -234,6 +234,29 @@ class SingleEliminationEngine extends TournamentEngine
     }
 
     /**
+     * @param Match $match
+     * @return mixed|string
+     */
+    public function getRoundTitle(Match $match) {
+        if ($match->group == 2) {
+            return 'Third Rank Match';
+        }
+        $lastRound = $this->tournament->matches()
+            ->where('group', 1)
+            ->max('round');
+        if ($match->round == $lastRound) {
+            return 'Final';
+        } else if ($match->round == $lastRound - 1) {
+            return 'Semifinals';
+        } else if ($match->round == $lastRound - 2) {
+            return 'Quarterfinals';
+        } else {
+            $numberOfMatches = pow(2, $lastRound - $match->round);
+            return 'Round of ' . ($numberOfMatches * 2);
+        }
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|null|Match
      */
     private function getFinalMatch()

@@ -73,6 +73,14 @@ abstract class TournamentEngine
     abstract public function getParticipantByRank(int $rank);
 
     /**
+     * Get title of the round
+     *
+     * @param Match $match
+     * @return mixed
+     */
+    abstract public function getRoundTitle(Match $match);
+
+    /**
      * Get bracket for tournament
      *
      * @param Tournament $tournament
