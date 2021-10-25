@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Enums\OrderStatus;
+use App\Repositories\CountryRepository;
 use App\Traits\Eloquents\Transactionable;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Actions\Actionable;
@@ -56,6 +57,10 @@ class Order extends Model
         'is_final'
     ];
 
+    protected $appends = [
+        'country_name',
+    ];
+
     /**
      * Get the product that owns the order.
      *
@@ -94,5 +99,17 @@ class Order extends Model
     public function isCanceledBefore()
     {
         return ! $this->isCanceled() && $this->getOriginal('status') == OrderStatus::CANCEL;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCountryNameAttribute()
+    {
+        if (! $this->country) {
+            return null;
+        }
+        $repository = new CountryRepository();
+        return $repository->getName($this->country);
     }
 }

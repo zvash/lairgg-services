@@ -4,9 +4,7 @@ namespace App\Nova;
 
 use App\Enums\ProductStatus;
 use Illuminate\Http\Request;
-use Laravel\Nova\Fields\{
-    Avatar, Badge, Boolean, Code, Currency, HasMany, ID, KeyValue, Number, Select, Text
-};
+use Laravel\Nova\Fields\{Avatar, Badge, Boolean, Code, Currency, HasMany, ID, Image, KeyValue, Number, Select, Text};
 use Laravel\Nova\Panel;
 use App\Nova\ProductImage;
 
@@ -94,6 +92,15 @@ class Product extends Resource
                 ->language('markdown')
                 ->required()
                 ->rules('required'),
+
+            Image::make('Image')
+                ->disk('s3')
+                ->squared()
+                ->path('products')
+                ->prunable()
+                ->deletable()
+                ->nullable()
+                ->rules('nullable', 'mimes:jpeg,jpg,png'),
 
             Boolean::make('Is Featured'),
 
