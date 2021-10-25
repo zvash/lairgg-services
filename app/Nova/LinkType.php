@@ -3,11 +3,7 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
-use Laravel\Nova\Fields\{
-    HasMany,
-    ID,
-    Text
-};
+use Laravel\Nova\Fields\{HasMany, ID, Image, Text};
 use Laravel\Nova\Panel;
 
 class LinkType extends Resource
@@ -84,6 +80,15 @@ class LinkType extends Resource
                 ->sortable()
                 ->required()
                 ->rules('required', 'max:254'),
+
+            Image::make('Image')
+                ->disk('s3')
+                ->squared()
+                ->path('links')
+                ->prunable()
+                ->deletable()
+                ->nullable()
+                ->rules('nullable', 'mimes:jpeg,jpg,png'),
         ];
     }
 
