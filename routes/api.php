@@ -156,6 +156,12 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                 });
 
+                $router->group(['prefix' => 'links'], function ($router) {
+
+                    $router->get('/types', 'LinkController@types');
+
+                });
+
                 $router->group(['prefix' => 'invitations'], function ($router) {
 
                     $router->get('/flash', 'InvitationController@flash');
