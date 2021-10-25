@@ -13,6 +13,7 @@ class TournamentAnnouncement extends Model
     ];
 
     protected $appends = [
+        'creator',
         'is_new',
     ];
 
@@ -48,5 +49,13 @@ class TournamentAnnouncement extends Model
             return true;
         }
         return $this->id > $lastRead->tournament_announcement_id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreatorAttribute()
+    {
+        return $this->staff->username;
     }
 }

@@ -105,6 +105,7 @@ class UserRepository extends BaseRepository
             ->where('tournament_id', $tournament->id)
             ->orderBy('id', 'desc')
             ->paginate(10)
+            ->makeHidden('staff')
             ->toArray();
 
         $lastAnnouncement = TournamentAnnouncement::query()
