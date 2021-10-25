@@ -442,8 +442,7 @@ class TournamentRepository extends BaseRepository
         $unavailableTeams = [];
         foreach ($teams as $team) {
             if (
-                $team->game_id == $gameId
-                && $team->pivot->captain
+                $team->pivot->captain
                 && $team->players()->count() >= $playerCount
             ) {
                 $availableTeams[] = $team->toArray();
