@@ -12,6 +12,7 @@ use App\Http\Requests\UpdateParticipantStatus;
 use App\Match;
 use App\Organization;
 use App\Participant;
+use App\Party;
 use App\Team;
 use App\Tournament;
 use App\TournamentType;
@@ -755,6 +756,35 @@ class TournamentRepository extends BaseRepository
     }
 
     /**
+     * @param User $user
+     * @param Tournament $tournament
+     * @return bool
+     * @throws \Exception
+     */
+    public function removeUserFromTournament(User $user, Tournament $tournament)
+    {
+        //get participant
+        $participant = $this->getUserParticipantInTournament($user, $tournament);
+        if (! $participant) {
+            throw new \Exception('User is not a participant of this tournament');
+        }
+        //check if user has privilege
+        if (! $this->userIsInChargeOfParticipant($user, $participant)) {
+            throw new \Exception('User has not enough privilege to decide for the tournament participant');
+        }
+        //check if tournament is started
+        if ($this->tournamentIsStarted($tournament)) {
+            throw new \Exception('User cannot leave an already started tournament');
+        }
+        //remove participant from bracket
+        Party::query()
+            ->where('team_id', $participant->id)
+            ->update(['team_id' => null]);
+        $participant->delete();
+        return true;
+    }
+
+    /**
      * @param UpdateParticipantStatus $request
      * @param Tournament $tournament
      * @param string $status
@@ -857,7 +887,7 @@ class TournamentRepository extends BaseRepository
     /**
      * @param User $user
      * @param Tournament $tournament
-     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|object|null
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|object|null|Participant
      */
     private function getUserParticipantInTournament(User $user, Tournament $tournament)
     {
@@ -877,5 +907,32 @@ class TournamentRepository extends BaseRepository
                 ->first();
         }
         return $participant;
+    }
+
+    /**
+     * @param User $user
+     * @param Participant $participant
+     * @return bool
+     */
+    private function userIsInChargeOfParticipant(User $user, Participant $participant)
+    {
+        if ($participant->participantable_type == User::class) {
+            return $participant->participantable_id == $user->id;
+        }
+        if ($participant->participantable_type == Team::class) {
+            $captain = $participant->participantable->players()->where('captain', 1)->first();
+            return $captain && $captain->user_id == $user->id;
+        }
+        return false;
+    }
+
+    /**
+     * @param Tournament $tournament
+     * @return bool
+     */
+    private function tournamentIsStarted(Tournament $tournament)
+    {
+        return $tournament->started_at < \Carbon\Carbon::now() ||
+            $tournament->matches()->whereNotNull('winner_team_id')->count() > 0;
     }
 }

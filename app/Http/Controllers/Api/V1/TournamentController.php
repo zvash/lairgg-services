@@ -162,7 +162,7 @@ class TournamentController extends Controller
             return $this->failMessage($exception->getMessage(), 400);
         }
     }
-    
+
     /**
      * @param Request $request
      * @param Tournament $tournament
@@ -402,6 +402,22 @@ class TournamentController extends Controller
     {
         try {
             return $this->success($repository->registerJoinRequest($tournament, $request));
+        } catch (\Exception $exception) {
+            return $this->failMessage($exception->getMessage(), 400);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @param Tournament $tournament
+     * @param TournamentRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function leaveTournament(Request $request, Tournament $tournament, TournamentRepository $repository)
+    {
+        $user = $request->user();
+        try {
+            return $this->success($repository->removeUserFromTournament($user, $tournament));
         } catch (\Exception $exception) {
             return $this->failMessage($exception->getMessage(), 400);
         }
