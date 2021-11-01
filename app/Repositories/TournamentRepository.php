@@ -89,12 +89,13 @@ class TournamentRepository extends BaseRepository
         $tournament['ends_in_minutes'] = $endsInMinutes;
         $tournament['check_in_date'] = $joinRequestDeadline;
         $tournament['participants_type'] = $teamParticipants ? 'team' : 'player';
-        $tournament['participants'] = $participants;
+        //$tournament['participants'] = $participants;
         $tournament['current_size'] = count($participants);
         $tournament['join_status'] = [
             'can_join' => $userCanJoin,
             'status' => $userJoinStatus,
             'checked_in' => $userCheckedIn,
+            'description' => Participant::getAcceptanceStatusDescription($userJoinStatus),
         ];
         return $tournament;
     }
@@ -744,14 +745,16 @@ class TournamentRepository extends BaseRepository
             ->where('participantable_type', $participantableType)
             ->where('participantable_id', $participantable->id)
             ->first();
+
         if ($participant) {
             return $participant;
         }
-        return Participant::query()->create([
+        $participant = Participant::query()->create([
             'tournament_id' => $tournament->id,
             'participantable_type' => $participantableType,
             'participantable_id' => $participantable->id,
         ]);
+        return $participant->refresh();
     }
 
     /**
@@ -773,7 +776,7 @@ class TournamentRepository extends BaseRepository
         }
         //check if tournament is started
         if ($this->tournamentIsStarted($tournament)) {
-            throw new \Exception('User cannot leave an already started tournament');
+            //throw new \Exception('User cannot leave an already started tournament');
         }
         //remove participant from bracket
         Party::query()

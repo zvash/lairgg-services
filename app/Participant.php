@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Enums\ParticipantAcceptanceState;
 use App\Traits\Eloquents\Transactionable;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Actions\Actionable;
@@ -35,6 +36,10 @@ class Participant extends Model
         'checked_in_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'status_description',
+    ];
+
     /**
      * Get the owning participantable model.
      *
@@ -63,6 +68,14 @@ class Participant extends Model
     public function prize()
     {
         return $this->belongsTo(Prize::class);
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatusDescriptionAttribute()
+    {
+        return static::getAcceptanceStatusDescription($this->status);
     }
 
     /**
@@ -101,5 +114,29 @@ class Participant extends Model
             }
         }
         return null;
+    }
+
+    /**
+     * @param string $status
+     * @return string
+     */
+    public static function getAcceptanceStatusDescription(?string $status)
+    {
+        if (!$status) {
+            $status = '';
+        }
+        switch ($status) {
+            case ParticipantAcceptanceState::ACCEPTED:
+            case ParticipantAcceptanceState::ACCEPTED_NOT_READY:
+                return "Description for accepted participants";
+            case ParticipantAcceptanceState::PENDING:
+                return "Description for pending participants";
+            case ParticipantAcceptanceState::REJECTED:
+                return "Description for rejected participants";
+            case ParticipantAcceptanceState::RESERVED:
+                return "Description for reserved participants";
+            default:
+                return "";
+        }
     }
 }

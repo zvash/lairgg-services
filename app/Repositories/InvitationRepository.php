@@ -188,6 +188,7 @@ class InvitationRepository extends BaseRepository
                         $prizeType = $prize->valueType->title;
                     }
                     $tournamentDetails = [
+                        'tournament_id' => $invitedToObject->id,
                         'organization' => $organizationTitle,
                         'organization_logo' => $organizationLogo,
                         'game' => $gameTitle,
@@ -203,6 +204,7 @@ class InvitationRepository extends BaseRepository
                 } else {
                     $gameTitle = $invitedToObject->game->title;
                     $teamDetails = [
+                        'team_id' => $invitedToObject->id,
                         'game' => $gameTitle,
                         'members' => $invitedToObject->players()->get()->toArray(),
                         'members_count' => $invitedToObject->players()->count(),
