@@ -776,7 +776,7 @@ class TournamentRepository extends BaseRepository
         }
         //check if tournament is started
         if ($this->tournamentIsStarted($tournament)) {
-            //throw new \Exception('User cannot leave an already started tournament');
+            throw new \Exception('User cannot leave an already started tournament');
         }
         //remove participant from bracket
         Party::query()
