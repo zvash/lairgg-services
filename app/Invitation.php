@@ -21,4 +21,13 @@ class Invitation extends Model
     {
         return $this->morphTo();
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function inviter()
+    {
+        return $this->belongsTo(User::class, 'invited_by')
+            ->select(['id', 'username', 'avatar', 'cover']);
+    }
 }

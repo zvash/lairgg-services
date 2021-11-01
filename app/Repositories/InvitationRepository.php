@@ -90,6 +90,11 @@ class InvitationRepository extends BaseRepository
             ->count();
     }
 
+    /**
+     * @param User $user
+     * @param string $type
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
     public function unansweredInvitations(User $user, string $type)
     {
         $typeMap = [
@@ -99,7 +104,7 @@ class InvitationRepository extends BaseRepository
         if (array_key_exists($type, $typeMap)) {
             $type = $typeMap[$type];
         }
-        $relations = ['inviteAware'];
+        $relations = ['inviter', 'inviteAware'];
         if ($type == Team::class) {
             $relations[] = 'inviteAware.players';
         } else if ($type == Tournament::class) {
