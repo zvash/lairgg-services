@@ -38,7 +38,7 @@ class CountryRepository
         $this->byName = config('countries');
         foreach ($this->byName as $row) {
             $this->byAlpha2[$row['alpha2']] = $row;
-            $this->byAlpha2[$row['alpha3']] = $row;
+            $this->byAlpha3[$row['alpha3']] = $row;
             $this->asArray[] = $row;
             $this->allCurrencies[] = $row['currency'];
         }

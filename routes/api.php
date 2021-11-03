@@ -61,6 +61,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->get('authenticated', 'UserController@authenticated');
 
+                    $router->post('profile/update', 'UserController@update');
+
                 });
 
                 $router->group(['prefix' => 'organizations'], function ($router) {

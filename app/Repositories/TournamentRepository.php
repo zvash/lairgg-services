@@ -766,7 +766,7 @@ class TournamentRepository extends BaseRepository
     public function removeUserFromTournament(User $user, Tournament $tournament)
     {
         //get participant
-        $participant = $this->getUserParticipantInTournament($user, $tournament);
+        $participant = $this->getuserparticipantintournament($user, $tournament);
         if (! $participant) {
             throw new \Exception('User is not a participant of this tournament');
         }

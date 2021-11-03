@@ -6,6 +6,7 @@ use App\Game;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SetIdentifiersRequest;
 use App\Http\Requests\StoreUser;
+use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Repositories\GameRepository;
 use App\Repositories\TournamentRepository;
@@ -37,6 +38,23 @@ class UserController extends Controller
         );
 
         return $this->success($resource);
+    }
+
+    /**
+     * @param UpdateUserRequest $request
+     * @param UserRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function update(UpdateUserRequest $request, UserRepository $repository)
+    {
+        $user = $request->user();
+        $validated = $request->validated();
+        $validated['ip'] = $request->ip();
+        User::query()
+            ->where('id', $user->id)
+            ->update($validated);
+        $user = User::find($user->id);
+        return $this->success($user);
     }
 
     /**
