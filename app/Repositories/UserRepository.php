@@ -61,6 +61,10 @@ class UserRepository extends BaseRepository
         if ($path) {
             $validated['avatar'] = $path;
         }
+        $path = $this->saveImageFromRequest($request, 'cover', 'users/covers');
+        if ($path) {
+            $validated['cover'] = $path;
+        }
         User::query()
             ->where('id', $user->id)
             ->update($validated);
