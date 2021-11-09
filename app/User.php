@@ -4,6 +4,7 @@ namespace App;
 
 use App\Enums\Status;
 use App\Notifications\CustomResetPassword;
+use App\Repositories\CountryRepository;
 use App\Traits\Eloquents\{
     Followable,
     Linkable,
@@ -85,6 +86,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $appends = [
         'email_address',
+        'country_detail',
     ];
 
     /**
@@ -286,5 +288,16 @@ class User extends Authenticatable implements MustVerifyEmail
             return $this->email;
         }
         return null;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getCountryDetailAttribute()
+    {
+        if (! $this->country) {
+            return null;
+        }
+        return (new CountryRepository())->getCountry($this->country);
     }
 }
