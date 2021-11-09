@@ -31,4 +31,21 @@ class UpdateUserRequest extends FormRequest
             'gender_id' => 'int|exists:genders,id',
         ];
     }
+
+    /**
+     * Prepare the data for validation.
+     *
+     * @return void
+     */
+    protected function prepareForValidation()
+    {
+        $country = $this->country;
+        if ($country) {
+            $alpha2Name = (new CountryRepository())->getAlpha2($country);
+            $this->merge([
+                'country' => $alpha2Name,
+            ]);
+        }
+
+    }
 }
