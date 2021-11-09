@@ -47,13 +47,7 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, UserRepository $repository)
     {
-        $user = $request->user();
-        $validated = $request->validated();
-        $validated['ip'] = $request->ip();
-        User::query()
-            ->where('id', $user->id)
-            ->update($validated);
-        $user = User::find($user->id);
+        $user = $repository->updateProfile($request);
         return $this->success($user);
     }
 

@@ -83,6 +83,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'timezone' => 'UTC',
     ];
 
+    protected $appends = [
+        'email_address',
+    ];
+
     /**
      * Get the user's full name.
      *
@@ -270,5 +274,17 @@ class User extends Authenticatable implements MustVerifyEmail
     public static function findByUserName(string $username)
     {
         return static::where('email', $username)->orWhere('username', $username)->first();
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getEmailAddressAttribute()
+    {
+        $user = request()->user();
+        if ($user && $user->id == $this->id) {
+            return $this->email;
+        }
+        return null;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Enums\OrderStatus;
+use App\Http\Requests\UpdateUserRequest;
 use App\Match;
 use App\Participant;
 use App\Team;
@@ -45,6 +46,25 @@ class UserRepository extends BaseRepository
         return $userOrders
             ->orderBy('id', 'desc')
             ->get();
+    }
+
+    /**
+     * @param UpdateUserRequest $request
+     * @return User
+     */
+    public function updateProfile(UpdateUserRequest $request)
+    {
+        $user = $request->user();
+        $validated = $request->validated();
+        $validated['ip'] = $request->ip();
+        $path = $this->saveImageFromRequest($request, 'avatar', 'users/avatars');
+        if ($path) {
+            $validated['avatar'] = $path;
+        }
+        User::query()
+            ->where('id', $user->id)
+            ->update($validated);
+        return User::find($user->id);
     }
 
     /**
