@@ -63,6 +63,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->post('profile/update', 'UserController@update');
 
+                    $router->get('genders', 'UserController@genders');
+
                 });
 
                 $router->group(['prefix' => 'organizations'], function ($router) {

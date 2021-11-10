@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Game;
+use App\Gender;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SetIdentifiersRequest;
 use App\Http\Requests\StoreUser;
@@ -110,6 +111,14 @@ class UserController extends Controller
     {
         $user = $request->user();
         return $this->success($repository->getTournamentAnnouncements($user, $tournament));
+    }
+
+    /**
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function genders()
+    {
+        return $this->success(Gender::all());
     }
 
     /**
