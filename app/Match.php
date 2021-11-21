@@ -291,4 +291,60 @@ class Match extends Model
         }
         return $candidates;
     }
+
+    public function getWinnerRank()
+    {
+        $tournamentType = TournamentType::where('id', $this->tournament->tournament_type_id)->first();
+        $matchPosition = $this->roundPositionInGroup();
+        if ($tournamentType->title == 'Single Elimination') {
+            if ($matchPosition['group'] == 1 && $matchPosition['round'] == $matchPosition['max_round']) {
+                return 1;
+            } else if ($matchPosition['group'] == 2) {
+                return 3;
+            }
+            return null;
+        }
+        if ($tournamentType->title == 'Double Elimination') {
+            if ($matchPosition['group'] == 3) {
+                return 1;
+            }
+            return null;
+        }
+        return null;
+    }
+
+    public function getLoserRank()
+    {
+        $tournamentType = TournamentType::where('id', $this->tournament->tournament_type_id)->first();
+        $matchPosition = $this->roundPositionInGroup();
+        if ($tournamentType->title == 'Single Elimination') {
+            if ($matchPosition['group'] == 1 && $matchPosition['round'] == $matchPosition['max_round']) {
+                return 2;
+            } else if ($matchPosition['group'] == 2) {
+                return 4;
+            }
+            return null;
+        }
+        if ($tournamentType->title == 'Double Elimination') {
+            if ($matchPosition['group'] == 3) {
+                return 2;
+            } else if ($matchPosition['group'] == 2) {
+                return 3 + $matchPosition['max_round'] - $matchPosition['round'];
+            }
+            return null;
+        }
+        return null;
+    }
+
+    private function roundPositionInGroup()
+    {
+        $maxRoundInGroup = $this->tournament->matches()->where('group', $this->group)->max('round');
+        $numberOfGroups = $this->tournament->matches()->max('group');
+        return [
+            'round' => $this->round,
+            'max_round' => $maxRoundInGroup,
+            'group' => $this->group,
+            'number_of_groups' => $numberOfGroups,
+        ];
+    }
 }

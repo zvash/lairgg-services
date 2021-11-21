@@ -28,6 +28,30 @@ class TeamPolicy
      * @param Team $team
      * @return Response
      */
+    public function canRemovePlayer(User $user, Team $team)
+    {
+        return $this->userIsCaptain($user, $team)
+            ? Response::allow()
+            : Response::deny('Only captains can remove a member');
+    }
+
+    /**
+     * @param User $user
+     * @param Team $team
+     * @return Response
+     */
+    public function canPromoteToCaptain(User $user, Team $team)
+    {
+        return $this->userIsCaptain($user, $team)
+            ? Response::allow()
+            : Response::deny('Only captains can promote members');
+    }
+
+    /**
+     * @param User $user
+     * @param Team $team
+     * @return Response
+     */
     public function canUpdate(User $user, Team $team)
     {
         return $this->userIsCaptain($user, $team)
@@ -47,6 +71,23 @@ class TeamPolicy
             $team
                 ->players()
                 ->wherePivot('captain', true)
+                ->get()
+                ->pluck('user_id')
+                ->all()
+        );
+    }
+
+    /**
+     * @param int $userId
+     * @param Team $team
+     * @return bool
+     */
+    private function userIdBelongsToTeam(int $userId, Team $team)
+    {
+        return in_array(
+            $userId,
+            $team
+                ->players()
                 ->get()
                 ->pluck('user_id')
                 ->all()

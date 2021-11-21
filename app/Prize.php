@@ -27,6 +27,10 @@ class Prize extends Model
         'value' => Value::class,
     ];
 
+    protected $appends = [
+        'type_title',
+    ];
+
     /**
      * Get the value type that owns the prize.
      *
@@ -55,5 +59,13 @@ class Prize extends Model
     public function participant()
     {
         return $this->hasOne(Participant::class);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTypeTitleAttribute()
+    {
+        return $this->valueType->title;
     }
 }

@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\HttpStatusCode;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PromoteToCaptainRequest;
+use App\Http\Requests\RemoveFromTeamRequest;
 use App\Http\Requests\StoreTeamRequest;
 use App\Http\Requests\UpdateTeamRequest;
 use App\Repositories\InvitationRepository;
+use App\Repositories\MatchRepository;
 use App\Repositories\TeamRepository;
 use App\Team;
 use App\Traits\Responses\ResponseMaker;
@@ -79,6 +82,106 @@ class TeamController extends Controller
     public function players(Team $team)
     {
         return $this->success($team->players->makeHidden('pivot'));
+    }
+
+    public function specificTeamInfo(Request $request, Team $team, TeamRepository $repository)
+    {
+        return $this->success($repository->info($team));
+    }
+
+    /**
+     * @param PromoteToCaptainRequest $request
+     * @param Team $team
+     * @param TeamRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function promoteToCaptain(PromoteToCaptainRequest $request, Team $team, TeamRepository $repository)
+    {
+        $validated = $request->validated();
+        $gate = Gate::inspect('canPromoteToCaptain', $team);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+        }
+
+        try {
+            return $this->success(['new_captain_user_id' => $repository->promote($team, $validated['user_id'])]);
+        } catch (\Exception $exception) {
+            return $this->failMessage($exception->getMessage(), 400);
+        }
+    }
+
+    /**
+     * @param PromoteToCaptainRequest $request
+     * @param Team $team
+     * @param TeamRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function removeFromTeam(RemoveFromTeamRequest $request, Team $team, TeamRepository $repository)
+    {
+        $validated = $request->validated();
+        $gate = Gate::inspect('canRemovePlayer', $team);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+        }
+
+        if ($validated['user_id'] == $request->user()->id) {
+            return $this->failMessage('Captain cannot be removed', 400);
+        }
+
+        try {
+            return $this->success(['message' => $repository->removeFromTeam($team, $validated['user_id'])]);
+        } catch (\Exception $exception) {
+            return $this->failMessage($exception->getMessage(), 400);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @param Team $team
+     * @param TeamRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function leaveTeam(Request $request, Team $team, TeamRepository $repository)
+    {
+        $user = $request->user();
+        try {
+            return $this->success(['message' => $repository->leaveTeam($user, $team)]);
+        } catch (\Exception $exception) {
+            return $this->failMessage($exception->getMessage(), 400);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @param Team $team
+     * @param TeamRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function overview(Request $request, Team $team, TeamRepository $repository)
+    {
+        return $this->success($repository->overview($team));
+    }
+
+    /**
+     * @param Request $request
+     * @param Team $team
+     * @param TeamRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function tournaments(Request $request, Team $team, TeamRepository $repository)
+    {
+        return $this->success($repository->getTeamTournamentsAndMatches($team));
+    }
+
+    /**
+     * @param Request $request
+     * @param Team $team
+     * @param TeamRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function awards(Request $request, Team $team, TeamRepository $repository)
+    {
+        return $this->success($repository->awardsOfTeam($team));
     }
 
     /**

@@ -284,6 +284,61 @@ class UserController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @param User $user
+     * @param UserRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function about(Request $request, User $user, UserRepository $repository)
+    {
+        return $this->success($repository->about($user));
+    }
+
+    /**
+     * @param Request $request
+     * @param User $user
+     * @param UserRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function awards(Request $request, User $user, UserRepository $repository)
+    {
+        return $this->success($repository->awards($user));
+    }
+
+    /**
+     * @param Request $request
+     * @param User $user
+     * @param UserRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function playerTeams(Request $request, User $user, UserRepository $repository)
+    {
+        return $this->success($repository->teams($user));
+    }
+
+    /**
+     * @param Request $request
+     * @param User $user
+     * @param UserRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function playerTournaments(Request $request, User $user, UserRepository $repository)
+    {
+        return $this->success($repository->getUserTournamentsWithMatches($user));
+    }
+
+    /**
+     * @param Request $request
+     * @param User $user
+     * @param UserRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function specificPlayerInfo(Request $request, User $user, UserRepository $repository)
+    {
+        return $this->success($repository->info($user));
+    }
+
+    /**
      * Dispatch user jobs and events.
      *
      * @param  \App\User $user

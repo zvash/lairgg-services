@@ -142,6 +142,25 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->get('/{team}/players', 'TeamController@players');
                     $router->get('{team}/get', 'TeamController@get');
 
+                    $router->get('{team}/info', 'TeamController@specificTeamInfo');
+                    $router->get('{team}/overview', 'TeamController@overview');
+                    $router->get('{team}/tournaments', 'TeamController@tournaments');
+                    $router->get('{team}/awards', 'TeamController@awards');
+
+                    $router->post('{team}/promote', 'TeamController@promoteToCaptain');
+                    $router->post('{team}/remove', 'TeamController@removeFromTeam');
+                    $router->post('{team}/leave', 'TeamController@leaveTeam');
+
+                });
+
+                $router->group(['prefix' => 'players'], function ($router) {
+
+                    $router->get('{user}/info', 'UserController@specificPlayerInfo');
+                    $router->get('{user}/about', 'UserController@about');
+                    $router->get('{user}/tournaments', 'UserController@playerTournaments');
+                    $router->get('{user}/awards', 'UserController@awards');
+                    $router->get('{user}/teams', 'UserController@playerTeams');
+
                 });
 
                 $router->group(['prefix' => 'invitations'], function ($router) {

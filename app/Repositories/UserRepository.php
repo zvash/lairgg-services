@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Http\Requests\UpdateUserRequest;
 use App\Match;
 use App\Participant;
+use App\Prize;
 use App\Team;
 use App\Tournament;
 use App\TournamentAnnouncement;
@@ -88,7 +89,8 @@ class UserRepository extends BaseRepository
                     ->whereIn('participantable_id', $userTeams);
             })
             ->get();
-        $participantsIds = $participants->pluck('id')->all();
+        $participantsIdsByTournamentIds = $participants->pluck('id', 'tournament_id')->all();
+        $participantsIds = array_values($participantsIdsByTournamentIds);
         $matches = Match::query()
             ->whereHas('plays', function (Builder $plays) use ($participantsIds) {
                 return $plays->whereHas('parties', function (Builder $parties) use ($participantsIds) {
@@ -107,7 +109,20 @@ class UserRepository extends BaseRepository
             $engine = $tournament->engine();
             $tournamentArray = $tournament->toArray();
             $tournamentArray['matches'] = [];
+            $rank = null;
+            $needRanking = true;
             foreach ($tournamentMatches as $tournamentMatch) {
+                if ($needRanking) {
+                    $needRanking = false;
+                    if ($tournamentMatch && $tournamentMatch->winner_team_id) {
+                        if ($tournamentMatch->winner_team_id == $participantsIdsByTournamentIds[$tournamentMatch->tournament_id]) {
+                            $rank = $tournamentMatch->getWinnerRank();
+                        } else {
+                            $rank = $tournamentMatch->getLoserRank();
+                        }
+                    }
+                }
+                $tournamentArray['rank'] = $rank;
                 $matchArray = $tournamentMatch->toArray();
                 $matchArray['candidates'] = $tournamentMatch->getCandidates();
                 $matchArray['round_title'] = $engine->getRoundTitle($tournamentMatch);
@@ -165,5 +180,141 @@ class UserRepository extends BaseRepository
             ->where('tournament_id', $tournament->id)
             ->where('id', '>', $lastId)
             ->count();
+    }
+
+    public function info(User $user)
+    {
+        $userData = array_filter($user->toArray(), function ($key) {
+            return in_array($key, [
+                'id',
+                'first_name',
+                'last_name',
+                'username',
+                'avatar',
+                'cover',
+                'bio',
+                'country_detail',
+            ]);
+        }, ARRAY_FILTER_USE_KEY);
+
+        $participantsIdsByTournamentIds = Participant::query()
+            ->where('participantable_type', User::class)
+            ->where('participantable_id', $user->id)
+            ->get()
+            ->pluck('id', 'tournament_id')
+            ->all();
+
+        $tournamentIds = array_keys($participantsIdsByTournamentIds);
+        $participantIds = array_values($participantsIdsByTournamentIds);
+
+        $matchesIdsByTournamentIds = Match::selectRaw('MAX(id) as id, tournament_id')
+            ->whereIn('tournament_id', $tournamentIds)
+            ->whereHas('plays', function ($plays) use ($participantIds) {
+                return $plays->whereHas('parties', function ($parties) use ($participantIds) {
+                    return $parties->whereIn('team_id', $participantIds);
+                });
+            })->groupByRaw('tournament_id')->get()
+            ->pluck('id', 'tournament_id')->all();
+        $ranksCount = [
+            1 => 0,
+            2 => 0,
+            3 => 0,
+        ];
+        foreach ($matchesIdsByTournamentIds as $matchId) {
+            $match = Match::find($matchId);
+            if ($match && $match->winner_team_id) {
+                if ($match->winner_team_id == $participantsIdsByTournamentIds[$match->tournament_id]) {
+                    $rank = $match->getWinnerRank();
+                } else {
+                    $rank = $match->getLoserRank();
+                }
+                if ($rank && in_array($rank, [1, 2, 3])) {
+                    $ranksCount[$rank] += 1;
+                }
+            }
+        }
+        $userData['ranks'] = $ranksCount;
+        return $userData;
+    }
+
+    /**
+     * @param User $user
+     * @return array
+     */
+    public function about(User $user)
+    {
+        $userData = array_filter($user->toArray(), function ($key) {
+            return in_array($key, [
+                'id',
+                'bio',
+            ]);
+        }, ARRAY_FILTER_USE_KEY);
+        $games = $user->games->toArray();
+        $links = $user->links->load('linkType')->toArray();
+        $userData['games'] = $games;
+        $userData['links'] = $links;
+        return $userData;
+    }
+
+    /**
+     * @param User $user
+     * @return array
+     */
+    public function awards(User $user)
+    {
+        $userTeams = $user->teams()->pluck('teams.id')->all();
+        $participants = Participant::query()
+            ->where(function (Builder $query) use ($user) {
+                return $query->where('participantable_type', User::class)
+                    ->where('participantable_id', $user->id);
+            })
+            ->orWhere(function (Builder $query) use ($userTeams) {
+                return $query->where('participantable_type', Team::class)
+                    ->whereIn('participantable_id', $userTeams);
+            })
+            ->get();
+        $participantsIdsByTournamentIds = $participants->pluck('id', 'tournament_id')->all();
+        $participantsIds = array_values($participantsIdsByTournamentIds);
+        $tournamentIds = array_keys($participantsIdsByTournamentIds);
+        $matchesIdsByTournamentIds = \App\Match::selectRaw('MAX(id) as id, tournament_id')
+            ->whereIn('tournament_id', $tournamentIds)
+            ->whereHas('plays', function ($plays) use ($participantsIds) {
+                return $plays->whereHas('parties', function ($parties) use ($participantsIds) {
+                    return $parties->whereIn('team_id', $participantsIds);
+                });
+            })->groupByRaw('tournament_id')->orderBy('id', 'desc')->get()
+            ->pluck('id', 'tournament_id')->all();
+        $prizes = [];
+        foreach ($matchesIdsByTournamentIds as $matchId) {
+            $rank = null;
+            $match = Match::find($matchId);
+            if ($match && $match->winner_team_id) {
+                if ($match->winner_team_id == $participantsIdsByTournamentIds[$match->tournament_id]) {
+                    $rank = $match->getWinnerRank();
+                } else {
+                    $rank = $match->getLoserRank();
+                }
+                if ($rank) {
+                    $item = Tournament::where('id', $match->tournament_id)
+                        ->with(['game', 'organization'])->first()->toArray();
+                    $item['rank'] = $rank;
+                    $item['prizes'] = Prize::query()->where('tournament_id', $match->tournament_id)
+                        ->where('rank', $rank)
+                        ->get()->toArray();
+                    $prizes[] = $item;
+
+                }
+            }
+        }
+        return $prizes;
+    }
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    public function teams(User $user)
+    {
+        return $user->teams->load(['players']);
     }
 }
