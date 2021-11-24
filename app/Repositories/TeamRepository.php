@@ -151,6 +151,7 @@ class TeamRepository extends BaseRepository
             ->with(['game', 'organization'])
             ->orderBy('id', 'desc')->get();
         foreach ($tournaments as $tournament) {
+            $engine = $tournament->engine();
             $item = $tournament->toArray();
             $matches = $tournament->matches()->whereHas('plays', function ($plays) use ($participantsIds) {
                 return $plays->whereHas('parties', function ($parties) use ($participantsIds) {
@@ -171,6 +172,7 @@ class TeamRepository extends BaseRepository
                 }
                 $candidates = $match->getCandidates();
                 $matchArray = $match->toArray();
+                $matchArray['round_title'] = $engine->getRoundTitle($match);
                 unset($matchArray['tournament']);
                 $matchArray['candidates'] = $candidates;
                 $item['matches'][] = $matchArray;
