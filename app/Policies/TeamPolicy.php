@@ -40,6 +40,18 @@ class TeamPolicy
      * @param Team $team
      * @return Response
      */
+    public function canDeleteTeam(User $user, Team $team)
+    {
+        return $this->userIsCaptain($user, $team)
+            ? Response::allow()
+            : Response::deny('Only captains can delete their teams');
+    }
+
+    /**
+     * @param User $user
+     * @param Team $team
+     * @return Response
+     */
     public function canPromoteToCaptain(User $user, Team $team)
     {
         return $this->userIsCaptain($user, $team)

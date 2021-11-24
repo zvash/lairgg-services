@@ -299,6 +299,23 @@ class TeamRepository extends BaseRepository
         return $this->removeFromTeam($team, $user->id);
     }
 
+    public function deleteTeam(Team $team)
+    {
+        DB::beginTransaction();
+        try {
+            $players = Player::whereTeamId($team->id)->get();
+            foreach ($players as $player) {
+                $this->removeFromTeam($team, $player->user_id);
+            }
+            $team->delete();
+            DB::commit();
+            return 'done';
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            throw new \Exception('Team was not removed');
+        }
+    }
+
     /**
      * @param Team $team
      * @param array $links

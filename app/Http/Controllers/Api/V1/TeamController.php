@@ -157,6 +157,27 @@ class TeamController extends Controller
      * @param TeamRepository $repository
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
+    public function deleteTeam(Request $request, Team $team, TeamRepository $repository)
+    {
+        $gate = Gate::inspect('canDeleteTeam', $team);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+        }
+
+
+        try {
+            return $this->success(['message' => $repository->deleteTeam($team)]);
+        } catch (\Exception $exception) {
+            return $this->failMessage($exception->getMessage(), 400);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @param Team $team
+     * @param TeamRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function overview(Request $request, Team $team, TeamRepository $repository)
     {
         return $this->success($repository->overview($team));

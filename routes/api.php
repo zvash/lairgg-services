@@ -150,6 +150,7 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->post('{team}/promote', 'TeamController@promoteToCaptain');
                     $router->post('{team}/remove', 'TeamController@removeFromTeam');
                     $router->post('{team}/leave', 'TeamController@leaveTeam');
+                    $router->post('{team}/delete', 'TeamController@deleteTeam');
 
                 });
 
