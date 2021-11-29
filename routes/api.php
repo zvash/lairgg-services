@@ -27,6 +27,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
         });
 
+        $router->get('teams/{token}/join', 'TeamController@joinByUrlRequest')->name('teams.join_url');
+
         $router->group(['middleware' => 'auth:api'], function ($router) {
 
             $router->group(['prefix' => 'users'], function ($router) {
@@ -34,6 +36,10 @@ $router->group(['prefix' => 'v1'], function ($router) {
                 $router->post('verify/resend', 'VerificationController@resend')->name('verification.resend');
 
                 $router->post('/set-identifiers', 'UserController@setMissingIdentifiers');
+
+                $router->post('/logout', 'UserController@logout');
+
+                $router->get('/search', 'UserController@search');
 
             });
 
@@ -151,6 +157,10 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->post('{team}/remove', 'TeamController@removeFromTeam');
                     $router->post('{team}/leave', 'TeamController@leaveTeam');
                     $router->post('{team}/delete', 'TeamController@deleteTeam');
+
+                    $router->get('{team}/get-join-url', 'TeamController@getJoinUrl');
+                    $router->post('{team}/set-join-url', 'TeamController@setJoinUrl');
+                    $router->post('/join-by-token', 'TeamController@joinByUrl');
 
                 });
 

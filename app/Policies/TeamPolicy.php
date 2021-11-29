@@ -59,6 +59,13 @@ class TeamPolicy
             : Response::deny('Only captains can promote members');
     }
 
+    public function canInvite(User $user, Team $team)
+    {
+        return $this->userIsCaptain($user, $team)
+            ? Response::allow()
+            : Response::deny('Only captains can invite new members');
+    }
+
     /**
      * @param User $user
      * @param Team $team
@@ -69,6 +76,25 @@ class TeamPolicy
         return $this->userIsCaptain($user, $team)
             ? Response::allow()
             : Response::deny('Only captains can update the team');
+    }
+
+    public function canAccessJoinUrl(User $user, Team $team)
+    {
+        return $this->userIdBelongsToTeam($user->id, $team)
+            ? Response::allow()
+            : Response::deny('Only team members can access to the join url');
+    }
+
+    /**
+     * @param User $user
+     * @param Team $team
+     * @return Response
+     */
+    public function canSetJoinUrl(User $user, Team $team)
+    {
+        return $this->userIsCaptain($user, $team)
+            ? Response::allow()
+            : Response::deny('Only captains can set team\'s join URL');
     }
 
     /**

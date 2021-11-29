@@ -56,6 +56,7 @@ class Team extends Model
     ];
 
     protected $appends = [
+        'join_url',
         'player_count'
     ];
 
@@ -108,5 +109,17 @@ class Team extends Model
     public function getPlayerCountAttribute()
     {
         return $this->players()->count();
+    }
+
+    /**
+     * @param $value
+     * @return string
+     */
+    public function getJoinUrlAttribute($value)
+    {
+        if ($value) {
+            return route('teams.join_url', $value);
+        }
+        return $this->join_url;
     }
 }

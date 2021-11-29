@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\HttpStatusCode;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\JoinTeamByUrlRequest;
 use App\Http\Requests\PromoteToCaptainRequest;
 use App\Http\Requests\RemoveFromTeamRequest;
 use App\Http\Requests\StoreTeamRequest;
 use App\Http\Requests\UpdateTeamRequest;
+use App\Player;
 use App\Repositories\InvitationRepository;
 use App\Repositories\MatchRepository;
 use App\Repositories\TeamRepository;
@@ -164,7 +166,6 @@ class TeamController extends Controller
             return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
         }
 
-
         try {
             return $this->success(['message' => $repository->deleteTeam($team)]);
         } catch (\Exception $exception) {
@@ -203,6 +204,69 @@ class TeamController extends Controller
     public function awards(Request $request, Team $team, TeamRepository $repository)
     {
         return $this->success($repository->awardsOfTeam($team));
+    }
+
+    /**
+     * @param Request $request
+     * @param Team $team
+     * @param TeamRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function getJoinUrl(Request $request, Team $team, TeamRepository $repository)
+    {
+        $gate = Gate::inspect('canAccessJoinUrl', $team);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+        }
+        return $this->success(['url' => $repository->getJoinUrl($team)]);
+    }
+
+    /**
+     * @param Request $request
+     * @param Team $team
+     * @param TeamRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function setJoinUrl(Request $request, Team $team, TeamRepository $repository)
+    {
+        $gate = Gate::inspect('canSetJoinUrl', $team);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+        }
+        return $this->success($repository->setJoinUrl($team));
+    }
+
+    /**
+     * @param Request $request
+     * @param string $token
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function joinByUrlRequest(Request $request, string $token)
+    {
+        return $this->success(['message' => 'In order to join a team you should install lair.gg app']);
+    }
+
+    /**
+     * @param JoinTeamByUrlRequest $request
+     * @param InvitationRepository $invitationRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function joinByUrl(JoinTeamByUrlRequest $request, InvitationRepository $invitationRepository)
+    {
+        $validated = $request->validated();
+        $user = $request->user();
+        $identifier = $user->username;
+        $team = Team::query()->where('join_url', $validated['token'])->first();
+        if ($team) {
+            $captain = Player::whereTeamId($team->id)
+                ->whereCaptain(true)
+                ->first()
+                ->user;
+            $invitationRepository->createTeamInvitation($team, $identifier, $captain, $user);
+            return $this->success(['message' => "{$identifier} is invited to join the {$team->title} team."]);
+        }
+        return $this->failMessage('Join URL was not valid', 402);
+
     }
 
     /**

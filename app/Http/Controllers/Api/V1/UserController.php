@@ -53,6 +53,16 @@ class UserController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function logout(Request $request)
+    {
+        \auth()->user()->token()->revoke();
+        return $this->success(['message' => 'logged out']);
+    }
+
+    /**
      * @param SetIdentifiersRequest $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
@@ -74,6 +84,17 @@ class UserController extends Controller
             return $this->failMessage($exception->getMessage(), $exception->getCode());
         }
 
+    }
+
+    /**
+     * @param Request $request
+     * @param UserRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function search(Request $request, UserRepository $repository)
+    {
+        $identifier = $request->get('identifier');
+        return $this->success($repository->search($identifier));
     }
 
     /**

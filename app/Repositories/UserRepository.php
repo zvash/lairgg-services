@@ -317,4 +317,21 @@ class UserRepository extends BaseRepository
     {
         return $user->teams->load(['players']);
     }
+
+    /**
+     * @param string $identifier
+     * @return array
+     */
+    public function search(string $identifier)
+    {
+        if ($identifier && strlen($identifier) > 2) {
+            return User::query()
+                ->where('email', $identifier)
+                ->orWhere('username', 'like', "%{$identifier}%")
+                ->get(['username', 'avatar'])
+                ->makeHidden(['email_address', 'country_detail'])
+                ->all();
+        }
+        return [];
+    }
 }

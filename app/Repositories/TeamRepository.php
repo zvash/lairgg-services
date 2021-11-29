@@ -294,7 +294,9 @@ class TeamRepository extends BaseRepository
             $notCaptainPlayer = Player::whereTeamId($team->id)
                 ->whereCaptain(false)
                 ->first();
-            $this->promote($team, $notCaptainPlayer->user_id);
+            if ($notCaptainPlayer) {
+                $this->promote($team, $notCaptainPlayer->user_id);
+            }
         }
         return $this->removeFromTeam($team, $user->id);
     }
@@ -314,6 +316,39 @@ class TeamRepository extends BaseRepository
             DB::rollBack();
             throw new \Exception('Team was not removed');
         }
+    }
+
+    /**
+     * @param Team $team
+     * @return Team
+     */
+    public function setJoinUrl(Team $team)
+    {
+        $token = make_random_hash();
+        if (Team::whereJoinUrl($token)->count()) {
+            return $this->setJoinUrl($team);
+        }
+        $team->setAttribute('join_url', $token)->save();
+        return $team->refresh();
+    }
+
+    /**
+     * @param Team $team
+     * @return Team
+     */
+    public function deleteJoinUrl(Team $team)
+    {
+        $team->setAttribute('join_url', null)->save();
+        return $team;
+    }
+
+    /**
+     * @param Team $team
+     * @return string
+     */
+    public function getJoinUrl(Team $team)
+    {
+        return $team->join_url;
     }
 
     /**
