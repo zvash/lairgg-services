@@ -100,6 +100,18 @@ class TeamPolicy
     /**
      * @param User $user
      * @param Team $team
+     * @return Response
+     */
+    public function canCancelInvitation(User $user, Team $team)
+    {
+        return $this->userIsCaptain($user, $team)
+            ? Response::allow()
+            : Response::deny('Only captain can cancel invitations');
+    }
+
+    /**
+     * @param User $user
+     * @param Team $team
      * @return bool
      */
     private function userIsCaptain(User $user, Team $team)

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\HttpStatusCode;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CancelInvitationRequest;
 use App\Http\Requests\JoinTeamByUrlRequest;
 use App\Http\Requests\PromoteToCaptainRequest;
 use App\Http\Requests\RemoveFromTeamRequest;
@@ -267,6 +268,38 @@ class TeamController extends Controller
         }
         return $this->failMessage('Join URL was not valid', 402);
 
+    }
+
+    /**
+     * @param Request $request
+     * @param Team $team
+     * @param InvitationRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function searchUser(Request $request, Team $team, InvitationRepository $repository)
+    {
+        $identifier = $request->get('identifier');
+        return $this->success($repository->searchUsersForInvitation($team, $identifier));
+    }
+
+    /**
+     * @param CancelInvitationRequest $request
+     * @param Team $team
+     * @param InvitationRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function cancelInvitation(CancelInvitationRequest $request, Team $team, InvitationRepository $repository)
+    {
+        $gate = Gate::inspect('canCancelInvitation', $team);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+        }
+        $validated = $request->validated();
+        $repository->cancelTeamInvitation(
+            User::find($validated['user_id']),
+            $team
+        );
+        return $this->success(['message' => 'done']);
     }
 
     /**

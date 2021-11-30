@@ -263,7 +263,7 @@ class InvitationRepository extends BaseRepository
     /**
      * @param User $user
      * @param int $teamId
-     * @return
+     * @return array
      */
     public function declineTeamInvitation(User $user, int $teamId)
     {
@@ -272,6 +272,53 @@ class InvitationRepository extends BaseRepository
             $this->removeInvitations($invitations->all());
         }
         return [];
+    }
+
+    /**
+     * @param User $user
+     * @param Team $team
+     */
+    public function cancelTeamInvitation(User $user, Team $team)
+    {
+        $invitations = $this->getInvitations($user, $team->id, Team::class);
+        if ($invitations) {
+            $this->removeInvitations($invitations->all());
+        }
+    }
+
+    /**
+     * @param Team $team
+     * @param string $identifier
+     * @return array
+     */
+    public function searchUsersForInvitation(Team $team, ?string $identifier)
+    {
+        if (!$identifier || strlen($identifier) < 3) {
+            return [];
+        }
+        $users = User::query()
+            ->where('email', $identifier)
+            ->orWhere('username', 'like', "%{$identifier}%")
+            ->get();
+        $result = [];
+        $playerUserIds = $team->players->pluck('user_id')->all();
+        foreach ($users as $user) {
+            $status = 'not_invited';
+            if (in_array($user->id, $playerUserIds)) {
+                $status = 'accepted';
+            } else if ($this->getInvitations($user, $team->id, Team::class)->count()) {
+                $status = 'pending';
+            }
+            $result[] = [
+                'id' => $user->id,
+                'username' => $user->username,
+                'avatar' => $user->avatar,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'status' => $status,
+            ];
+        }
+        return $result;
     }
 
     /**

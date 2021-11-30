@@ -301,6 +301,11 @@ class TeamRepository extends BaseRepository
         return $this->removeFromTeam($team, $user->id);
     }
 
+    /**
+     * @param Team $team
+     * @return string
+     * @throws \Exception
+     */
     public function deleteTeam(Team $team)
     {
         DB::beginTransaction();

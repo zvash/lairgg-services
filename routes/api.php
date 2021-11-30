@@ -162,6 +162,9 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->post('{team}/set-join-url', 'TeamController@setJoinUrl');
                     $router->post('/join-by-token', 'TeamController@joinByUrl');
 
+                    $router->get('{team}/search', 'TeamController@searchUser');
+                    $router->post('{team}/cancel-invitation', 'TeamController@cancelInvitation');
+
                 });
 
                 $router->group(['prefix' => 'players'], function ($router) {
