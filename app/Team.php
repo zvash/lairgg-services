@@ -120,6 +120,6 @@ class Team extends Model
         if ($value) {
             return route('teams.join_url', $value);
         }
-        return $this->join_url;
+        return $value;
     }
 }
