@@ -112,7 +112,6 @@ class Team extends Model
     }
 
     /**
-     * @param $value
      * @return string
      */
     public function getJoinFullUrlAttribute()
