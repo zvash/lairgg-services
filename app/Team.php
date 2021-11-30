@@ -56,7 +56,7 @@ class Team extends Model
     ];
 
     protected $appends = [
-        'join_url',
+        'join_full_url',
         'player_count'
     ];
 
@@ -115,11 +115,11 @@ class Team extends Model
      * @param $value
      * @return string
      */
-    public function getJoinUrlAttribute($value)
+    public function getJoinFullUrlAttribute()
     {
-        if ($value) {
-            return route('teams.join_url', $value);
+        if ($this->join_url) {
+            return route('teams.join_url', $this->join_url);
         }
-        return $value;
+        return $this->join_url;
     }
 }

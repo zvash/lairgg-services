@@ -334,7 +334,7 @@ class TeamRepository extends BaseRepository
             return $this->setJoinUrl($team);
         }
         $team->setAttribute('join_url', $token)->save();
-        return $team->refresh();
+        return $team;
     }
 
     /**
@@ -353,7 +353,10 @@ class TeamRepository extends BaseRepository
      */
     public function getJoinUrl(Team $team)
     {
-        return $team->join_url;
+        if (! $team->join_url) {
+            $team = $this->setJoinUrl($team);
+        }
+        return $team->join_full_url;
     }
 
     /**
