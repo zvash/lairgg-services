@@ -41,6 +41,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                 $router->get('/search', 'UserController@search');
 
+                $router->post('delete', 'UserController@delete');
+
             });
 
             $router->group(['middleware' => 'verified'], function ($router) {
@@ -230,6 +232,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->get('/{match}/lobby', 'MatchController@getLobbyName');
 
+                    $router->get('/{match}/overview', 'MatchController@overview');
+
                 });
 
                 $router->group(['prefix' => 'disputes'], function ($router) {
@@ -267,6 +271,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
                 $router->group(['prefix' => 'plays'], function ($router) {
 
                     $router->post('/{play}/update', 'PlayController@update');
+
+                    $router->post('/{play}/score', 'PlayController@setScore');
 
                 });
 

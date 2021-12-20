@@ -180,6 +180,112 @@ class Match extends Model
     }
 
     /**
+     * @return bool
+     */
+    public function isOver()
+    {
+        return $this->plays()->whereHas('parties', function ($parties) {
+            return $parties->whereNull('score');
+        })->count() == 0;
+    }
+
+    /**
+     * @return Builder[]|\Illuminate\Database\Eloquent\Collection
+     */
+    public function getMidGameScores()
+    {
+        $playsIds = $this->plays->pluck('id')->all();
+        $playsIds[] = 0;
+        return Party::query()
+            ->selectRaw('team_id as participant_id, SUM(is_winner) as score')
+            ->whereNotNull('is_winner')
+            ->whereIn('play_id', $playsIds)
+            ->groupBy('team_id')
+            ->orderBy('score')
+            ->get();
+    }
+
+    public function getWinnerAndLosers()
+    {
+        $scores = $this->getMidGameScores();
+        $maxScore = -1;
+        $winner = null;
+        $losers = [];
+        foreach ($scores as $scoreRecord) {
+            if ($scoreRecord['score'] > $maxScore) {
+                if ($winner) {
+                    $losers[] = $winner;
+                }
+                $winner = $scoreRecord['participant_id'];
+                $maxScore = $scoreRecord['score'];
+            } else if ($scoreRecord['score'] == $maxScore) {
+                if ($winner) {
+                    $losers[] = $winner;
+                }
+                $losers[] = $scoreRecord['participant_id'];
+                $winner = null;
+            } else {
+                $losers[] = $scoreRecord['participant_id'];
+            }
+        }
+        return [
+            'winner_id' => $winner,
+            'losers_ids' => $losers,
+        ];
+    }
+
+    public function addWinnerToNextMatchForWinners()
+    {
+        $nextMatch = $this->tournament->engine()->getNextMatchForWinner($this);
+        $participantId = $this->winner_team_id;
+        if ($nextMatch) {
+            $this->addParticipantToNextMatch($nextMatch, $participantId);
+        }
+    }
+
+    public function addLoserToNextMatchForLosers()
+    {
+        $nextMatch = $this->tournament->engine()->getNextMatchForLoser($this);
+        $participants = $this->getParticipants();
+        $participantId = null;
+        foreach ($participants as $participant) {
+            if ($participant->id != $this->winner_team_id) {
+                $participantId = $participant->id;
+                break;
+            }
+        }
+        if ($nextMatch && $participantId) {
+            $this->addParticipantToNextMatch($nextMatch, $participantId);
+        }
+    }
+
+    private function addParticipantToNextMatch(Match $nextMatch, int $participantId)
+    {
+        $participantsIds = $this->getParticipants()->pluck('id')->all();
+        $playsIds = $nextMatch->plays->pluck('id')->all();
+        $playsIds[] = 0;
+        $parties = Party::query()
+            ->whereIn('play_id', $playsIds)
+            ->whereIn('team_id', $participantsIds)
+            ->get();
+        if ($parties->count()) {
+            foreach ($parties as $party) {
+                $party->setAttribute('team_id', $participantId)->save();
+            }
+        } else {
+            $plays = $nextMatch->plays;
+            foreach ($plays as $play) {
+                $firstEmptyParty = $play->parties()
+                    ->whereNull('team_id')
+                    ->first();
+                if ($firstEmptyParty) {
+                    $firstEmptyParty->setAttribute('team_id', $participantId)->save();
+                }
+            }
+        }
+    }
+
+    /**
      * @param Participant $participant
      * @return int|null
      */
@@ -198,7 +304,8 @@ class Match extends Model
 
     public function getRoundTitle()
     {
-
+        $engine = $this->tournament->engine();
+        return $engine->getRoundTitle($this);
     }
 
     /**

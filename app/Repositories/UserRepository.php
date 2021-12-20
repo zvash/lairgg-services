@@ -334,4 +334,40 @@ class UserRepository extends BaseRepository
         }
         return [];
     }
+
+    /**
+     * @param User $user
+     * @return User
+     */
+    public function deactive(User $user)
+    {
+        $username = make_random_hash() . '_' . mt_rand(1000000, 9999999);
+        if (User::query()->whereUserName($username)->count()) {
+            return $this->deactive($user);
+        }
+        $email = "{$username}@lairdeletedusers.gg";
+        $data = [
+            'first_name' => 'Deleted User',
+            'last_name' => null,
+            'email' => $email,
+            'username' => $username,
+            'password' => bcrypt(make_random_hash()),
+            'avatar' => null,
+            'cover' => null,
+            'bio' => null,
+            'dob' => null,
+            'phone' => null,
+            'address' => null,
+            'state' => null,
+            'country' => null,
+            'postal_code' => null,
+            'timezone' => 'UTC',
+            'points' => 0,
+            'ip' => null,
+            'status' => 0,
+            'gender_id' => null,
+        ];
+        $user->update($data);
+        return $user;
+    }
 }

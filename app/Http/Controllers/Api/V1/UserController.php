@@ -98,6 +98,19 @@ class UserController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @param UserRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function delete(Request $request, UserRepository $repository)
+    {
+        $user = $request->user();
+        $repository->deactive($user);
+        \auth()->user()->token()->revoke();
+        return $this->success(['message' => 'User is deleted']);
+    }
+
+    /**
      * Get user tournaments
      *
      * @param Request $request

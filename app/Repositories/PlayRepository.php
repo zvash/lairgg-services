@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 
+use App\Match;
 use App\Play;
 use App\User;
 use Illuminate\Http\Request;
@@ -13,7 +14,7 @@ class PlayRepository extends BaseRepository
     protected $modelClass = Play::class;
 
     /**
-     * Updates an existing organization
+     * Updates an existing Play
      *
      * @param Request $request
      * @param Play $play
@@ -34,6 +35,35 @@ class PlayRepository extends BaseRepository
             $play->setAttribute($key, $value);
         }
         $play->save();
+        return $play;
+    }
+
+    /**
+     * @param Request $request
+     * @param Play $play
+     * @return Play
+     */
+    public function setPlayScoreWithRequest(Request $request, Play $play)
+    {
+        $play = $this->editPlayWithRequest($request, $play, $request->user());
+        $scoreRecords = $request->get('scores');
+        foreach ($scoreRecords as $record) {
+            $party = $play->parties()->whereId($record['party_id'])->first();
+            if ($party) {
+                $party->setAttribute('score', $record['score'])
+                    ->setAttribute('is_winner', $record['is_winner'])
+                    ->save();
+            }
+        }
+        $match = $play->match;
+        if ($match->isOver()) {
+            $winnerAndLosers = $match->getWinnerAndLosers();
+            if ($winnerAndLosers['winner_id']) {
+                $match->setAttribute('winner_team_id', $winnerAndLosers['winner_id'])->save();
+                $match->addWinnerToNextMatchForWinners();
+                $match->addLoserToNextMatchForLosers();
+            }
+        }
         return $play;
     }
 }

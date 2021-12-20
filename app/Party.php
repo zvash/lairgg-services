@@ -21,6 +21,10 @@ class Party extends Model
      */
     protected $guarded = [];
 
+    protected $appends = [
+        'participant_summary'
+    ];
+
     /**
      * The attributes that should be cast to native types.
      *
@@ -47,9 +51,9 @@ class Party extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function team()
+    public function participant()
     {
-        return $this->belongsTo(Team::class);
+        return $this->belongsTo(Participant::class, 'team_id');
     }
 
     /**
@@ -60,5 +64,28 @@ class Party extends Model
     public function play()
     {
         return $this->belongsTo(Play::class);
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getParticipantSummaryAttribute()
+    {
+        if (! $this->team_id) {
+            return null;
+        }
+        $participant = Participant::find($this->team_id);
+        if ($participant->participantable_type == Team::class) {
+            return [
+                'title' => $participant->participantable->title,
+                'image' => $participant->participantable->logo,
+            ];
+        } else if ($participant->participantable_type == User::class) {
+            return [
+                'title' => $participant->participantable->username,
+                'image' => $participant->participantable->avatar,
+            ];
+        }
+        return null;
     }
 }

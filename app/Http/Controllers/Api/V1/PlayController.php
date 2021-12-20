@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\HttpStatusCode;
+use App\Http\Requests\SetPlayScoreRequest;
 use App\Play;
 use App\Repositories\PlayRepository;
+use App\Repositories\TournamentRepository;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -43,6 +45,15 @@ class PlayController extends Controller
         $user = Auth::user();
         $play = $playRepository->editPlayWithRequest($request, $play, $user);
         return $this->success($play);
+    }
+
+    public function setScore(SetPlayScoreRequest $request, Play $play, PlayRepository $repository)
+    {
+        $gate = Gate::inspect('update', $play);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+        }
+        return $this->success($repository->setPlayScoreWithRequest($request, $play));
     }
 
     /**

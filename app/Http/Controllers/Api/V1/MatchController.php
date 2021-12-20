@@ -102,6 +102,18 @@ class MatchController extends Controller
 
     /**
      * @param Request $request
+     * @param Match $match
+     * @param MatchRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function overview(Request $request, Match $match, MatchRepository $repository)
+    {
+        $user = $request->user();
+        return $this->success($repository->specificMatchOverview($match, $user));
+    }
+
+    /**
+     * @param Request $request
      * @return array
      */
     private function validateSetGameCount(Request $request)

@@ -2,11 +2,13 @@
 
 namespace App\Policies;
 
+use App\Participant;
 use App\Play;
 use App\Team;
 use App\User;
 use \Illuminate\Auth\Access\Response;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Database\Eloquent\Builder;
 
 class PlayPolicy extends BasePolicy
 {
@@ -28,18 +30,40 @@ class PlayPolicy extends BasePolicy
         $tournament = $play->match->tournament;
         if ($this->isAdminOrModeratorOfTournament($user, $tournament)) {
             return Response::allow();
-        } else if ($this->userIsATeamMemberOfTheMatchParty($user, $play)) {
+        } else if ($this->userIsCaptainOfTheMatchParty($user, $play)) {
             return Response::allow();
         }
         return Response::deny('You are not authorized to update this play.');
     }
 
-    private function userIsATeamMemberOfTheMatchParty(User $user, Play $play)
+    /**
+     * @param User $user
+     * @param Play $play
+     * @return bool
+     */
+    private function userIsCaptainOfTheMatchParty(User $user, Play $play)
     {
-        $teamIds = $play->parties->pluck('team_id')->all();
-        return Team::whereIn('id', $teamIds)
-                ->whereHas('players', function ($players) use ($user) {
-                    return $players->where('user_id', $user->id);
-                })->count() > 0;
+        $participantIds = $play->parties->pluck('team_id')->all();
+        $participantIds[] = 0;
+        $participant = Participant::query()
+            ->whereIn('id', $participantIds)
+            ->where(function (Builder $query) use ($user) {
+                return $query->where('participantable_type', User::class)
+                    ->where('participantable_id', $user->id);
+            })->orWhere(function (Builder $query) use ($user) {
+                $teamIds = $user->teams()->pluck('teams.id');
+                $teamIds[] = 0;
+                return $query->where('participantable_type', Team::class)
+                    ->whereIn('participantable_id', $teamIds);
+            })->first();
+
+        if ($participant->participantable_type == User::class) {
+            return true;
+        }
+        $participantable = $participant->participantable;
+        return $participantable->players()
+            ->where('user_id', $user->id)
+            ->where('captain', 1)
+            ->count() > 0;
     }
 }
