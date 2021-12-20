@@ -106,7 +106,11 @@ class UserController extends Controller
     {
         $user = $request->user();
         $repository->deactive($user);
+        $userTokens = $user->tokens;
         \auth()->user()->token()->revoke();
+        foreach($userTokens as $token) {
+            $token->revoke();
+        }
         return $this->success(['message' => 'User is deleted']);
     }
 
