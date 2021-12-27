@@ -60,12 +60,13 @@ class PlayRepository extends BaseRepository
         foreach ($scoreRecords as $record) {
             $party = $play->parties()->whereId($record['party_id'])->first();
             if ($party) {
-                if ($record['is_forfeited']) {
+                if ($record['is_forfeit']) {
                     $record['score'] = 0;
                     $record['is_winner'] = false;
                 }
                 $party->setAttribute('score', $record['score'])
                     ->setAttribute('is_winner', $record['is_winner'])
+                    ->setAttribute('is_forfeit', $record['is_forfeit'])
                     ->save();
             }
         }
