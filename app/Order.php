@@ -4,13 +4,14 @@ namespace App;
 
 use App\Enums\OrderStatus;
 use App\Repositories\CountryRepository;
+use App\Traits\Eloquents\Requestable;
 use App\Traits\Eloquents\Transactionable;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Actions\Actionable;
 
 class Order extends Model
 {
-    use Actionable, Transactionable;
+    use Actionable, Transactionable, Requestable;
 
     protected $fillable = [
         'product_id',
@@ -59,6 +60,7 @@ class Order extends Model
 
     protected $appends = [
         'country_name',
+        'product_summary',
     ];
 
     /**
@@ -111,5 +113,21 @@ class Order extends Model
         }
         $repository = new CountryRepository();
         return $repository->getName($this->country);
+    }
+
+    /**
+     * @return array
+     */
+    public function getProductSummaryAttribute()
+    {
+        $product = $this->product;
+        $image = $product->images()->first();
+        if ($image) {
+            $image = $image->image;
+        }
+        return [
+            'title' => $product->title,
+            'image' => $image,
+        ];
     }
 }

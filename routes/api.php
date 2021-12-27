@@ -276,7 +276,21 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                 });
 
+                $router->group(['prefix' => 'cash-outs'], function ($router) {
 
+                    $router->get('/{cashOut}/get', 'CashOutController@get');
+
+                    $router->get('/rate', 'CashOutController@getExchangeRate');
+
+                    $router->post('/create', 'CashOutController@createCashOut');
+
+                });
+
+                $router->group(['prefix' => 'order-requests'], function ($router) {
+
+                    $router->get('/all', 'OrderRequestController@all');
+
+                });
 
                 $router->get('/search', 'SearchController@search');
 

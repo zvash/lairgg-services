@@ -174,6 +174,22 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function cashOuts()
+    {
+        return $this->hasMany(CashOut::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function orderRequests()
+    {
+        return $this->hasMany(OrderRequest::class);
+    }
+
+    /**
      * Get the following for the user.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -211,6 +227,16 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->points += $points;
 
         return $this->save();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function availablePoints()
+    {
+        $pendingOrdersPoints = $this->orders()->where('is_final', false)->sum('redeem_points');
+        $pendingCashOutPoints = $this->cashOuts()->where('is_final', false)->sum('redeem_points');
+        return $this->points - $pendingCashOutPoints - $pendingOrdersPoints;
     }
 
     /**

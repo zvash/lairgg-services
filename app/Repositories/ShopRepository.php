@@ -54,7 +54,7 @@ class ShopRepository extends BaseRepository
         if ($product->quantity - $product->orders()->where('is_final', false)->count() < 1) {
             throw new \Exception('We are out of stock for this item at the moment.');
         }
-        if ($product->points > $user->points) {
+        if ($product->points > $user->availablePoints()) {
             throw new \Exception('You don\'t have enough gems to buy this product.');
         }
         $inputs['redeem_points'] = $product->points;
