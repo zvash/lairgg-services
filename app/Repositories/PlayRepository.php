@@ -46,6 +46,7 @@ class PlayRepository extends BaseRepository
      */
     public function setPlayScoreWithRequest(Request $request, Play $play)
     {
+        $this->checkIfMatchScoresAreEditable($play->match);
         $play = $this->editPlayWithRequest($request, $play, $request->user());
         $scoreRecords = $request->get('scores');
         $numberOfForfeiters = 0;
@@ -80,5 +81,26 @@ class PlayRepository extends BaseRepository
             }
         }
         return $play;
+    }
+
+    private function checkIfMatchScoresAreEditable(Match $match)
+    {
+        if (!$match->partiesAreReady()) {
+            throw new \Exception('Participants of the match are not determined yet.');
+        }
+
+        $nextMatchForWinner = $match->getNextMatchForWinner();
+        if ($nextMatchForWinner) {
+            if ($nextMatchForWinner->isOver() || $nextMatchForWinner->isActive()) {
+                throw new \Exception('Next match has already started. Scores are not editable.');
+            }
+        }
+
+        $nextMatchForLoser = $match->getNextMatchForLoser();
+        if ($nextMatchForLoser) {
+            if ($nextMatchForLoser->isOver() || $nextMatchForLoser->isActive()) {
+                throw new \Exception('Next match has already started. Scores are not editable.');
+            }
+        }
     }
 }

@@ -47,6 +47,12 @@ class PlayController extends Controller
         return $this->success($play);
     }
 
+    /**
+     * @param SetPlayScoreRequest $request
+     * @param Play $play
+     * @param PlayRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function setScore(SetPlayScoreRequest $request, Play $play, PlayRepository $repository)
     {
         $gate = Gate::inspect('update', $play);

@@ -190,6 +190,17 @@ class Match extends Model
     }
 
     /**
+     * @return bool
+     */
+    public function isActive()
+    {
+        return !$this->winner_team_id &&
+            $this->plays()->whereHas('parties', function ($parties) {
+                return $parties->whereNotNull('score');
+            })->count();
+    }
+
+    /**
      * @return Builder[]|\Illuminate\Database\Eloquent\Collection
      */
     public function getMidGameScores()
@@ -234,6 +245,25 @@ class Match extends Model
         ];
     }
 
+    /**
+     * @return Match|null
+     */
+    public function getNextMatchForWinner()
+    {
+        return $this->tournament->engine()->getNextMatchForWinner($this);
+    }
+
+    /**
+     * @return Match|null
+     */
+    public function getNextMatchForLoser()
+    {
+        return $this->tournament->engine()->getNextMatchForLoser($this);
+    }
+
+    /**
+     *
+     */
     public function addWinnerToNextMatchForWinners()
     {
         $nextMatch = $this->tournament->engine()->getNextMatchForWinner($this);
@@ -243,6 +273,9 @@ class Match extends Model
         }
     }
 
+    /**
+     *
+     */
     public function addLoserToNextMatchForLosers()
     {
         $nextMatch = $this->tournament->engine()->getNextMatchForLoser($this);
@@ -257,6 +290,18 @@ class Match extends Model
         if ($nextMatch && $participantId) {
             $this->addParticipantToNextMatch($nextMatch, $participantId);
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function partiesAreReady()
+    {
+        $firstPlay = $this->plays()->first();
+        if ($firstPlay) {
+            return $firstPlay->parties()->whereNotNull('team_id')->count() > 0;
+        }
+        return false;
     }
 
     private function addParticipantToNextMatch(Match $nextMatch, int $participantId)
