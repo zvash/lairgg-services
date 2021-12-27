@@ -53,7 +53,12 @@ class PlayController extends Controller
         if (!$gate->allowed()) {
             return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
         }
-        return $this->success($repository->setPlayScoreWithRequest($request, $play));
+        try {
+            return $this->success($repository->setPlayScoreWithRequest($request, $play));
+        } catch (\Exception $exception) {
+            return $this->failMessage($exception->getMessage(), HttpStatusCode::BAD_REQUEST);
+        }
+
     }
 
     /**

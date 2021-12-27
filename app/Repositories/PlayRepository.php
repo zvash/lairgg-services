@@ -42,14 +42,28 @@ class PlayRepository extends BaseRepository
      * @param Request $request
      * @param Play $play
      * @return Play
+     * @throws \Exception
      */
     public function setPlayScoreWithRequest(Request $request, Play $play)
     {
         $play = $this->editPlayWithRequest($request, $play, $request->user());
         $scoreRecords = $request->get('scores');
+        $numberOfForfeiters = 0;
+        foreach ($scoreRecords as $scoreRecord) {
+            if ($scoreRecord['is_forfeit']) {
+                $numberOfForfeiters++;
+            }
+        }
+        if ($numberOfForfeiters > count($scoreRecords) - 1) {
+            throw new \Exception('Too many participants has forfeited the game');
+        }
         foreach ($scoreRecords as $record) {
             $party = $play->parties()->whereId($record['party_id'])->first();
             if ($party) {
+                if ($record['is_forfeited']) {
+                    $record['score'] = 0;
+                    $record['is_winner'] = false;
+                }
                 $party->setAttribute('score', $record['score'])
                     ->setAttribute('is_winner', $record['is_winner'])
                     ->save();
