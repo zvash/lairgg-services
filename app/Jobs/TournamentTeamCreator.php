@@ -102,9 +102,9 @@ class TournamentTeamCreator
             'timezone' => 'Europe/Lisbon',
             'gender_id' => 1,
             'password' => bcrypt('passwords'),
-            'email_verified_at' => now(),
         ];
         $user = User::query()->create($attributes);
+        $user->email_verified_at = now();
         $user->avatar = $this->saveImage('users/avatars', 400, 400);
         $user->cover = $this->saveImage('users/covers', 640, 480);
         $user->save();
