@@ -337,13 +337,14 @@ class UserRepository extends BaseRepository
 
     /**
      * @param User $user
+     * @param string $reason
      * @return User
      */
-    public function deactive(User $user)
+    public function deactivate(User $user, string $reason)
     {
         $username = make_random_hash() . '_' . mt_rand(1000000, 9999999);
         if (User::query()->whereUserName($username)->count()) {
-            return $this->deactive($user);
+            return $this->deactivate($user);
         }
         $email = "{$username}@lairdeletedusers.gg";
         $data = [
@@ -366,8 +367,12 @@ class UserRepository extends BaseRepository
             'ip' => null,
             'status' => 0,
             'gender_id' => null,
+            'delete_reason' => $reason,
         ];
-        $user->update($data);
+        foreach ($data as $key => $value) {
+            $user->setAttribute($key, $value);
+        }
+        $user->save();
         return $user;
     }
 }

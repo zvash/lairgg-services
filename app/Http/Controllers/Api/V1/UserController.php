@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Game;
 use App\Gender;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DeleteUserRequest;
 use App\Http\Requests\SetIdentifiersRequest;
 use App\Http\Requests\StoreUser;
 use App\Http\Requests\UpdateUserRequest;
@@ -102,10 +103,11 @@ class UserController extends Controller
      * @param UserRepository $repository
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
-    public function delete(Request $request, UserRepository $repository)
+    public function delete(DeleteUserRequest $request, UserRepository $repository)
     {
         $user = $request->user();
-        $repository->deactive($user);
+        $validated = $request->validated();
+        $repository->deactivate($user, $validated['reason']);
         $userTokens = $user->tokens;
         \auth()->user()->token()->revoke();
         foreach($userTokens as $token) {
