@@ -238,7 +238,7 @@ abstract class TournamentEngine
         if (!$plays->count()) {
             return;
         }
-        $playDuration = intval($plays->count() / $matchLength);
+        $playDuration = intval($matchLength / $plays->count());
         $i = 0;
         foreach ($plays as $play) {
             $date = $match->started_at;
