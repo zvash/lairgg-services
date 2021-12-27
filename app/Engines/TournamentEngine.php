@@ -220,6 +220,7 @@ abstract class TournamentEngine
         if ($match->started_at == null || $match->started_at->timestamp < $date->timestamp) {
             $match->started_at = $date;
             $match->save();
+            $this->setMatchPlaysDate($match, $matchLength);
             $nextMatchForWinner = $this->getNextMatchForWinner($match);
             $nextMatchForLoser = $this->getNextMatchForLoser($match);
             $nextDate = $date->clone();
@@ -228,6 +229,22 @@ abstract class TournamentEngine
             $nextDate = $date->clone();
             $nextDate->addMinutes($matchLength);
             $this->setMatchDate($nextMatchForLoser, $nextDate, $matchLength);
+        }
+    }
+
+    private function setMatchPlaysDate(Match $match, int $matchLength)
+    {
+        $plays = $match->plays;
+        if (!$plays->count()) {
+            return;
+        }
+        $playDuration = intval($plays->count() / $matchLength);
+        $i = 0;
+        foreach ($plays as $play) {
+            $date = $match->started_at;
+            $date->addMinutes($i * $playDuration);
+            $play->started_at = $date;
+            $play->save();
         }
     }
 
