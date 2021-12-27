@@ -245,6 +245,7 @@ abstract class TournamentEngine
             $date->addMinutes($i * $playDuration);
             $play->started_at = $date;
             $play->save();
+            $i++;
         }
     }
 
