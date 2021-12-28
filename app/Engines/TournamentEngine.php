@@ -81,6 +81,29 @@ abstract class TournamentEngine
     abstract public function getRoundTitle(Match $match);
 
     /**
+     * Fill next match for winner and next match for loser
+     * fields
+     *
+     * @return mixed
+     */
+    public function fillNextMatches()
+    {
+        $matches = $this->tournament->matches;
+        foreach ($matches as $match) {
+            $winnerNextMatch = $this->getNextMatchForWinner($match);
+            $loserNextMatch = $this->getNextMatchForLoser($match);
+            if ($winnerNextMatch) {
+                $match->winner_next_match_id = $winnerNextMatch->id;
+                $match->save();
+            }
+            if ($loserNextMatch) {
+                $match->loser_next_match_id = $loserNextMatch->id;
+                $match->save();
+            }
+        }
+    }
+
+    /**
      * Get bracket for tournament
      *
      * @param Tournament $tournament
@@ -142,6 +165,15 @@ abstract class TournamentEngine
      */
     public function getPreviousMatches(Match $match)
     {
+        if ($match->group == 1 && $match->round == 1) {
+            return null;
+        }
+        $matches = Match::query()->where('winner_next_match_id', $match->id)
+            ->orWhere('loser_next_match_id', $match->id)
+            ->get();
+        if ($matches->count()) {
+            return $matches->all();
+        }
         if (!$this->matchesByNextMatch) {
             $this->getBracket($match->tournament);
         }

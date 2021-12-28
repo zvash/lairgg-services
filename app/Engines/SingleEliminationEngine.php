@@ -54,6 +54,7 @@ class SingleEliminationEngine extends TournamentEngine
             $this->generateThirdRankMatchIfNeeded();
             $this->setTournamentMatchesDate($this->tournament);
             $this->randomlyAssignParticipantsToMatches();
+            $this->fillNextMatches();
             DB::commit();
         } catch (TournamentIsActiveException $exception) {
             DB::rollBack();

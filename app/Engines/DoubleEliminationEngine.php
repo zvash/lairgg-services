@@ -53,6 +53,7 @@ class DoubleEliminationEngine extends TournamentEngine
             $this->generateGrandFinalRound();
             $this->setTournamentMatchesDate($this->tournament);
             $this->randomlyAssignParticipantsToMatches();
+            $this->fillNextMatches();
             DB::commit();
         } catch (TournamentIsActiveException $exception) {
             DB::rollBack();

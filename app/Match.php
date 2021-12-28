@@ -73,6 +73,22 @@ class Match extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function winnerNextMatch()
+    {
+        return $this->belongsTo(Match::class, 'winner_next_match_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function loserNextMatch()
+    {
+        return $this->belongsTo(Match::class, 'loser_next_match_id');
+    }
+
+    /**
      * Get the plays for the match.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -250,7 +266,7 @@ class Match extends Model
      */
     public function getNextMatchForWinner()
     {
-        return $this->tournament->engine()->getNextMatchForWinner($this);
+        return $this->winnerNextMatch;
     }
 
     /**
@@ -258,7 +274,7 @@ class Match extends Model
      */
     public function getNextMatchForLoser()
     {
-        return $this->tournament->engine()->getNextMatchForLoser($this);
+        return $this->loserNextMatch;
     }
 
     /**
