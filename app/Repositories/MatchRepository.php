@@ -132,7 +132,7 @@ class MatchRepository extends BaseRepository
             $record = [
                 'id' => $participant->id,
                 'participantable_type' => $type,
-                'score' => $match->getParticipantScore($participant),
+                'score' => $match->getParticipantCurrentScore($participant),
                 'is_winner' => $match->winner_team_id == $participant->id,
             ];
             if ($type == 'team') {

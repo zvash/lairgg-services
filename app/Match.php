@@ -363,6 +363,20 @@ class Match extends Model
 
     }
 
+    /**
+     * @param Participant $participant
+     * @return int|null
+     */
+    public function getParticipantCurrentScore(Participant $participant)
+    {
+        return $this->plays()
+            ->whereHas('parties', function ($parties) use ($participant) {
+                return $parties->where('team_id', $participant->id)
+                    ->where('is_winner', true);
+            })->count();
+
+    }
+
     public function getRoundTitle()
     {
         $engine = $this->tournament->engine();
