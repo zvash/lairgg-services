@@ -115,9 +115,11 @@ class MatchRepository extends BaseRepository
                 'title' => $tournament->title,
                 'image' => $tournament->image,
                 'logo' => $tournament->logo,
+                'players' => $tournament->players,
             ],
             'game' => [
                 'id' => $game->id,
+                'title' => $game->title,
                 'image' => $game->image,
                 'cover' => $game->cover,
                 'logo' => $game->logo,
@@ -140,7 +142,7 @@ class MatchRepository extends BaseRepository
                 $players = [];
                 foreach ($participantPlayers as $player) {
                     $playerUser = User::find($player->user_id);
-                    $isCaptain = $player->captain;
+                    $isCaptain = $player->captain == 1;
                     if ($isCaptain && $user->id == $playerUser->id) {
                         $userIsCaptain = true;
                     }
