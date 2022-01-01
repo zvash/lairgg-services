@@ -142,7 +142,7 @@ class TournamentRepository extends BaseRepository
 //                ->where('group', 1)
 //                ->where('round', 1)
 //                ->count() * 2;
-            return $tournament->participants()->count();
+            return 4;
         }
 
         return $tournament->participants()->count();

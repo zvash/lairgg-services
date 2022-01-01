@@ -276,7 +276,7 @@ class DoubleEliminationEngine extends TournamentEngine
                 }
                 return null;
             }
-        } else if ($rank > 2) {
+        } else if ($rank > 2 && $rank <=4) {
             $match = $this->getLoserBracketMatchForRank($rank);
             if (! $match) {
                 return null;
