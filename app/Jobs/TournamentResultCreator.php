@@ -77,6 +77,9 @@ class TournamentResultCreator implements ShouldQueue
         $scores = [];
         $parties = $play->parties;
         $isWinner = mt_rand(0, 1) == 1;
+        if ($play->match->isRestMatch()) {
+            $isWinner = true;
+        }
         foreach ($parties as $party) {
             if (! $party->team_id) {
                 $isWinner = false;
@@ -94,8 +97,8 @@ class TournamentResultCreator implements ShouldQueue
                     $score['score'] = mt_rand(0, 4);
                 }
             }
-            $isWinner = !$isWinner;
             $scores[] = $score;
+            $isWinner = !$isWinner;
         }
         return $scores;
     }
