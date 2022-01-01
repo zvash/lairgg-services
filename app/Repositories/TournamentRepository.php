@@ -138,13 +138,14 @@ class TournamentRepository extends BaseRepository
             }
         }
         if ($tournamentType->title == 'Double Elimination') {
-            return $tournament->matches()
-                ->where('group', 1)
-                ->where('round', 1)
-                ->count() * 2;
+//            return $tournament->matches()
+//                ->where('group', 1)
+//                ->where('round', 1)
+//                ->count() * 2;
+            return $tournament->participants()->count();
         }
 
-        return $tournament->participants()->count() * 2;
+        return $tournament->participants()->count();
     }
 
     /**
