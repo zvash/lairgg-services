@@ -125,7 +125,7 @@ class Match extends Resource
             BelongsTo::make('Tournament')
                 ->readonly(),
 
-            BelongsTo::make('Winner', 'winner', Team::class)
+            BelongsTo::make('Winner', 'winner', Participant::class)
                 ->showCreateRelationButton()
                 ->nullable()
                 ->searchable(),

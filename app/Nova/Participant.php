@@ -54,7 +54,12 @@ class Participant extends Resource
      */
     public function title()
     {
-        return $this->tournament->title;
+        if ($this->participantable instanceof \App\Team) {
+            return $this->participantable->title;
+        } else if ($this->participantable instanceof \App\User) {
+            return $this->participantable->username;
+        }
+        return $this->id;
     }
 
     /**

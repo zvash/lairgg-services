@@ -55,12 +55,13 @@ class TournamentTeamCreator
         $teamsCount = $this->tournament->max_teams;
         $gameId = $this->tournament->game_id;
         for ($i = 1; $i <= $teamsCount; $i++) {
-            $team = $this->createTeam($gameId);
-            for ($j = 1; $j <= $teamMemberCount; $j++) {
-                $user = $this->createUser();
-                $isCaptain = $j == 1;
-                $team->players()->attach($user->id, ['captain' => $isCaptain]);
-            }
+//            $team = $this->createTeam($gameId);
+//            for ($j = 1; $j <= $teamMemberCount; $j++) {
+//                $user = $this->createUser();
+//                $isCaptain = $j == 1;
+//                $team->players()->attach($user->id, ['captain' => $isCaptain]);
+//            }
+            $team = $this->getTeamWithOffset($i - 1);
             $participant = new Participant([
                 'participantable_type' => Team::class,
                 'participantable_id' => $team->id,
@@ -69,6 +70,11 @@ class TournamentTeamCreator
             $participant = $this->tournament->participants()->save($participant);
             $this->tournament->engine()->assignParticipantToFirstEmptyMatch($participant);
         }
+    }
+
+    private function getTeamWithOffset(int $offset)
+    {
+        return Team::query()->orderBy('id', 'desc')->limit(1)->offset($offset)->first();
     }
 
     private function createTeam(int $gameId)

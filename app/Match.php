@@ -217,6 +217,17 @@ class Match extends Model
     }
 
     /**
+     * @return bool
+     */
+    public function isRestMatch()
+    {
+        $firstPlay = $this->plays()->first();
+        return $firstPlay->whereHas('parties', function ($parties) {
+            return $parties->whereNotNull('team_id');
+        })->count() == 1;
+    }
+
+    /**
      * @return Builder[]|\Illuminate\Database\Eloquent\Collection
      */
     public function getMidGameScores()

@@ -49,6 +49,42 @@ class PlayRepository extends BaseRepository
         $this->checkIfMatchScoresAreEditable($play->match);
         $play = $this->editPlayWithRequest($request, $play, $request->user());
         $scoreRecords = $request->get('scores');
+        return $this->setPlayScores($play, $scoreRecords);
+    }
+
+    /**
+     * @param Match $match
+     * @throws \Exception
+     */
+    private function checkIfMatchScoresAreEditable(Match $match)
+    {
+        if (!$match->partiesAreReady()) {
+            throw new \Exception('Participants of the match are not determined yet.');
+        }
+
+        $nextMatchForWinner = $match->getNextMatchForWinner();
+        if ($nextMatchForWinner) {
+            if ($nextMatchForWinner->isOver() || $nextMatchForWinner->isActive()) {
+                throw new \Exception('Next match has already started. Scores are not editable.');
+            }
+        }
+
+        $nextMatchForLoser = $match->getNextMatchForLoser();
+        if ($nextMatchForLoser) {
+            if ($nextMatchForLoser->isOver() || $nextMatchForLoser->isActive()) {
+                throw new \Exception('Next match has already started. Scores are not editable.');
+            }
+        }
+    }
+
+    /**
+     * @param Play $play
+     * @param array $scoreRecords
+     * @return Play
+     * @throws \Exception
+     */
+    public function setPlayScores(Play $play, array $scoreRecords): Play
+    {
         $numberOfForfeiters = 0;
         foreach ($scoreRecords as $scoreRecord) {
             if ($scoreRecord['is_forfeit']) {
@@ -81,26 +117,5 @@ class PlayRepository extends BaseRepository
             }
         }
         return $play;
-    }
-
-    private function checkIfMatchScoresAreEditable(Match $match)
-    {
-        if (!$match->partiesAreReady()) {
-            throw new \Exception('Participants of the match are not determined yet.');
-        }
-
-        $nextMatchForWinner = $match->getNextMatchForWinner();
-        if ($nextMatchForWinner) {
-            if ($nextMatchForWinner->isOver() || $nextMatchForWinner->isActive()) {
-                throw new \Exception('Next match has already started. Scores are not editable.');
-            }
-        }
-
-        $nextMatchForLoser = $match->getNextMatchForLoser();
-        if ($nextMatchForLoser) {
-            if ($nextMatchForLoser->isOver() || $nextMatchForLoser->isActive()) {
-                throw new \Exception('Next match has already started. Scores are not editable.');
-            }
-        }
     }
 }
