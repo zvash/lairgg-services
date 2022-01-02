@@ -27,14 +27,18 @@ class TournamentResultCreator implements ShouldQueue
      */
     private $faker;
 
+    private $limit;
+
     /**
      * Create a new job instance.
      *
      * @param int $tournamentId
+     * @param int $limit
      */
-    public function __construct(int $tournamentId)
+    public function __construct(int $tournamentId, int $limit = 0)
     {
         $this->tournament = Tournament::find($tournamentId);
+        $this->limit = $limit;
         $this->faker = Faker::create();
     }
 
@@ -47,7 +51,11 @@ class TournamentResultCreator implements ShouldQueue
     public function handle()
     {
         $repository = new PlayRepository();
-        $matches = $this->tournament->matches()->orderBy('started_at')->get();
+        if ($this->limit) {
+            $matches = $this->tournament->matches()->orderBy('started_at')->limit($this->limit)->get();
+        } else {
+            $matches = $this->tournament->matches()->orderBy('started_at')->get();
+        }
         foreach ($matches as $match) {
             if ($match->winner_team_id) {
                 continue;
