@@ -17,7 +17,7 @@ class SetPlayScoreRequest extends FormRequest
             'scores' => 'required|array|min:2',
             'scores.*.party_id' => 'required|exists:parties,id',
             'scores.*.is_winner' => 'required|boolean',
-            'scores.*.score' => 'required|int',
+            'scores.*.score' => 'int',
             'scores.*.is_forfeit' => 'required|boolean',
             'map_id' => 'int|min:0|exists:maps,id',
             'screenshot' => 'mimes:jpeg,jpg,png',

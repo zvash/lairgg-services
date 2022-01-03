@@ -57,7 +57,7 @@ class Tournament extends Model
         'tournament_type_id',
         'game_id',
         'organization_id',
-        'featured',
+        'requires_score',
     ];
 
     /**

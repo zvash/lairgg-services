@@ -832,6 +832,7 @@ class TournamentRepository extends BaseRepository
                 'join_request',
                 'join_url',
                 'status',
+                'requires_score',
                 'structure',
                 'match_check_in_period',
                 'match_play_count',

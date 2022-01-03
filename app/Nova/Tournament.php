@@ -210,7 +210,7 @@ class Tournament extends Resource
 
             Boolean::make('Listed')
                 ->hideFromIndex()
-                ->help('Private or public ?'),
+                ->help('Private or public?'),
 
             Boolean::make('Join request')
                 ->hideFromIndex()
@@ -218,6 +218,11 @@ class Tournament extends Resource
 
             Boolean::make('Featured')
                 ->help('Make tournament featured.'),
+
+            Boolean::make('Requires Score', 'requires_score')
+                ->hideFromIndex()
+                ->default(true)
+                ->help('Need to submit score manually for each play?'),
 
             Text::make('Join URL')
                 ->readonly()

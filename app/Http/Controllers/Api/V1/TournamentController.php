@@ -520,6 +520,7 @@ class TournamentController extends Controller
             'join_request' => 'boolean',
             'join_url' => 'url',
             'status' => 'boolean',
+            'requires_score' => 'boolean',
             'structure' => 'required|in:' . implode(',', $structures),
             'match_check_in_period' => 'int|min:0',
             'match_play_count' => 'int|min:0',

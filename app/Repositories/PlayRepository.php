@@ -101,6 +101,14 @@ class PlayRepository extends BaseRepository
                     $record['score'] = 0;
                     $record['is_winner'] = false;
                 }
+
+                if (! array_key_exists('score', $record)) {
+                    $record['score'] = 0;
+                    if ($record['is_winner']) {
+                        $record['score'] = 1;
+                    }
+                }
+
                 $party->setAttribute('score', $record['score'])
                     ->setAttribute('is_winner', $record['is_winner'])
                     ->setAttribute('is_forfeit', $record['is_forfeit'])
