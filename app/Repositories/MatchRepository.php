@@ -152,6 +152,7 @@ class MatchRepository extends BaseRepository
                         'username' => $playerUser->username,
                         'avatar' => $playerUser->avatar,
                         'is_captain' => $isCaptain,
+                        'country_detail' => $playerUser->country_detail,
                     ];
                 }
                 $record['players'] = $players;
@@ -169,6 +170,7 @@ class MatchRepository extends BaseRepository
                     'username' => $playerUser->username,
                     'avatar' => $playerUser->avatar,
                     'is_captain' => $isCaptain,
+                    'country_detail' => $playerUser->country_detail,
                 ];
                 $record['players'] = $players;
             }
