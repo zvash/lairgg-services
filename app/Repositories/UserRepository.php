@@ -197,10 +197,7 @@ class UserRepository extends BaseRepository
             ]);
         }, ARRAY_FILTER_USE_KEY);
 
-        $participantsIdsByTournamentIds = Participant::query()
-            ->where('participantable_type', User::class)
-            ->where('participantable_id', $user->id)
-            ->get()
+        $participantsIdsByTournamentIds = $this->getAllParticipantsForUser($user)
             ->pluck('id', 'tournament_id')
             ->all();
 
@@ -262,17 +259,7 @@ class UserRepository extends BaseRepository
      */
     public function awards(User $user)
     {
-        $userTeams = $user->teams()->pluck('teams.id')->all();
-        $participants = Participant::query()
-            ->where(function (Builder $query) use ($user) {
-                return $query->where('participantable_type', User::class)
-                    ->where('participantable_id', $user->id);
-            })
-            ->orWhere(function (Builder $query) use ($userTeams) {
-                return $query->where('participantable_type', Team::class)
-                    ->whereIn('participantable_id', $userTeams);
-            })
-            ->get();
+        $participants = $this->getAllParticipantsForUser($user);
         $participantsIdsByTournamentIds = $participants->pluck('id', 'tournament_id')->all();
         $participantsIds = array_values($participantsIdsByTournamentIds);
         $tournamentIds = array_keys($participantsIdsByTournamentIds);
@@ -374,5 +361,25 @@ class UserRepository extends BaseRepository
         }
         $user->save();
         return $user;
+    }
+
+    /**
+     * @param User $user
+     * @return Builder[]|\Illuminate\Database\Eloquent\Collection
+     */
+    private function getAllParticipantsForUser(User $user)
+    {
+        $userTeams = $user->teams()->pluck('teams.id')->all();
+        $participants = Participant::query()
+            ->where(function (Builder $query) use ($user) {
+                return $query->where('participantable_type', User::class)
+                    ->where('participantable_id', $user->id);
+            })
+            ->orWhere(function (Builder $query) use ($userTeams) {
+                return $query->where('participantable_type', Team::class)
+                    ->whereIn('participantable_id', $userTeams);
+            })
+            ->get();
+        return $participants;
     }
 }
