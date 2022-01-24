@@ -107,7 +107,7 @@ class LobbyRepository extends BaseRepository
             foreach ($participants as $participant) {
                 if ($participant->participantable_type == Team::class) {
                     $captain = Team::find($participant->participantable_id )->players()->whereCaptain(1)->first();
-                    if ($captain && $captain->id == $user->id) {
+                    if ($captain && $captain->user_id == $user->id) {
                         return true;
                     }
                 }
