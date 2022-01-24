@@ -96,8 +96,40 @@ class LobbyRepository extends BaseRepository
                 return true;
             }
             //TODO: who are match participants?
+            $participants = $owner->getParticipants();
+            foreach ($participants as $participant) {
+                if ($participant->participantable_type == User::class) {
+                    if ($participant->participantable_id == $user->id) {
+                        return true;
+                    }
+                }
+            }
+            foreach ($participants as $participant) {
+                if ($participant->participantable_type == Team::class) {
+                    $captain = Team::find($participant->participantable_id )->players()->whereCaptain(1)->first();
+                    if ($captain && $captain->id == $user->id) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
         return false;
+    }
+
+    public function getMessages(User $user, Lobby $lobby, bool $backward = true, $from = 0)
+    {
+        $query = $lobby->messages();
+        if ($from) {
+            if ($backward) {
+                $query->whereSequence('sequence', '<', $from);
+            } else {
+                $query->whereSequence('sequence', '>', $from);
+            }
+        } else {
+            $query->latest();
+        }
+        $result = $query->limit(20)->get();
     }
 
     /**
