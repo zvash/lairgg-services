@@ -11,7 +11,8 @@ use Illuminate\Database\Eloquent\Model;
 class Dispute extends Model
 {
     protected $fillable = [
-        'play_id',
+        'match_id',
+        'lobby_message_id',
         'issued_by',
         'text',
         'screenshot',
@@ -27,12 +28,22 @@ class Dispute extends Model
     }
 
     /**
-     * Get the play for this dispute
+     * Get the match for this dispute
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function play()
+    public function match()
     {
-        return $this->belongsTo(Play::class);
+        return $this->belongsTo(Match::class);
+    }
+
+    /**
+     * Get the match for this dispute
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function lobbyMessage()
+    {
+        return $this->belongsTo(LobbyMessage::class);
     }
 }

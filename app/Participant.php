@@ -139,4 +139,20 @@ class Participant extends Model
                 return "";
         }
     }
+
+    /**
+     * @return User|null
+     */
+    public function getCaptain()
+    {
+        if ($this->participantable_type == User::class) {
+            return User::find($this->participantable_id);
+        } else if ($this->participantable_type == Team::class) {
+            $captain = Team::find($this->participantable_id)->players()->whereCaptain(1)->first();
+            if ($captain) {
+                return User::find($captain->user_id);
+            }
+        }
+        return null;
+    }
 }

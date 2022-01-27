@@ -20,4 +20,12 @@ class Lobby extends Model
     {
         return $this->morphTo('lobby_aware');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function messages()
+    {
+        return $this->hasMany(LobbyMessage::class);
+    }
 }

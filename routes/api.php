@@ -265,6 +265,14 @@ $router->group(['prefix' => 'v1'], function ($router) {
                 $router->group(['prefix' => 'lobbies'], function ($router) {
 
                     $router->get('/{lobbyName}/user', 'LobbyController@getUserByLobbyName');
+                    $router->get('/{lobbyName}/latest', 'LobbyController@latest');
+
+                    $router->post('/{lobbyName}/dispute', 'LobbyController@createDispute');
+
+                    $router->post('/{lobbyName}/coin', 'LobbyController@createCoinToss');
+
+                    $router->post('/{lobbyName}/coin-toss/{uuid}/accept', 'LobbyController@acceptCoinToss');
+                    $router->post('/{lobbyName}/coin-toss/{uuid}/decline', 'LobbyController@declineCoinToss');
 
                 });
 
