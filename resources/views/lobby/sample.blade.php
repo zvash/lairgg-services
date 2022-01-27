@@ -624,7 +624,7 @@
                 axios.post('https://dev.lair.gg/login', {
                     "grant_type": "password",
                     "client_id": "2",
-                    "client_secret": "8unH9NsZBJzU6nZ9egeqRFARQMnEgQMDE7yL3hbn",
+                    "client_secret": "RTbAk0FX472rVlq5DRWZR5pgrSudBEITaPGycwhg",
                     "username": this.email,
                     "password": this.password,
                     "scope": "*"
