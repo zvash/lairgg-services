@@ -5,4 +5,4 @@ apps:
     interpreter: php
     instances: 1
     args:
-      - redis:subscribe
+      - lobby:subscribe
