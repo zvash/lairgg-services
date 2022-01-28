@@ -101,7 +101,7 @@ class Organization extends Model
     public function getLogoFullUrlAttribute()
     {
         if ($this->logo) {
-            $baseUrl = rtrim(env('AWS_URL'), '/') . '/';
+            $baseUrl = rtrim(config('aws.cloud_front_url'), '/') . '/';
             return $baseUrl . $this->logo;
         }
         return null;
@@ -113,7 +113,7 @@ class Organization extends Model
     public function getCoverFullUrlAttribute()
     {
         if ($this->cover) {
-            $baseUrl = rtrim(env('AWS_URL'), '/') . '/';
+            $baseUrl = rtrim(config('aws.cloud_front_url'), '/') . '/';
             return $baseUrl . $this->cover;
         }
         return null;

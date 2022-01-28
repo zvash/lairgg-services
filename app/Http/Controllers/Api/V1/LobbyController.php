@@ -41,7 +41,7 @@ class LobbyController extends Controller
         preg_match("/lobby_.*?\b/", $request->url(), $match);
         $params = [
             'token' => $token,
-            'url' => env('LOBBY_URL', 'https://lobby.dev.lair.gg'),
+            'url' => config('lobby.url'),
             'room' => $match[0],
         ];
         return view('lobby.sample')->with(compact('params'));

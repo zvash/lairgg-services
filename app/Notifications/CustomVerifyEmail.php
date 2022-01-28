@@ -25,8 +25,8 @@ class CustomVerifyEmail extends VerifyEmail implements ShouldQueue
         return (new MailMessage)
             ->subject(__('emails.verification.subject'))
             ->markdown('auth.mails.verify', compact('notifiable', 'url'))
-            ->from(env('MAIL_FROM_ADDRESS', 'info@lair.gg'), env('MAIL_FROM_NAME', 'LAIRGG'))
-            ->replyTo(env('MAIL_FROM_ADDRESS', 'info@lair.gg'), env('MAIL_FROM_NAME', 'LAIRGG'));
+            ->from(config('mail.from_address'), config('mail.from_name'))
+            ->replyTo(config('mail.from_address'), config('mail.from_name'));
     }
 
     /**

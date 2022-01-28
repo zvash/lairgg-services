@@ -127,4 +127,7 @@ return [
         ],
     ],
 
+    'from_address' => env('MAIL_FROM_ADDRESS', 'info@lair.gg'),
+    'from_name' => env('MAIL_FROM_NAME', 'LAIRGG'),
+
 ];

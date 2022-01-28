@@ -242,16 +242,16 @@ class LobbyRepository extends BaseRepository
             $message['user']['first_name'] = $usersById[$lobbyMessage->user_id]->first_name;
             $message['user']['last_name'] = $usersById[$lobbyMessage->user_id]->last_name;
             if ($usersById[$lobbyMessage->user_id]->avatar) {
-                $message['user']['avatar'] = rtrim(env('AWS_URL'), '/') . '/' . $usersById[$lobbyMessage->user_id]->avatar;
+                $message['user']['avatar'] = rtrim(config('aws.cloud_front_url'), '/') . '/' . $usersById[$lobbyMessage->user_id]->avatar;
             }
 
             if (isset($message['user']['team'])) {
                 $message['user']['team']['title'] = $teamsById[$message['user']['team']['id']]->title;
                 if ($teamsById[$message['user']['team']['id']]->logo) {
-                    $message['user']['team']['logo'] = rtrim(env('AWS_URL'), '/') . '/' . $teamsById[$message['user']['team']['id']]->logo;
+                    $message['user']['team']['logo'] = rtrim(config('aws.cloud_front_url'), '/') . '/' . $teamsById[$message['user']['team']['id']]->logo;
                 }
                 if ($teamsById[$message['user']['team']['id']]->cover) {
-                    $message['user']['team']['cover'] = rtrim(env('AWS_URL'), '/') . '/' . $teamsById[$message['user']['team']['id']]->cover;
+                    $message['user']['team']['cover'] = rtrim(config('aws.cloud_front_url'), '/') . '/' . $teamsById[$message['user']['team']['id']]->cover;
                 }
             }
             $messages[] = $message;
@@ -267,7 +267,7 @@ class LobbyRepository extends BaseRepository
     {
         $lastSequence = $this->getLastSequenceForLobby($lobby);
         $script = base_path('resources/lua_scripts/sequence_assigner.lua');
-        $key = env('REDIS_PREFIX', 'lairgg_') . $lobby->name . '-sequence';
+        $key = config('database.redis.options.prefix') . $lobby->name . '-sequence';
         return Redis::eval(file_get_contents($script), 1, $key, $lastSequence);
     }
 
@@ -277,7 +277,7 @@ class LobbyRepository extends BaseRepository
     public function resetLastSequenceForLobby(Lobby $lobby)
     {
         $lastSequence = $this->getLastSequenceForLobby($lobby);
-        $key = env('REDIS_PREFIX', 'lairgg_') . $lobby->name . '-sequence';
+        $key = config('database.redis.options.prefix') . $lobby->name . '-sequence';
         Redis::set($key, $lastSequence);
     }
 
@@ -493,7 +493,7 @@ class LobbyRepository extends BaseRepository
     private function makeFullUrl(?string $url)
     {
         if ($url) {
-            return rtrim(env('AWS_URL'), '/') . '/' . $url;
+            return rtrim(config('aws.cloud_front_url'), '/') . '/' . $url;
         }
         return $url;
     }
