@@ -266,6 +266,7 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->get('/{lobbyName}/user', 'LobbyController@getUserByLobbyName');
                     $router->get('/{lobbyName}/latest', 'LobbyController@latest');
+                    $router->get('/{lobbyName}/uuid/{uuid}', 'LobbyController@loadPrevious');
 
                     $router->post('/{lobbyName}/dispute', 'LobbyController@createDispute');
 

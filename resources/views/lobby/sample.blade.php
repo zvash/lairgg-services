@@ -243,6 +243,17 @@
             margin-right: 5px;
         }
 
+        .loadMoreButton {
+            position: relative;;
+            height: 50px;
+            width: 150px;
+            top: 5px;
+            left: 50px;
+            float: left;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+
         .submitButton {
             height: 50px;
             width: 150px;
@@ -274,6 +285,7 @@
         <button class="logoutButton" v-on:click="leave"><label>Leave</label></button>
         <button class="actionButton" v-on:click="showDisputeModal=true"><label>Create Dispute</label></button>
         <button class="actionButton" v-on:click="showCoinTossModal=true"><label>Toss a Coin</label></button>
+        <button class="loadMoreButton" v-on:click="loadPrevious"><label>Load Previous</label></button>
     </div>
     <div id="chat" class="chatArea" style="display:none">
         <ul id="messages" class="messages">
@@ -572,7 +584,20 @@
         if (el) {
             el.scrollIntoView({behavior: 'smooth'});
         }
-    };
+    }
+
+    function scrollToItem(vm, index) {
+        let listIndex = index;
+        const prevEl = vm.$el.getElementsByClassName('item-' + (listIndex - 1))[0];
+        if (prevEl) {
+
+        }
+        const el = vm.$el.getElementsByClassName('item-' + listIndex)[0];
+
+        if (el) {
+            el.scrollIntoView({behavior: 'smooth'});
+        }
+    }
 
     function showToast(text, color, duration=3000) {
         Toastify({
@@ -735,7 +760,41 @@
                         console.log(error);
                         alert('failed');
                     });
-
+            },
+            loadPrevious: function () {
+                var vm = this;
+                if (vm.messages.length === 0) {
+                    return;
+                }
+                let firstMessage = vm.messages[0];
+                let uuid = firstMessage['uuid'];
+                let config = {
+                    method: 'get',
+                    headers: {
+                        Authorization: 'Bearer ' + bearer,
+                        Accept: 'application/json'
+                    },
+                    url: 'https://dev.lair.gg/api/v1/lobbies/' + room + '/uuid/' + uuid,
+                };
+                axios(config)
+                    .then(function (response) {
+                        var messages = response.data.data;
+                        let previousMessagesCount = messages.length;
+                        if (previousMessagesCount === 0) {
+                            return;
+                        }
+                        for (var index in vm.messages) {
+                            messages.push(vm.messages[index]);
+                        }
+                        vm.messages = messages;
+                        console.log(vm.messages.length);
+                        // setTimeout(function () {
+                        //     scrollToItem(vm, previousMessagesCount - 1);
+                        // }, 100);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
             }
         }
     });

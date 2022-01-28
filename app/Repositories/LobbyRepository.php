@@ -194,23 +194,38 @@ class LobbyRepository extends BaseRepository
     }
 
     /**
+     * @param Lobby $lobby
+     * @param string $uuid
+     * @return array|null
+     */
+    public function loadPreviousMessages(Lobby $lobby, string $uuid)
+    {
+        $message = $lobby->messages()->whereUuid($uuid)->first();
+        if (!$message) {
+            return null;
+        }
+        return $this->getMessages($lobby, true, $message->sequence);
+    }
+
+    /**
      * @param User $user
      * @param Lobby $lobby
      * @param bool $backward
      * @param int $from
      * @return array
      */
-    public function getMessages(User $user, Lobby $lobby, bool $backward = true, $from = 0)
+    public function getMessages(Lobby $lobby, bool $backward = true, $from = 0)
     {
-        $query = $lobby->messages();
+        $query = $lobby->messages()->latest('sequence');
         if ($from) {
             if ($backward) {
-                $query->whereSequence('sequence', '<', $from);
+                $query = $query->where('sequence', '<', $from);
+
             } else {
-                $query->whereSequence('sequence', '>', $from);
+                $query = $query->where('sequence', '>', $from);
             }
         } else {
-            $query->latest();
+            //$query = $query->latest();
         }
         $lobbyMessages = $query->limit(20)->get();
         $usersById = [];
