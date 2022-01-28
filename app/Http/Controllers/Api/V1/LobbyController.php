@@ -73,7 +73,7 @@ class LobbyController extends Controller
     {
         $user = $request->user();
         $lobby = Lobby::where('name', $lobbyName)->first();
-        if ($lobby/* && $lobbyRepository->userHasAccessToLobby($user, $lobby)*/) {
+        if ($lobby&& $lobbyRepository->userHasAccessToLobby($user, $lobby)) {
             $messages = $lobbyRepository->loadPreviousMessages($lobby, $uuid);
             if ($messages !== null) {
                 return $this->success($messages);
