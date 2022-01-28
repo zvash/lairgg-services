@@ -438,23 +438,29 @@ class TournamentRepository extends BaseRepository
     public function getUserTeamsForTournament(User $user, Tournament $tournament)
     {
         $teams = $user->teams()->with('players')->get();
-        $gameId = $tournament->game_id;
         $playerCount = $tournament->players;
         $availableTeams = [];
         $unavailableTeams = [];
+        $informCaptainTeams = [];
         foreach ($teams as $team) {
             if (
                 $team->pivot->captain
                 && $team->players()->count() >= $playerCount
             ) {
                 $availableTeams[] = $team->toArray();
+            } else if (
+                !$team->pivot->captain
+                && $team->players()->count() >= $playerCount
+            ) {
+                $informCaptainTeams[] = $team->toArray();
             } else {
                 $unavailableTeams[] = $team->toArray();
             }
         }
         return [
             'available_teams' => $availableTeams,
-            'unavailable_teams' => $unavailableTeams
+            'unavailable_teams' => $unavailableTeams,
+            'inform_captain_teams' => $informCaptainTeams,
         ];
     }
 

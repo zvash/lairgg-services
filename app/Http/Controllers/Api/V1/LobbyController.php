@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\CoinTossReason;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateCoinTossRequest;
 use App\Http\Requests\CreateDisputeRequest;
@@ -156,5 +157,15 @@ class LobbyController extends Controller
             return $this->success($lobbyRepository->createDisputeFromRequest($request, $lobby));
         }
         return $this->failNotFound();
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function getCoinTossReasons(Request $request)
+    {
+        $reasons = CoinTossReason::query()->pluck('reason')->all();
+        return $this->success($reasons);
     }
 }
