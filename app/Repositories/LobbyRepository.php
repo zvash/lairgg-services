@@ -356,9 +356,18 @@ class LobbyRepository extends BaseRepository
     {
         $lobbyMessage = $this->getCoinTossMessage($lobby, $uuid);
         if ($lobbyMessage) {
+            $rejecterTeam = $this->getUserTeamInLobby($user, $lobby);
             $message = json_decode($lobbyMessage->message, 1);
             if ($message['actions_are_visible_to'] == $user->id && $message['status'] == 'pending') {
                 $message['status'] = 'rejected';
+                $message['rejecter'] = [
+                    'user_id' => $user->id,
+                    'username' => $user->username,
+                ];
+                if ($rejecterTeam) {
+                    $message['rejecter']['team_id'] = $rejecterTeam->id;
+                    $message['rejecter']['team_title'] = $rejecterTeam->title;
+                }
                 $message['is_final'] = true;
                 $message['actions'] = [];
                 $message['actions_are_visible_to'] = 0;
