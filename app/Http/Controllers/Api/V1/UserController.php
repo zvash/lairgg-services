@@ -308,6 +308,7 @@ class UserController extends Controller
     {
         $user = $request->user();
         return $this->success($repository->getUserTeamsForTournament($user, $tournament));
+        return $this->success($repository->getUserTeamsForTournament($user, $tournament));
     }
 
     /**

@@ -330,7 +330,7 @@ class UserRepository extends BaseRepository
     public function deactivate(User $user, string $reason)
     {
         $username = make_random_hash() . '_' . mt_rand(1000000, 9999999);
-        if (User::query()->whereUserName($username)->count()) {
+        if (User::query()->whereUsername($username)->count()) {
             return $this->deactivate($user);
         }
         $email = "{$username}@lairdeletedusers.gg";
