@@ -336,7 +336,7 @@ class UserRepository extends BaseRepository
         $email = "{$username}@lairdeletedusers.gg";
         $data = [
             'first_name' => 'Deleted User',
-            'last_name' => null,
+            'last_name' => '',
             'email' => $email,
             'username' => $username,
             'password' => bcrypt(make_random_hash()),
