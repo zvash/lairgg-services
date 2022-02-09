@@ -23,10 +23,6 @@ class PlayPolicy extends BasePolicy
      */
     public function update(User $user, Play $play)
     {
-        $match = $play->match;
-        if ($match->winner_team_id) {
-            return Response::deny('Match is over.');
-        }
         $tournament = $play->match->tournament;
         if ($this->isAdminOrModeratorOfTournament($user, $tournament)) {
             return Response::allow();
