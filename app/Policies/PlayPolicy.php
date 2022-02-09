@@ -39,30 +39,23 @@ class PlayPolicy extends BasePolicy
      */
     private function userIsCaptainOfTheMatchParty(User $user, Play $play)
     {
-        $participantIds = $play->parties->pluck('team_id')->all();
-        $participantIds[] = 0;
-        $participant = Participant::query()
-            ->whereIn('id', $participantIds)
-            ->where(function (Builder $query) use ($user) {
-                return $query->where('participantable_type', User::class)
-                    ->where('participantable_id', $user->id);
-            })->orWhere(function (Builder $query) use ($user) {
-                $teamIds = $user->teams()->pluck('teams.id');
-                $teamIds[] = 0;
-                return $query->where('participantable_type', Team::class)
-                    ->whereIn('participantable_id', $teamIds);
-            })->first();
-
-        if (!$participant) {
-            return false;
+        $participants = $play->match->getParticipants();
+        foreach ($participants as $participant) {
+            if ($participant->participantable_type == User::class) {
+                if ($participant->participantable_id == $user->id) {
+                    return true;
+                }
+            } else if ($participant->participantable_type == Team::class) {
+                $participantable = $participant->participantable;
+                $userIsCaptain = $participantable->players()
+                        ->where('user_id', $user->id)
+                        ->where('captain', 1)
+                        ->count() > 0;
+                if ($userIsCaptain) {
+                    return true;
+                }
+            }
         }
-        if ($participant->participantable_type == User::class) {
-            return true;
-        }
-        $participantable = $participant->participantable;
-        return $participantable->players()
-                ->where('user_id', $user->id)
-                ->where('captain', 1)
-                ->count() > 0;
+        return false;
     }
 }
