@@ -36,7 +36,7 @@ class CashOutController extends Controller
     {
         $gate = Gate::inspect('get', $cashOut);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
         return $this->success($cashOut);
     }

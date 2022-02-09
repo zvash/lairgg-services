@@ -60,7 +60,7 @@ class OrganizationController extends Controller
         }
         $gate = Gate::inspect('update', $organization);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
 
         list($failed, $validator) = $this->validateEditOrganization($request, $organization);
@@ -112,7 +112,7 @@ class OrganizationController extends Controller
         TournamentRepository $tournamentRepository
     )
     {
-        
+
     }
 
     /**
@@ -131,7 +131,7 @@ class OrganizationController extends Controller
         }
         $gate = Gate::inspect('addAdmin', $organization);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
 
         list($failed, $validator) = $this->validateUserId($request);
@@ -159,7 +159,7 @@ class OrganizationController extends Controller
         }
         $gate = Gate::inspect('addAdmin', $organization);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
 
         list($failed, $validator) = $this->validateUserId($request);

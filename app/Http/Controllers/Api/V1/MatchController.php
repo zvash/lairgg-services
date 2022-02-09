@@ -48,7 +48,7 @@ class MatchController extends Controller
 
         $gate = Gate::inspect('setPlayCount', $match);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
 
         list($failed, $validator) = $this->validateSetGameCount($request);
@@ -78,7 +78,7 @@ class MatchController extends Controller
 
         $gate = Gate::inspect('viewDisputes', $match);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
 
         $disputes = $matchRepository->getDisputes($match);

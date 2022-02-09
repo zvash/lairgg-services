@@ -35,7 +35,7 @@ class PlayController extends Controller
 
         $gate = Gate::inspect('update', $play);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
 
         list($failed, $validator) = $this->validateUpdatePlay($request);
@@ -57,7 +57,7 @@ class PlayController extends Controller
     {
         $gate = Gate::inspect('update', $play);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
         try {
             return $this->success($repository->setPlayScoreWithRequest($request, $play));

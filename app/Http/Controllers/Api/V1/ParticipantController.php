@@ -27,7 +27,7 @@ class ParticipantController extends Controller
         }
         $gate = Gate::inspect('checkIn', $participant);
         if ($gate->denied()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
         if (!$participant->checked_in_at) {
             $participant->setAttribute('checked_in_at', date('Y-m-d H:i:s'))

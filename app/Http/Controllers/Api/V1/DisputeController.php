@@ -30,7 +30,7 @@ class DisputeController extends Controller
 
         $gate = Gate::inspect('closeDispute', $dispute);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
 
         $dispute = $disputeRepository->close($dispute);

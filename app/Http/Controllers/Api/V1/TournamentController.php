@@ -46,7 +46,7 @@ class TournamentController extends Controller
 
         $gate = Gate::inspect('createByOrganization', [Tournament::class, $organization]);
         if ($gate->denied()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
 
         list($failed, $validator) = $this->validateCreateTournament($request);
@@ -75,7 +75,7 @@ class TournamentController extends Controller
 
         $gate = Gate::inspect('update', $tournament);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
 
         list($failed, $validator) = $this->validateEditTournament($request);
@@ -103,7 +103,7 @@ class TournamentController extends Controller
 
         $gate = Gate::inspect('update', $tournament);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
         $tournament = $tournamentRepository->allowCheckIn($tournament);
         return $this->success($tournament);
@@ -119,7 +119,7 @@ class TournamentController extends Controller
     {
         $gate = Gate::inspect('createBracket', $tournament);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
         $bracket = $tournamentRepository->createBracket($tournament);
         if ($bracket) {
@@ -154,7 +154,7 @@ class TournamentController extends Controller
     {
         $gate = Gate::inspect('canUpdateParticipantStatus', $tournament);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
         try {
             return $this->success($repository->updateParticipantStatus($request, $tournament, $status));
@@ -384,7 +384,7 @@ class TournamentController extends Controller
 
         $gate = Gate::inspect('canAddParticipants', $tournament);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
 
         $this->validateJoinParticipantsRequest($request, $participantable);
@@ -442,7 +442,7 @@ class TournamentController extends Controller
     {
         $gate = Gate::inspect('canInviteParticipant', $tournament);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
 
         list($identifier, $user) = $this->validateParticipantIdentifier($request);

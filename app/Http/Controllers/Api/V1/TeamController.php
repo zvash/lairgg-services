@@ -45,7 +45,7 @@ class TeamController extends Controller
     {
         $gate = Gate::inspect('canUpdate', $team);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
         return $this->success($teamRepository->updateTeam($request, $team));
     }
@@ -70,7 +70,7 @@ class TeamController extends Controller
     {
         $gate = Gate::inspect('canInviteParticipant', $team);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
 
         list($identifier, $user) = $this->validateParticipantIdentifier($request);
@@ -103,7 +103,7 @@ class TeamController extends Controller
         $validated = $request->validated();
         $gate = Gate::inspect('canPromoteToCaptain', $team);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
 
         try {
@@ -124,7 +124,7 @@ class TeamController extends Controller
         $validated = $request->validated();
         $gate = Gate::inspect('canRemovePlayer', $team);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
 
         if ($validated['user_id'] == $request->user()->id) {
@@ -164,7 +164,7 @@ class TeamController extends Controller
     {
         $gate = Gate::inspect('canDeleteTeam', $team);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
 
         try {
@@ -217,7 +217,7 @@ class TeamController extends Controller
     {
         $gate = Gate::inspect('canAccessJoinUrl', $team);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
         return $this->success(['url' => $repository->getJoinUrl($team)]);
     }
@@ -232,7 +232,7 @@ class TeamController extends Controller
     {
         $gate = Gate::inspect('canSetJoinUrl', $team);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
         return $this->success($repository->setJoinUrl($team));
     }
@@ -292,7 +292,7 @@ class TeamController extends Controller
     {
         $gate = Gate::inspect('canCancelInvitation', $team);
         if (!$gate->allowed()) {
-            return $this->failMessage($gate->message(), HttpStatusCode::UNAUTHORIZED);
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
         $validated = $request->validated();
         $repository->cancelTeamInvitation(
