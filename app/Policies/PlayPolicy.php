@@ -17,8 +17,8 @@ class PlayPolicy extends BasePolicy
     /**
      * Determine whether the user can update the model.
      *
-     * @param  \App\User $user
-     * @param  \App\Play $play
+     * @param \App\User $user
+     * @param \App\Play $play
      * @return mixed
      */
     public function update(User $user, Play $play)
@@ -57,13 +57,16 @@ class PlayPolicy extends BasePolicy
                     ->whereIn('participantable_id', $teamIds);
             })->first();
 
+        if (!$participant) {
+            return false;
+        }
         if ($participant->participantable_type == User::class) {
             return true;
         }
         $participantable = $participant->participantable;
         return $participantable->players()
-            ->where('user_id', $user->id)
-            ->where('captain', 1)
-            ->count() > 0;
+                ->where('user_id', $user->id)
+                ->where('captain', 1)
+                ->count() > 0;
     }
 }
