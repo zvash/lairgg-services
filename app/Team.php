@@ -104,6 +104,14 @@ class Team extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function balances()
+    {
+        return $this->hasMany(TeamBalance::class);
+    }
+
+    /**
      * @return int
      */
     public function getPlayerCountAttribute()

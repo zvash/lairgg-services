@@ -8,6 +8,7 @@ use App\Http\Requests\CancelInvitationRequest;
 use App\Http\Requests\JoinTeamByUrlRequest;
 use App\Http\Requests\PromoteToCaptainRequest;
 use App\Http\Requests\RemoveFromTeamRequest;
+use App\Http\Requests\ShareGemRequest;
 use App\Http\Requests\StoreTeamRequest;
 use App\Http\Requests\UpdateTeamRequest;
 use App\Player;
@@ -48,6 +49,28 @@ class TeamController extends Controller
             return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
         return $this->success($teamRepository->updateTeam($request, $team));
+    }
+
+    /**
+     * @param ShareGemRequest $request
+     * @param Team $team
+     * @param TeamRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function shareGems(ShareGemRequest $request, Team $team, TeamRepository $repository)
+    {
+        $gate = Gate::inspect('canShareGem', $team);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
+        }
+        $validated = $request->validated();
+        $slices = $validated['slices'];
+        $balanceId = $validated['balance_id'];
+        try {
+            return $this->success(['remained_gems' => $repository->shareGems($team, $balanceId, $slices)]);
+        } catch (\Exception $exception) {
+            return $this->failMessage('Operation was failed', 400);
+        }
     }
 
     /**
@@ -182,7 +205,8 @@ class TeamController extends Controller
      */
     public function overview(Request $request, Team $team, TeamRepository $repository)
     {
-        return $this->success($repository->overview($team));
+        $viewer = $request->user();
+        return $this->success($repository->overview($team, $viewer));
     }
 
     /**

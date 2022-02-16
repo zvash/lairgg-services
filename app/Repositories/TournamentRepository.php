@@ -14,9 +14,11 @@ use App\Organization;
 use App\Participant;
 use App\Party;
 use App\Team;
+use App\TeamBalance;
 use App\Tournament;
 use App\TournamentType;
 use App\User;
+use App\UserBalance;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -814,6 +816,44 @@ class TournamentRepository extends BaseRepository
             return $participant;
         }
         throw new \Exception('This operation is not performable');
+    }
+
+    /**
+     * @param Tournament $tournament
+     * @return string
+     */
+    public function releaseGems(Tournament $tournament)
+    {
+        if (!$tournament->hasFinished()) {
+            return 'Tournament has not finished yet.';
+        }
+        $participantsByRank = $tournament->getRankedParticipants();
+        $gemsByRank = $tournament->getGemPrizesByRank();
+        foreach ($gemsByRank as $rank => $points) {
+            if (isset($participantsByRank[$rank])) {
+                $participant = $participantsByRank[$rank];
+                try {
+                    if ($participant->participantable_type == Team::class) {
+                        TeamBalance::query()
+                            ->create([
+                                'tournament_id' => $tournament->id,
+                                'team_id' => $participant->participantable_id,
+                                'points' => $points,
+                            ]);
+                    } else if ($participant->participantable_type == User::class) {
+                        UserBalance::query()
+                            ->create([
+                                'tournament_id' => $tournament->id,
+                                'user_id' => $participant->participantable_id,
+                                'points' => $points,
+                            ]);
+                    }
+                } catch (\Exception $exception) {
+                    return 'Already Released';
+                }
+            }
+        }
+        return 'done';
     }
 
     /**

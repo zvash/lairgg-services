@@ -167,6 +167,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->get('{team}/search', 'TeamController@searchUser');
                     $router->post('{team}/cancel-invitation', 'TeamController@cancelInvitation');
 
+                    $router->post('{team}/share-gems', 'TeamController@shareGems');
+
                 });
 
                 $router->group(['prefix' => 'players'], function ($router) {

@@ -197,6 +197,97 @@ class Tournament extends Model
     }
 
     /**
+     * get final match of the tournament
+     *
+     * @return Match|\Illuminate\Database\Eloquent\Relations\HasMany|object|null
+     */
+    public function getFinalMatch()
+    {
+        return $this->matches()->latest()->first();
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasFinished()
+    {
+        return !!$this->getFinalMatch()->winner_team_id;
+
+    }
+
+    /**
+     * @return array
+     */
+    public function getGemPrizesByRank()
+    {
+        $gemType = ValueType::query()
+            ->where('title', 'Point')
+            ->first();
+        $prizes = $this->prizes()
+            ->where('value_type_id', $gemType->id)
+            ->get()
+            ->all();
+        if (! $prizes) {
+            return [];
+        }
+
+        $sumOfGemPrizeByRank = [];
+        foreach ($prizes as $prize) {
+            if (!array_key_exists($prize['rank'], $sumOfGemPrizeByRank)) {
+                $sumOfGemPrizeByRank[$prize['rank']] = 0;
+            }
+            $sumOfGemPrizeByRank[$prize['rank']] += $prize['value'];
+        }
+        return $sumOfGemPrizeByRank;
+    }
+
+    /**
+     * @return Match[]|\Illuminate\Database\Eloquent\Collection
+     */
+    public function getRankedMatches()
+    {
+        $finalMatch = $this->getFinalMatch();
+        $matches = [$finalMatch->id];
+        $this->addToRankedMatches($finalMatch, $matches);
+        return Match::query()
+            ->whereIn('id', $matches)
+            ->get();
+    }
+
+    /**
+     * @return array
+     */
+    public function getRankedParticipants()
+    {
+        $matches = $this->getRankedMatches();
+        $participantsByRank = [];
+        foreach ($matches as $match) {
+            $winnerAndLosers = $match->getWinnerAndLosers();
+            $winnerRank = $match->getWinnerRank();
+            if ($winnerRank && $winnerAndLosers && !empty($winnerAndLosers['winner_id'])) {
+                $participantsByRank[$winnerRank] = Participant::find($winnerAndLosers['winner_id']);
+            }
+            $loserRank = $match->getLoserRank();
+            if ($loserRank && $winnerAndLosers && !empty($winnerAndLosers['losers_ids'])) {
+                $participantsByRank[$loserRank] = Participant::find($winnerAndLosers['losers_ids'][0]);
+            }
+        }
+        ksort($participantsByRank);
+        return $participantsByRank;
+    }
+
+    protected function addToRankedMatches(Match $currentMatch, array &$matches)
+    {
+        $previousMatches = $currentMatch->getPreviousMatches() ?? [];
+        foreach ($previousMatches as $match) {
+            if ($match->getLoserRank() || $match->getWinnerRank()) {
+                $matches[] = $match->id;
+                $this->addToRankedMatches($match, $matches);
+            }
+        }
+    }
+
+    /**
      * @return Builder|\Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function authenticatedUserMatches()

@@ -13,6 +13,7 @@ use App\Participant;
 use App\Player;
 use App\Prize;
 use App\Team;
+use App\TeamBalance;
 use App\Tournament;
 use App\User;
 use Illuminate\Http\Request;
@@ -74,9 +75,10 @@ class TeamRepository extends BaseRepository
 
     /**
      * @param Team $team
+     * @param User $viewer
      * @return array
      */
-    public function overview(Team $team)
+    public function overview(Team $team, User $viewer)
     {
         $participantsIdsByTournamentIds = Participant::query()
             ->where('participantable_type', \App\Team::class)
@@ -104,6 +106,7 @@ class TeamRepository extends BaseRepository
         ];
         $gemCount = 0;
         $pointTypeId = \App\ValueType::whereTitle('Point')->first()->id;
+        $teamRankByTournament = [];
         foreach ($matchesIdsByTournamentIds as $matchId) {
             $match = Match::find($matchId);
             if ($match && $match->winner_team_id) {
@@ -119,13 +122,33 @@ class TeamRepository extends BaseRepository
                         ->where('rank', $rank)
                         ->sum('value');
                 }
+                if ($rank) {
+                    $teamRankByTournament[$match->tournament_id] = $rank;
+                }
             }
         }
+        $balances = $team->balances()->whereTeamId($team->id)->where('points', '>', 0)->get();
+        $availableGems = [];
+        foreach ($balances as $balance) {
+            if (isset($teamRankByTournament[$balance->tournament_id])) {
+                $availableGems[] = [
+                    'balance_id' => $balance->id,
+                    'tournament_id' => $balance->tournament_id,
+                    'team_id' => $team->id,
+                    'tournament_title' => $balance->tournament->title,
+                    'gems' => $balance->points,
+                    'rank' => $teamRankByTournament[$balance->tournament_id],
+                ];
+            }
+        }
+
         $result = $team->load(['players', 'links'])->toArray();
         $result += [
             'number_of_tournaments' => $numberOfTournaments,
             'ranks' => $ranksCount,
             'gems' => $gemCount,
+            'viewer_is_captain' => $viewer->id == $team->players()->whereCaptain(1)->first()->user_id,
+            'available_gems' => $availableGems,
         ];
         return $result;
     }
@@ -321,6 +344,46 @@ class TeamRepository extends BaseRepository
             DB::rollBack();
             throw new \Exception('Team was not removed');
         }
+    }
+
+    /**
+     * @param Team $team
+     * @param int $balanceId
+     * @param array $slices
+     * @return mixed
+     * @throws \Exception
+     */
+    public function shareGems(Team $team, int $balanceId, array $slices)
+    {
+        $playerUserIds = $team->players->pluck('user_id')->all();
+        $sumOfGems = 0;
+        foreach ($slices as $slice) {
+            if (! in_array($slice['user_id'], $playerUserIds)) {
+                throw new \Exception('User is not a member of the team.');
+            }
+            $sumOfGems += $slice['gems'];
+        }
+        $currentGems = 0;
+        $balance = TeamBalance::whereId($balanceId)->whereTeamId($team->id)->first();
+        if ($balance) {
+            $currentGems = $balance->points;
+        }
+        if ($sumOfGems > $currentGems) {
+            throw new \Exception('Insufficient gems.');
+        }
+        try {
+            DB::beginTransaction();
+            $balance->refresh();
+            $balance->setAttribute('points', $currentGems - $sumOfGems)->save();
+            foreach ($slices as $slice) {
+                User::find($slice['user_id'])->points($slice['gems']);
+            }
+            DB::commit();
+            return $team->balance->gems;
+        } catch (\Exception $exception) {
+            DB::rollBack();
+        }
+        return TeamBalance::find($balanceId)->points;
     }
 
     /**

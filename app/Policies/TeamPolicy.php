@@ -28,6 +28,18 @@ class TeamPolicy
      * @param Team $team
      * @return Response
      */
+    public function canShareGem(User $user, Team $team)
+    {
+        return $this->userIsCaptain($user, $team)
+            ? Response::allow()
+            : Response::deny('Only captains can share gems');
+    }
+
+    /**
+     * @param User $user
+     * @param Team $team
+     * @return Response
+     */
     public function canRemovePlayer(User $user, Team $team)
     {
         return $this->userIsCaptain($user, $team)
