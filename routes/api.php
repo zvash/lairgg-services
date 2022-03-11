@@ -269,6 +269,7 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->get('/{lobbyName}/user', 'LobbyController@getUserByLobbyName');
                     $router->get('/{lobbyName}/latest', 'LobbyController@latest');
                     $router->get('/{lobbyName}/uuid/{uuid}', 'LobbyController@loadPrevious');
+                    $router->get('/{lobbyName}/uuid/{uuid}/latest', 'LobbyController@loadNext');
 
                     $router->get('/coin-toss-reasons', 'LobbyController@getCoinTossReasons');
 

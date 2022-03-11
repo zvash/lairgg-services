@@ -208,13 +208,27 @@ class LobbyRepository extends BaseRepository
     }
 
     /**
-     * @param User $user
+     * @param Lobby $lobby
+     * @param string $uuid
+     * @return array|null
+     */
+    public function loadNextMessages(Lobby $lobby, string $uuid)
+    {
+        $message = $lobby->messages()->whereUuid($uuid)->first();
+        if (!$message) {
+            return null;
+        }
+        return $this->getMessages($lobby, false, $message->sequence, 0);
+    }
+
+    /**
      * @param Lobby $lobby
      * @param bool $backward
      * @param int $from
+     * @param int $limit
      * @return array
      */
-    public function getMessages(Lobby $lobby, bool $backward = true, $from = 0)
+    public function getMessages(Lobby $lobby, bool $backward = true, $from = 0, int $limit = 20)
     {
         $query = $lobby->messages()->latest('sequence');
         if ($from) {
@@ -227,7 +241,11 @@ class LobbyRepository extends BaseRepository
         } else {
             //$query = $query->latest();
         }
-        $lobbyMessages = $query->limit(20)->get();
+        if ($limit) {
+            $lobbyMessages = $query->limit($limit)->get();
+        } else {
+            $lobbyMessages = $query->get();
+        }
         $usersById = [];
         $teamsById = [];
         $messages = [];
