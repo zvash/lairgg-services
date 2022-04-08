@@ -22,12 +22,12 @@ class BannerController extends Controller
         $team = Team::first();
 
         $result = [
-            [
-                'id' => 1,
-                'type' => 'tournament',
-                'value' => $tournament->id,
-                'image' => $tournament->cover
-            ],
+//            [
+//                'id' => 1,
+//                'type' => 'tournament',
+//                'value' => $tournament->id,
+//                'image' => $tournament->cover
+//            ],
             [
                 'id' => 2,
                 'type' => 'team',
