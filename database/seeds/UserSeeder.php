@@ -83,7 +83,7 @@ class UserSeeder extends Seeder
                 'email' => 'ace@lair.gg',
                 'username' => 'ace',
                 'timezone' => 'Europe/Lisbon',
-                //'avatar' => 'users/avatars/ace.jpeg',
+                'avatar' => 'users/avatars/ahson.jpeg',
                 'cover' => 'users/covers/valorant.jpeg',
             ],
             [
@@ -92,7 +92,7 @@ class UserSeeder extends Seeder
                 'email' => 'siavash@lair.gg',
                 'username' => 'siavash',
                 'timezone' => 'Asia/Tehran',
-                //'avatar' => 'users/avatars/siavash.jpeg',
+                'avatar' => 'users/avatars/siavash.jpeg',
                 'cover' => 'users/covers/valorant.jpeg',
             ],
         ];
