@@ -77,6 +77,24 @@ class UserSeeder extends Seeder
                 'avatar' => 'users/avatars/farbod.jpeg',
                 'cover' => 'users/covers/valorant.jpeg',
             ],
+            [
+                'first_name' => 'Ehsan',
+                'last_name' => 'Jalali',
+                'email' => 'ace@lair.gg',
+                'username' => 'ace',
+                'timezone' => 'Europe/Lisbon',
+                'avatar' => 'users/avatars/ace.jpeg',
+                'cover' => 'users/covers/valorant.jpeg',
+            ],
+            [
+                'first_name' => 'Siavash',
+                'last_name' => 'Hekmatnia',
+                'email' => 'siavash@lair.gg',
+                'username' => 'siavash',
+                'timezone' => 'Asia/Tehran',
+                'avatar' => 'users/avatars/siavash.jpeg',
+                'cover' => 'users/covers/valorant.jpeg',
+            ],
         ];
     }
 }

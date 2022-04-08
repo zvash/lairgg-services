@@ -21,7 +21,9 @@ class BasePolicy
             'hossein@edoramedia.com',
             'ali.shafiee@edoramedia.com',
             'ilyad@edoramedia.com',
-            'farbod@edoramedia.com'
+            'farbod@edoramedia.com',
+            'siavash@lair.gg',
+            'ace@lair.gg',
         ]);
         return $authorized ? $authorized : null;
     }
