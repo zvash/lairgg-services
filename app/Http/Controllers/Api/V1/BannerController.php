@@ -38,7 +38,7 @@ class BannerController extends Controller
                 'id' => 3,
                 'type' => 'web',
                 'value' => 'https://google.com',
-                'image' => $tournament->cover
+                'image' => $team->cover
             ],
         ];
 
