@@ -38,7 +38,7 @@ class BannerController extends Controller
                 'id' => 3,
                 'type' => 'web',
                 'value' => 'https://google.com',
-                'image' => Team::find(2)->cover
+                'image' => Team::find(8)->cover
             ],
         ];
 
