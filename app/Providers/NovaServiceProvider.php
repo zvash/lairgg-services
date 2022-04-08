@@ -64,6 +64,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
                 'ilyad@edoramedia.com',
                 'farbod@edoramedia.com',
                 'siavash.hekmatnia@gmail.com',
+                'siavash@lair.gg',
                 'ace@lair.gg'
             ]);
         });
