@@ -38,11 +38,13 @@ class CreateTeam implements ShouldQueue
      */
     public function handle()
     {
-        $team = $this->createTeam(1);
-        for ($j = 1; $j <= 5; $j++) {
-            $user = $this->createUser();
-            $isCaptain = $j == 1;
-            $team->players()->attach($user->id, ['captain' => $isCaptain]);
+        for ($i = 1; $i <= 8; $i++) {
+            $team = $this->createTeam(1);
+            for ($j = 1; $j <= 5; $j++) {
+                $user = $this->createUser();
+                $isCaptain = $j == 1;
+                $team->players()->attach($user->id, ['captain' => $isCaptain]);
+            }
         }
     }
 
