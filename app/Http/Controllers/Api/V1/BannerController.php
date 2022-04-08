@@ -29,7 +29,7 @@ class BannerController extends Controller
 //                'image' => $tournament->cover
 //            ],
             [
-                'id' => 2,
+                'id' => 3,
                 'type' => 'team',
                 'value' => $team->id,
                 'image' => $team->cover
