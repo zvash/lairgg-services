@@ -46,7 +46,7 @@ class CreateTeam implements ShouldQueue
 //                $team->players()->attach($user->id, ['captain' => $isCaptain]);
 //            }
 //        }
-        $teams = Team::whereNull('logo');
+        $teams = Team::whereNull('logo')->get();
         foreach ($teams as $team) {
             $logo = $this->saveImage('teams/logos', 400, 400);
             $cover = $this->saveImage('teams/covers', 640, 400);
@@ -54,7 +54,7 @@ class CreateTeam implements ShouldQueue
             $team->cover = $cover;
             $team->save();
         }
-        $users = User::whereNull('avatar');
+        $users = User::whereNull('avatar')->get();
         foreach ($users as $user) {
             $user->avatar = $this->saveImage('users/avatars', 400, 400);
             $user->cover = $this->saveImage('users/covers', 640, 480);
