@@ -335,7 +335,7 @@ class TournamentController extends Controller
     public function upcoming(Request $request, TournamentRepository $tournamentRepository)
     {
         $user = Auth::user();
-        $tournaments = $tournamentRepository->getTomorrowTournaments($user, 10);
+        $tournaments = $tournamentRepository->getUpcomingTournaments($user, 10);
         return $this->success($tournaments);
     }
 
