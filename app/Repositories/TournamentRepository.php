@@ -682,6 +682,22 @@ class TournamentRepository extends BaseRepository
     }
 
     /**
+     * Tournaments that will start tomorrow
+     *
+     * @param User $user
+     * @param int $paginate
+     * @return array|\Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getUpcomingTournaments(User $user, int $paginate = 0)
+    {
+        $tournaments = $this->withGames(Tournament::upcoming(), $user);
+        if ($paginate) {
+            return $tournaments->paginate($paginate);
+        }
+        return $tournaments->get()->toArray();
+    }
+
+    /**
      * Tournaments that will start 2 days ahead
      *
      * @param User $user
