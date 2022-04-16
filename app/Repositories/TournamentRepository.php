@@ -825,6 +825,11 @@ class TournamentRepository extends BaseRepository
         if (! $participant) {
             throw new \Exception('User is not a participant of this tournament');
         }
+
+        if (! in_array($participant->status, [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])) {
+            throw new \Exception('You are not accepted yet');
+        }
+
         //check if user has privilege
         if (! $this->userIsInChargeOfParticipant($user, $participant)) {
             throw new \Exception('User has not enough privilege to decide for the tournament participant');
