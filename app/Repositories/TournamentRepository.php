@@ -19,6 +19,7 @@ use App\Tournament;
 use App\TournamentType;
 use App\User;
 use App\UserBalance;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -809,6 +810,33 @@ class TournamentRepository extends BaseRepository
             ->update(['team_id' => null]);
         $participant->delete();
         return true;
+    }
+
+    /**
+     * @param User $user
+     * @param Tournament $tournament
+     * @return Participant|\Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|object|null
+     * @throws \Exception
+     */
+    public function checkUserInTournament(User $user, Tournament $tournament)
+    {
+        //get participant
+        $participant = $this->getuserparticipantintournament($user, $tournament);
+        if (! $participant) {
+            throw new \Exception('User is not a participant of this tournament');
+        }
+        //check if user has privilege
+        if (! $this->userIsInChargeOfParticipant($user, $participant)) {
+            throw new \Exception('User has not enough privilege to decide for the tournament participant');
+        }
+        //check if tournament is started
+        if ($this->tournamentIsStarted($tournament)) {
+            throw new \Exception('User cannot check in an already started tournament');
+        }
+        $participant->checked_in_at = Carbon::now();
+        $participant->save();
+        //$tournament->engine()->assignParticipantToFirstEmptyMatch($participant);
+        return $participant;
     }
 
     /**

@@ -435,6 +435,16 @@ class TournamentController extends Controller
         }
     }
 
+    public function checkInTournament(Request $request, Tournament $tournament, TournamentRepository $repository)
+    {
+        $user = $request->user();
+        try {
+            return $this->success($repository->checkUserInTournament($user, $tournament));
+        } catch (\Exception $exception) {
+            return $this->failMessage($exception->getMessage(), 400);
+        }
+    }
+
     /**
      * @param Tournament $tournament
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response

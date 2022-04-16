@@ -141,6 +141,7 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->post('/{tournament}/join', 'TournamentController@joinRequest');
                     $router->post('/{tournament}/leave', 'TournamentController@leaveTournament');
+                    $router->post('/{tournament}/check-in', 'TournamentController@checkInTournament');
 
                 });
 
