@@ -21,9 +21,9 @@ Route::post('login', 'LoginController@login');
 Route::get('{provider}/login', 'LoginController@index');
 Route::get('login/{provider}', 'LoginController@redirectToProvider');
 Route::get('{provider}/callback', 'LoginController@handleProviderCallback');
-Route::get('/home', function () {
-    return 'User is logged in';
-});
+//Route::get('/home', function () {
+//    return 'User is logged in';
+//});
 
 Route::get('/users/{user}/social', 'LoginController@singleUrlLogin')->name('login.single_url');
 Route::get('/users/social/login', 'LoginController@finishSocialLogin')->name('login.social');
