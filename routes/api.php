@@ -25,7 +25,7 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
             $router->post('/register', 'UserController@store');
 
-            $router->get('/verify/{user}', 'VerificationController@verify')->name('verification.verify');
+            $router->get('/verify/{user}', 'VerificationController@verify')->name('verification.verified');
 
         });
 
