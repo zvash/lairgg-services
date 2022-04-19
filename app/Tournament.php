@@ -116,6 +116,7 @@ class Tournament extends Model
         'region_title',
         'accepted_count',
         'tournament_game',
+        'organization_logo',
     ];
 
     /**
@@ -556,6 +557,14 @@ class Tournament extends Model
     public function getTournamentGameAttribute()
     {
         return $this->game()->get(['title', 'logo'])->first();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOrganizationLogoAttribute()
+    {
+        return $this->organization->logo;
     }
 
     /**
