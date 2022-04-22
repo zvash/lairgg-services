@@ -77,7 +77,7 @@ class UserController extends Controller
         try {
             $setKeys = $this->setMissingFields($validated, $user);
             $user->save();
-            if (array_key_exists('email', $setKeys)) {
+            if (in_array('email', $setKeys)) {
                 $this->dispatchUserJobs($user);
             }
             return $this->success(new UserResource($user));
