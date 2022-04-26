@@ -103,7 +103,15 @@ class ForgotPasswordController extends Controller
     {
         $request->validate([
             'email' => 'required|email:rfc,dns|exists:users,email',
-            'password' => 'required|confirmed|min:8',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'regex:/[a-z]/',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[@$!%*#?&]/',
+            ],
             'token' => 'required|filled'
         ]);
     }
