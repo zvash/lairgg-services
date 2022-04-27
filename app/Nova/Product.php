@@ -141,7 +141,7 @@ class Product extends Resource
                         return 'Deactive';
                 }
             })->map([
-                'Deactivated' => 'danger',
+                'Deactive' => 'danger',
                 'Active' => 'success',
                 'Coming Soon' => 'warning',
             ])->exceptOnForms(),
