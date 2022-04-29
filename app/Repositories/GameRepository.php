@@ -35,7 +35,7 @@ class GameRepository extends BaseRepository
      */
     public function addUserGame(User $user, int $gameId)
     {
-        if(! $user->games()->where('game_id', 1)->first()) {
+        if(! $user->games()->where('game_id', $gameId)->first()) {
             $user->games()->attach([['game_id' => $gameId, 'username' => $user->username]]);
         }
         return $user->games()->get();
