@@ -256,7 +256,7 @@ class UserController extends Controller
                 $userGames = $gameRepository->removeUserGame($user, $game->id);
                 return $this->success($userGames);
             } catch (\Exception $exception) {
-                return  $this->failMessage($exception->getMessage(), 400);  
+                return  $this->failMessage($exception->getMessage(), 400);
             }
 
         }

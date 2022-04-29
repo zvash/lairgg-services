@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Enums\OrderStatus;
+use App\Enums\ParticipantAcceptanceState;
 use App\Http\Requests\UpdateUserRequest;
 use App\Match;
 use App\Participant;
@@ -80,15 +81,17 @@ class UserRepository extends BaseRepository
     {
         $userTeams = $user->teams()->pluck('teams.id')->all();
         $participants = Participant::query()
-            ->where(function (Builder $query) use ($user) {
-                return $query->where('participantable_type', User::class)
-                    ->where('participantable_id', $user->id);
-            })
-            ->orWhere(function (Builder $query) use ($userTeams) {
-                return $query->where('participantable_type', Team::class)
-                    ->whereIn('participantable_id', $userTeams);
-            })
-            ->get();
+            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
+            ->where(function (Builder $query) use ($userTeams, $user) {
+                return $query->where(function (Builder $query) use ($user) {
+                    return $query->where('participantable_type', User::class)
+                        ->where('participantable_id', $user->id);
+                })
+                    ->orWhere(function (Builder $query) use ($userTeams) {
+                        return $query->where('participantable_type', Team::class)
+                            ->whereIn('participantable_id', $userTeams);
+                    });
+            })->get();
         $participantsIdsByTournamentIds = $participants->pluck('id', 'tournament_id')->all();
         $participantsIds = array_values($participantsIdsByTournamentIds);
         $matches = Match::query()

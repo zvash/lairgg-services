@@ -952,13 +952,15 @@ class TournamentRepository extends BaseRepository
     protected function userTournamentsQueryBuilder(User $user)
     {
         $tournaments = Tournament::whereHas('participants', function (Builder $participants) use ($user) {
-            $participants->whereHasMorph('participantable', [Team::class, User::class], function (Builder $participantable, $type) use ($user) {
+            $participants->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
+                ->whereHasMorph('participantable', [Team::class, User::class], function (Builder $participantable, $type) use ($user) {
                 if ($type == Team::class) {
                     $participantable->whereHas('players', function (Builder $players) use ($user) {
                         $players->where('user_id', $user->id);
                     });
                 } else {
-                    $participantable->where('participantable_id', $user->id);
+                    $participantable->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
+                        ->where('participantable_id', $user->id);
                 }
             });
         });
