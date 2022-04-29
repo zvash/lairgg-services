@@ -45,11 +45,15 @@ class GameRepository extends BaseRepository
      * @param User $user
      * @param int $gameId
      * @return \Illuminate\Database\Eloquent\Collection
+     * @throws \Exception
      */
     public function removeUserGame(User $user, int $gameId)
     {
-        $user->games()->detach([$gameId]);
-        return $user->games()->get();
+        if ($user->games()->get()->count() > 3) {
+            $user->games()->detach([$gameId]);
+            return $user->games()->get();
+        }
+        throw new \Exception('Followed gamed cannot be less than three!');
     }
 
     /**
