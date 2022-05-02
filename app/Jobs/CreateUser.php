@@ -12,7 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
-class CreateTeam implements ShouldQueue
+class CreateUser implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -48,9 +48,9 @@ class CreateTeam implements ShouldQueue
 //                $team->players()->attach($user->id, ['captain' => $isCaptain]);
 //            }
 //        }
-        for ($i = 1; $i <= $this->count; $i++) {
-            $this->createUser();
-        }
+//        for ($i = 1; $i <= $this->count; $i++) {
+//            $this->createUser();
+//        }
         $users = User::whereNull('avatar')->get();
         foreach ($users as $user) {
             $user->avatar = $this->saveImage('users/avatars', 400, 400);
