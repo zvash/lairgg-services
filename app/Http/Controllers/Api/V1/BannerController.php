@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Banner;
 use App\Http\Controllers\Controller;
 use App\Team;
 use App\Tournament;
@@ -18,30 +19,24 @@ class BannerController extends Controller
      */
     public function all(Request $request)
     {
-        $tournament = Tournament::first();
-        $team = Team::first();
-
-        $result = [
-//            [
-//                'id' => 1,
-//                'type' => 'tournament',
-//                'value' => $tournament->id,
-//                'image' => $tournament->cover
-//            ],
-            [
-                'id' => 3,
-                'type' => 'team',
-                'value' => $team->id,
-                'image' => $team->cover
-            ],
-            [
-                'id' => 3,
-                'type' => 'web',
-                'value' => 'https://google.com',
-                'image' => Team::find(8)->cover
-            ],
+        $map = [
+            'App\BannerUrl' => 'web',
+            'App\Tournament' => 'tournament',
+            'App\Team' => 'team',
         ];
+        $banners = Banner::with('bannerable')->get();
 
-        return $this->success($result);
+        $results = [];
+        foreach ($banners as $banner) {
+            $results[] = [
+                'id' => $banner->id,
+                'type' => $map[$banner->bannerable_type],
+                'value' => $map[$banner->bannerable_type] == 'web' ? $banner->bannerable->url : $banner->bannerable_id,
+                'image' => $banner->image,
+            ];
+        }
+
+
+        return $this->success($results);
     }
 }
