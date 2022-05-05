@@ -38,6 +38,6 @@ class OrderWasShippedMail extends Mailable implements ShouldQueue
             'username' => $this->order->user->username,
             'order' => $this->order,
         ];
-        return $this->markdown('emails.order_is_shipping', $params);
+        return $this->subject($this->subject)->markdown('emails.order_is_shipping', $params);
     }
 }
