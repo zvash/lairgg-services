@@ -12,6 +12,8 @@ class OrderWasShippedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
+    public $subject = 'Lair.GG Shipped Your Order';
+
     protected $order;
 
     /**

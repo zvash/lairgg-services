@@ -160,7 +160,7 @@ class Order extends Resource
 
             Text::make('Phone')
                 ->hideFromIndex()
-                ->required()
+                //->required()
                 ->rules('required', 'max:30'),
 
             Place::make('Address')
