@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Game;
 use App\Gender;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DeleteProfileImagesRequest;
 use App\Http\Requests\DeleteUserRequest;
 use App\Http\Requests\SetIdentifiersRequest;
 use App\Http\Requests\StoreUser;
@@ -50,6 +51,17 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, UserRepository $repository)
     {
         $user = $repository->updateProfile($request);
+        return $this->success($user);
+    }
+
+    /**
+     * @param DeleteProfileImagesRequest $request
+     * @param UserRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function removeImages(DeleteProfileImagesRequest $request, UserRepository $repository)
+    {
+        $user = $repository->deleteProfileImages($request);
         return $this->success($user);
     }
 

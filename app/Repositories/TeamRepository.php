@@ -6,6 +6,7 @@ namespace App\Repositories;
 use App\Game;
 use App\Http\Requests\StoreTeamRequest;
 use App\Http\Requests\UpdateTeamRequest;
+use App\Invitation;
 use App\Link;
 use App\LinkType;
 use App\Match;
@@ -337,6 +338,8 @@ class TeamRepository extends BaseRepository
             foreach ($players as $player) {
                 $this->removeFromTeam($team, $player->user_id);
             }
+            Invitation::query()->where('invite_aware_type', 'App\Team')
+                ->where('invite_aware_id', $team->id)->delete();
             $team->delete();
             DB::commit();
             return 'done';

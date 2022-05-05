@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Enums\OrderStatus;
 use App\Enums\ParticipantAcceptanceState;
+use App\Http\Requests\DeleteProfileImagesRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Match;
 use App\Participant;
@@ -14,6 +15,7 @@ use App\TournamentAnnouncement;
 use App\User;
 use App\UserLastTournamentAnnouncement;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Storage;
 
 class UserRepository extends BaseRepository
 {
@@ -71,6 +73,26 @@ class UserRepository extends BaseRepository
             ->where('id', $user->id)
             ->update($validated);
         return User::find($user->id);
+    }
+
+    /**
+     * @param DeleteProfileImagesRequest $request
+     * @return mixed
+     */
+    public function deleteProfileImages(DeleteProfileImagesRequest $request)
+    {
+        $user = $request->user();
+        $validated = $request->validated();
+        if (!empty($validated['avatar'])) {
+            Storage::delete($user->avatar);
+            $user->avatar = null;
+        }
+        if (!empty($validated['cover'])) {
+            Storage::delete($user->cover);
+            $user->cover = null;
+        }
+        $user->save();
+        return $user;
     }
 
     /**
