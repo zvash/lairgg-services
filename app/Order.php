@@ -104,6 +104,14 @@ class Order extends Model
     }
 
     /**
+     * @return bool
+     */
+    public function isShipped()
+    {
+        return $this->status == OrderStatus::SHIPPED;
+    }
+
+    /**
      * @return string|null
      */
     public function getCountryNameAttribute()

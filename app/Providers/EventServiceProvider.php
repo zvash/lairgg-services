@@ -5,9 +5,11 @@ namespace App\Providers;
 
 use App\CashOut;
 use App\Events\InvitationCreated;
+use App\Events\OrderStatusWasChangedToShipped;
 use App\Events\ParticipantStatusWasUpdated;
 use App\Listeners\EmailInvitation;
 use App\Listeners\SendCustomEmailVerificationNotification;
+use App\Listeners\SendOrderWasShippedEmail;
 use App\Listeners\UpdateBracketWithNewlyAcceptedParticipant;
 use App\Observers\CashOutObserver;
 use App\Observers\OrderObserver;
@@ -31,6 +33,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         ParticipantStatusWasUpdated::class => [
             UpdateBracketWithNewlyAcceptedParticipant::class,
+        ],
+        OrderStatusWasChangedToShipped::class => [
+            SendOrderWasShippedEmail::class
         ],
     ];
 

@@ -2,6 +2,7 @@
 
 namespace App\Observers\Nova;
 
+use App\Events\OrderStatusWasChangedToShipped;
 use App\Order;
 use App\Traits\Observers\Validator;
 
@@ -50,6 +51,10 @@ class OrderObserver
     {
         if ($order->isClean('status')) {
             return;
+        }
+
+        if ($order->isShipped()) {
+            event(new OrderStatusWasChangedToShipped($order));
         }
 
         if ($order->isCanceled()) {
