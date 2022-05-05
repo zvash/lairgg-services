@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 
 use App\Game;
+use App\Http\Requests\DeleteTeamImagesRequest;
 use App\Http\Requests\StoreTeamRequest;
 use App\Http\Requests\UpdateTeamRequest;
 use App\Invitation;
@@ -20,6 +21,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class TeamRepository extends BaseRepository
 {
@@ -67,6 +69,26 @@ class TeamRepository extends BaseRepository
             $this->saveTeamLinks($team, $links);
         }
         return $team->load(['links', 'links.linkType']);
+    }
+
+    /**
+     * @param DeleteTeamImagesRequest $request
+     * @param Team $team
+     * @return Team
+     */
+    public function removeTeamImages(DeleteTeamImagesRequest $request, Team $team)
+    {
+        $validated = $request->validated();
+        if (!empty($validated['logo'])) {
+            Storage::delete($team->logo);
+            $team->logo = null;
+        }
+        if (!empty($validated['cover'])) {
+            Storage::delete($team->cover);
+            $team->cover = null;
+        }
+        $team->save();
+        return $team;
     }
 
     public function info(Team $team)

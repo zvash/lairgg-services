@@ -150,6 +150,7 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->post('create', 'TeamController@store');
                     $router->post('/{team}/update', 'TeamController@update');
+                    $router->post('/{team}/images/remove', 'TeamController@removeImages');
                     $router->post('/{team}/invite', 'TeamController@invite');
 
                     $router->get('/{team}/players', 'TeamController@players');

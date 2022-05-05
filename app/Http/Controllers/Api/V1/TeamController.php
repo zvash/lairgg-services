@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Enums\HttpStatusCode;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CancelInvitationRequest;
+use App\Http\Requests\DeleteTeamImagesRequest;
 use App\Http\Requests\JoinTeamByUrlRequest;
 use App\Http\Requests\PromoteToCaptainRequest;
 use App\Http\Requests\RemoveFromTeamRequest;
@@ -49,6 +50,21 @@ class TeamController extends Controller
             return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
         return $this->success($teamRepository->updateTeam($request, $team));
+    }
+
+    /**
+     * @param UpdateTeamRequest $request
+     * @param Team $team
+     * @param TeamRepository $teamRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function removeImages(DeleteTeamImagesRequest $request, Team $team, TeamRepository $teamRepository)
+    {
+        $gate = Gate::inspect('canUpdate', $team);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
+        }
+        return $this->success($teamRepository->removeTeamImages($request, $team));
     }
 
     /**
