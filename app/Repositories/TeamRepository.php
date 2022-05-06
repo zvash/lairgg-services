@@ -165,7 +165,7 @@ class TeamRepository extends BaseRepository
             }
         }
 
-        $result = $team->load(['players', 'links'])->toArray();
+        $result = $team->load(['players', 'links', 'links.linkType'])->toArray();
         $result += [
             'number_of_tournaments' => $numberOfTournaments,
             'ranks' => $ranksCount,
