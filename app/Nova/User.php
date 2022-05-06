@@ -59,7 +59,7 @@ class User extends Resource
      */
     public function title()
     {
-        return $this->full_name;
+        return $this->username;
     }
 
     /**
