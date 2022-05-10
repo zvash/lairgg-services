@@ -102,7 +102,7 @@ class PlayRepository extends BaseRepository
                     $record['is_winner'] = false;
                 }
 
-                if (! array_key_exists('score', $record)) {
+                if (! array_key_exists('score', $record) || empty($record['score'])) {
                     $record['score'] = 0;
                     if ($record['is_winner']) {
                         $record['score'] = 1;
