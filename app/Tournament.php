@@ -204,7 +204,7 @@ class Tournament extends Model
      */
     public function getFinalMatch()
     {
-        return $this->matches()->latest()->first();
+        return $this->matches()->orderBy('id', 'desc')->first();
     }
 
     /**
