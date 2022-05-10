@@ -149,7 +149,7 @@ class User extends Resource
             Text::make('Email')
                 ->hideFromIndex()
                 ->required()
-                ->rules('required', 'email:rfc,dns', 'max:254')
+                ->rules('required', 'email:rfc', 'max:254')
                 ->creationRules('unique:users,email')
                 ->updateRules('unique:users,email,{{resourceId}}'),
 
