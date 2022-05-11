@@ -839,7 +839,7 @@ class TournamentRepository extends BaseRepository
             throw new \Exception('User has not enough privilege to decide for the tournament participant');
         }
         //check if tournament is started
-        if ($this->tournamentIsStarted($tournament)) {
+        if ($this->checkinIsNotAllowed($tournament)) {
             throw new \Exception('User cannot check in an already started tournament');
         }
         $participant->checked_in_at = Carbon::now();
@@ -1039,5 +1039,18 @@ class TournamentRepository extends BaseRepository
     {
         return $tournament->started_at < \Carbon\Carbon::now() ||
             $tournament->matches()->whereNotNull('winner_team_id')->count() > 0;
+
+    }
+
+    /**
+     * @param Tournament $tournament
+     * @return bool
+     */
+    private function checkinIsNotAllowed(Tournament $tournament)
+    {
+        return !$tournament->allow_check_in && (
+                $tournament->started_at < \Carbon\Carbon::now() ||
+                $tournament->matches()->whereNotNull('winner_team_id')->count() > 0
+            );
     }
 }
