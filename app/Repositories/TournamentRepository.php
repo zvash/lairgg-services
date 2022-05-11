@@ -113,15 +113,19 @@ class TournamentRepository extends BaseRepository
         $maxRank = $this->findMaxRank($tournament);
         $standing = [];
         for ($i = 1; $i <= $maxRank; $i++) {
-            $standing[] = [
-                'rank' => $i,
-                'prizes' => $tournament->prizes()
-                    ->where('rank', $i)
-                    ->with('valueType')
-                    ->get()
-                    ->all(),
-                'winner' => $engine->getParticipantByRank($i)
-            ];
+            $prizes = $tournament->prizes()
+                ->where('rank', $i)
+                ->with('valueType')
+                ->get()
+                ->all();
+            if ($prizes) {
+                $standing[] = [
+                    'rank' => $i,
+                    'prizes' => $prizes,
+                    'winner' => $engine->getParticipantByRank($i)
+                ];
+            }
+
         }
         return $standing;
     }
@@ -279,7 +283,7 @@ class TournamentRepository extends BaseRepository
         foreach ($bracketMatches as $title => $roundMatches) {
             $allMatches[] = [
                 'title' => $title,
-                'matches'=> $roundMatches,
+                'matches' => $roundMatches,
             ];
         }
         return $allMatches;
@@ -312,10 +316,10 @@ class TournamentRepository extends BaseRepository
 
             if ($round == ceil(log($tournament->max_teams, 2))) {
                 $matches = $matches->orWhere(function ($query) use ($thirdRankGroup, $tournament) {
-                        return $query->where('tournament_id', $tournament->id)
-                            ->where('group', $thirdRankGroup)
-                            ->where('round', 1);
-                    });
+                    return $query->where('tournament_id', $tournament->id)
+                        ->where('group', $thirdRankGroup)
+                        ->where('round', 1);
+                });
             }
         } else if ($bracket == 'losers') {
             $matches = $tournament->matches()
@@ -371,7 +375,7 @@ class TournamentRepository extends BaseRepository
             $tournamentMatches = Match::query()
                 ->where('tournament_id', $tournament->id)
                 ->whereHas('plays', function ($plays) use ($participant) {
-                    return $plays->whereHas('parties', function($parties) use ($participant) {
+                    return $plays->whereHas('parties', function ($parties) use ($participant) {
                         return $parties->where('team_id', $participant->id);
                     });
                 })
@@ -397,7 +401,7 @@ class TournamentRepository extends BaseRepository
     public function getUserMatchesInTournament(User $user, Tournament $tournament)
     {
         $participant = $this->getUserParticipantInTournament($user, $tournament);
-        if (! $participant) {
+        if (!$participant) {
             return null;
         }
         $matches = $tournament->matches()
@@ -419,7 +423,7 @@ class TournamentRepository extends BaseRepository
     {
 
         $participant = $this->getUserParticipantInTournament($user, $tournament);
-        if (! $participant) {
+        if (!$participant) {
             return null;
         }
         $match = $tournament->matches()
@@ -754,7 +758,7 @@ class TournamentRepository extends BaseRepository
 
         if ($teamTournament) {
             $team = $user->teams()->where('teams.id', $participantableId)->first();
-            if (! $team) {
+            if (!$team) {
                 //throw error
             }
             $participantable = $team;
@@ -793,11 +797,11 @@ class TournamentRepository extends BaseRepository
     {
         //get participant
         $participant = $this->getuserparticipantintournament($user, $tournament);
-        if (! $participant) {
+        if (!$participant) {
             throw new \Exception('User is not a participant of this tournament');
         }
         //check if user has privilege
-        if (! $this->userIsInChargeOfParticipant($user, $participant)) {
+        if (!$this->userIsInChargeOfParticipant($user, $participant)) {
             throw new \Exception('User has not enough privilege to decide for the tournament participant');
         }
         //check if tournament is started
@@ -822,16 +826,16 @@ class TournamentRepository extends BaseRepository
     {
         //get participant
         $participant = $this->getuserparticipantintournament($user, $tournament);
-        if (! $participant) {
+        if (!$participant) {
             throw new \Exception('User is not a participant of this tournament');
         }
 
-        if (! in_array($participant->status, [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])) {
+        if (!in_array($participant->status, [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])) {
             throw new \Exception('You are not accepted yet');
         }
 
         //check if user has privilege
-        if (! $this->userIsInChargeOfParticipant($user, $participant)) {
+        if (!$this->userIsInChargeOfParticipant($user, $participant)) {
             throw new \Exception('User has not enough privilege to decide for the tournament participant');
         }
         //check if tournament is started
@@ -954,15 +958,15 @@ class TournamentRepository extends BaseRepository
         $tournaments = Tournament::whereHas('participants', function (Builder $participants) use ($user) {
             $participants->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
                 ->whereHasMorph('participantable', [Team::class, User::class], function (Builder $participantable, $type) use ($user) {
-                if ($type == Team::class) {
-                    $participantable->whereHas('players', function (Builder $players) use ($user) {
-                        $players->where('user_id', $user->id);
-                    });
-                } else {
-                    $participantable->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
-                        ->where('participantable_id', $user->id);
-                }
-            });
+                    if ($type == Team::class) {
+                        $participantable->whereHas('players', function (Builder $players) use ($user) {
+                            $players->where('user_id', $user->id);
+                        });
+                    } else {
+                        $participantable->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
+                            ->where('participantable_id', $user->id);
+                    }
+                });
         });
         return $tournaments;
     }
