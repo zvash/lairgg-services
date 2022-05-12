@@ -230,13 +230,17 @@ class LobbyRepository extends BaseRepository
      */
     public function getMessages(Lobby $lobby, bool $backward = true, $from = 0, int $limit = 20)
     {
-        $query = $lobby->messages()->latest('sequence');
+        $message = $lobby->messages()->where('sequence', $from)->first();
+//        $query = $lobby->messages()->latest('sequence');
+        $query = $lobby->messages()->latest('sent_at')->where('id', '<>', $message->id);
         if ($from) {
             if ($backward) {
-                $query = $query->where('sequence', '<', $from);
+//                $query = $query->where('sequence', '<', $from);
+                $query = $query->where('sent_at', '<=', $message->sent_at);
 
             } else {
-                $query = $query->where('sequence', '>', $from);
+//                $query = $query->where('sequence', '>', $from);
+                $query = $query->where('sent_at', '>=', $message->sent_at);
             }
         } else {
             //$query = $query->latest();
