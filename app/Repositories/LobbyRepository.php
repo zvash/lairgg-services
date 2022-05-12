@@ -245,7 +245,7 @@ class LobbyRepository extends BaseRepository
                 $query = $query->where('sent_at', '>=', $message->sent_at);
             }
         } else {
-            $query = $lobby->messages()->latest('sequence');
+            $query = $lobby->messages()->latest('sent_at');
         }
         if ($limit) {
             $lobbyMessages = $query->limit($limit)->get();
