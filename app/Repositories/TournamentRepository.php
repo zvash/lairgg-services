@@ -749,6 +749,7 @@ class TournamentRepository extends BaseRepository
      * @param Tournament $tournament
      * @param TournamentJoinRequest $request
      * @return Builder|\Illuminate\Database\Eloquent\Model|null|object
+     * @throws \Exception
      */
     public function registerJoinRequest(Tournament $tournament, TournamentJoinRequest $request)
     {
@@ -760,7 +761,10 @@ class TournamentRepository extends BaseRepository
         if ($teamTournament) {
             $team = $user->teams()->where('teams.id', $participantableId)->first();
             if (!$team) {
-                //throw error
+                throw new \Exception('Team not found');
+            }
+            if ($team->players()->count() < $tournament->players) {
+                throw new \Exception('Your team does not have enough players!');
             }
             $participantable = $team;
             $participantableType = Team::class;
