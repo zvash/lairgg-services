@@ -481,7 +481,9 @@ class LobbyRepository extends BaseRepository
             } else if ($participantable instanceof Team) {
                 $players = $participantable->players;
                 foreach ($players as $player) {
-                    $participantsUserIds[] = $player->user_id;
+                    if ($player->pivot->captain) {
+                        $participantsUserIds[] = $player->user_id;
+                    }
                 }
             }
         }
