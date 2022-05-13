@@ -38,28 +38,39 @@ class CreateTeam implements ShouldQueue
      */
     public function handle()
     {
-//        for ($i = 1; $i <= 8; $i++) {
-//            $team = $this->createTeam(1);
-//            for ($j = 1; $j <= 5; $j++) {
-//                $user = $this->createUser();
-//                $isCaptain = $j == 1;
-//                $team->players()->attach($user->id, ['captain' => $isCaptain]);
-//            }
+        $captains = [5, 50, 51, 75];
+        //for ($i = 1; $i <= 4; $i++) {
+        while (count($captains)) {
+            $captainId = array_shift($captains);
+            $isCaptain = true;
+            $team = $this->createTeam(1);
+            for ($j = 1; $j <= 5; $j++) {
+                if ($isCaptain) {
+                    $user = User::find($captainId);
+                    $team->players()->attach($user->id, ['captain' => $isCaptain]);
+                    $isCaptain = false;
+                } else {
+                    $user = $this->createUser();
+                    $team->players()->attach($user->id, ['captain' => false]);
+                }
+            }
+        }
+
+        //}
+//        $teams = Team::whereNull('logo')->get();
+//        foreach ($teams as $team) {
+//            $logo = $this->saveImage('teams/logos', 400, 400);
+//            $cover = $this->saveImage('teams/covers', 640, 400);
+//            $team->logo = $logo;
+//            $team->cover = $cover;
+//            $team->save();
 //        }
-        $teams = Team::whereNull('logo')->get();
-        foreach ($teams as $team) {
-            $logo = $this->saveImage('teams/logos', 400, 400);
-            $cover = $this->saveImage('teams/covers', 640, 400);
-            $team->logo = $logo;
-            $team->cover = $cover;
-            $team->save();
-        }
-        $users = User::whereNull('avatar')->get();
-        foreach ($users as $user) {
-            $user->avatar = $this->saveImage('users/avatars', 400, 400);
-            $user->cover = $this->saveImage('users/covers', 640, 480);
-            $user->save();
-        }
+//        $users = User::whereNull('avatar')->get();
+//        foreach ($users as $user) {
+//            $user->avatar = $this->saveImage('users/avatars', 400, 400);
+//            $user->cover = $this->saveImage('users/covers', 640, 480);
+//            $user->save();
+//        }
     }
 
     private function createTeam(int $gameId)

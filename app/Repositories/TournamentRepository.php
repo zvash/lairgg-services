@@ -22,6 +22,7 @@ use App\UserBalance;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 
 class TournamentRepository extends BaseRepository
@@ -894,12 +895,12 @@ class TournamentRepository extends BaseRepository
                                 'points' => $points,
                             ]);
                     } else if ($participant->participantable_type == User::class) {
-//                        UserBalance::query()
-//                            ->create([
-//                                'tournament_id' => $tournament->id,
-//                                'user_id' => $participant->participantable_id,
-//                                'points' => $points,
-//                            ]);
+                        UserBalance::query()
+                            ->create([
+                                'tournament_id' => $tournament->id,
+                                'user_id' => $participant->participantable_id,
+                                'points' => $points,
+                            ]);
                         User::find($participant->participantable_id)->points($points);
                     }
                 } catch (\Exception $exception) {
