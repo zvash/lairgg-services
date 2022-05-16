@@ -85,7 +85,7 @@ class TeamController extends Controller
         try {
             return $this->success(['remained_gems' => $repository->shareGems($team, $balanceId, $slices)]);
         } catch (\Exception $exception) {
-            return $this->failMessage('Operation was failed', 400);
+            return $this->failMessage($exception->getMessage(), 400);
         }
     }
 
