@@ -1002,7 +1002,7 @@ class TournamentRepository extends BaseRepository
      * @param Tournament $tournament
      * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|object|null|Participant
      */
-    private function getUserParticipantInTournament(User $user, Tournament $tournament)
+    public function getUserParticipantInTournament(User $user, Tournament $tournament)
     {
         $teamTournament = $tournament->players > 1;
         if ($teamTournament) {
@@ -1026,7 +1026,7 @@ class TournamentRepository extends BaseRepository
      * @param Match $match
      * @return array
      */
-    private function gatherMatchParticipants(Match $match)
+    public function gatherMatchParticipants(Match $match)
     {
         $firstPlay = $match->plays()->first();
         if (! $firstPlay) {
@@ -1041,7 +1041,7 @@ class TournamentRepository extends BaseRepository
      * @param Tournament|null $tournament
      * @return bool
      */
-    private function userParticipatesInMatch(Match $match, ?User $user, ?Tournament $tournament = null)
+    public function userParticipatesInMatch(Match $match, ?User $user, ?Tournament $tournament = null)
     {
         if (!$user) {
             return false;
