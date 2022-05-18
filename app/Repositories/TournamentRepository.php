@@ -254,6 +254,7 @@ class TournamentRepository extends BaseRepository
      */
     public function bracketMatches(Tournament $tournament, string $bracket)
     {
+        $user = request()->user();
         $winnerGroup = [1];
         $loserGroup = [0];
         $tournamentType = TournamentType::where('id', $tournament->tournament_type_id)->first();
@@ -276,8 +277,10 @@ class TournamentRepository extends BaseRepository
             ->get();
 
         foreach ($matches as $match) {
+            $userIsAParticipantInMatch = $this->userParticipatesInMatch($match, $user, $tournament);
             $bracketMatch = $match->toArray();
             $bracketMatch['candidates'] = $match->getCandidates();
+            $bracketMatch['viewer_is_a_participant'] = $userIsAParticipantInMatch;
             $bracketMatches[$rounds[$match->group][$match->round]][] = $bracketMatch;
         }
         $allMatches = [];
@@ -1017,6 +1020,41 @@ class TournamentRepository extends BaseRepository
                 ->first();
         }
         return $participant;
+    }
+
+    /**
+     * @param Match $match
+     * @return array
+     */
+    private function gatherMatchParticipants(Match $match)
+    {
+        $firstPlay = $match->plays()->first();
+        if (! $firstPlay) {
+            return [];
+        }
+        return $firstPlay->parties()->get('team_id')->all();
+    }
+
+    /**
+     * @param Match $match
+     * @param User|null $user
+     * @param Tournament|null $tournament
+     * @return bool
+     */
+    private function userParticipatesInMatch(Match $match, ?User $user, ?Tournament $tournament = null)
+    {
+        if (!$user) {
+            return false;
+        }
+        if (!$tournament) {
+            $tournament = $match->tournament;
+        }
+        $userParticipant = $this->getUserParticipantInTournament($user, $tournament);
+        if (!$userParticipant) {
+            return false;
+        }
+        $matchParticipantsIds = $this->gatherMatchParticipants($match);
+        return in_array($userParticipant->id, $matchParticipantsIds);
     }
 
     /**
