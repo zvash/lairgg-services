@@ -1032,7 +1032,7 @@ class TournamentRepository extends BaseRepository
         if (! $firstPlay) {
             return [];
         }
-        return $firstPlay->parties()->get('team_id')->all();
+        return $firstPlay->parties()->pluck('team_id')->all();
     }
 
     /**
