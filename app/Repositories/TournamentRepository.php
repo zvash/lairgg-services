@@ -254,7 +254,7 @@ class TournamentRepository extends BaseRepository
      */
     public function bracketMatches(Tournament $tournament, string $bracket)
     {
-        $user = request()->user();
+        $user = auth()->guard('api')->user();
         $winnerGroup = [1];
         $loserGroup = [0];
         $tournamentType = TournamentType::where('id', $tournament->tournament_type_id)->first();
