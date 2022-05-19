@@ -11,6 +11,7 @@ class UserNotificationToken extends Model
         'passport_token',
         'platform',
         'token',
+        'registered_at',
     ];
 
     protected $casts = [
