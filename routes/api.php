@@ -15,6 +15,7 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
     $router->group(['namespace' => 'Api\V1'], function ($router) {
 
+        $router->post('users/device/register', 'UserController@registerDeviceForPushNotification');
         $router->get('tournaments/{tournament}/matches/brackets/{bracket}', 'TournamentController@bracketMatches');
 
         $router->group(['prefix' => 'users'], function ($router) {

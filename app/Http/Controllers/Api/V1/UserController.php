@@ -7,6 +7,7 @@ use App\Gender;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DeleteProfileImagesRequest;
 use App\Http\Requests\DeleteUserRequest;
+use App\Http\Requests\RegisterDeviceRequest;
 use App\Http\Requests\SetIdentifiersRequest;
 use App\Http\Requests\StoreUser;
 use App\Http\Requests\UpdateUserRequest;
@@ -17,6 +18,7 @@ use App\Repositories\UserRepository;
 use App\Tournament;
 use App\Traits\Responses\ResponseMaker;
 use App\User;
+use App\UserNotificationToken;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -71,6 +73,10 @@ class UserController extends Controller
      */
     public function logout(Request $request)
     {
+        $token = $request->bearerToken();
+        UserNotificationToken::query()
+            ->where('passport_token', $token)
+            ->delete();
         \auth()->user()->token()->revoke();
         return $this->success(['message' => 'logged out']);
     }
@@ -96,7 +102,29 @@ class UserController extends Controller
         } catch (\Exception $exception) {
             return $this->failMessage($exception->getMessage(), $exception->getCode());
         }
+    }
 
+    /**
+     * @param RegisterDeviceRequest $request
+     * @return \Illuminate\Http\Response
+     */
+    public function registerDeviceForPushNotification(RegisterDeviceRequest $request)
+    {
+        $validated = $request->validated();
+        $userNotificationToken = UserNotificationToken::query()
+            ->firstOrCreate([
+                'token' => $validated['token'],
+            ],[
+                'platform' => $validated['platform'],
+            ]);
+        $user = auth()->guard('api')->user();
+        if ($user) {
+            $userNotificationToken->user_id = $user->id;
+            $userNotificationToken->passport_token = $request->bearerToken();
+        }
+        $userNotificationToken->registered_at = \Carbon\Carbon::now();
+        $userNotificationToken->save();
+        return response()->noContent();
     }
 
     /**
