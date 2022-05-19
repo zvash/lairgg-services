@@ -19,6 +19,7 @@ use App\Tournament;
 use App\Traits\Responses\ResponseMaker;
 use App\User;
 use App\UserNotificationToken;
+use Carbon\Carbon;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -116,13 +117,14 @@ class UserController extends Controller
                 'token' => $validated['token'],
             ],[
                 'platform' => $validated['platform'],
+                'registered_at' => Carbon::now(),
             ]);
         $user = auth()->guard('api')->user();
         if ($user) {
             $userNotificationToken->user_id = $user->id;
             $userNotificationToken->passport_token = $request->bearerToken();
         }
-        $userNotificationToken->registered_at = \Carbon\Carbon::now();
+        $userNotificationToken->registered_at = Carbon::now();
         $userNotificationToken->save();
         return response()->noContent();
     }
