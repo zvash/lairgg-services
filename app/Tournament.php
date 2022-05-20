@@ -389,7 +389,7 @@ class Tournament extends Model
     {
         $today = getToday();
         return $query->whereNotNull('started_at')
-            ->whereDate('started_at', '>', $today)
+            ->where('started_at', '>', $today)
             ->orderBy('started_at', 'ASC');
     }
 
