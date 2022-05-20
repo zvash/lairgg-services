@@ -4,8 +4,84 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "09cb5c79384892bcdb971413f3277699",
+    "content-hash": "e9e57f6eae2680c0a26d22da8aac4fa8",
     "packages": [
+        {
+            "name": "apility/laravel-fcm",
+            "version": "v1.4.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/apility/Laravel-FCM.git",
+                "reference": "e1484d3831f346d5dc03d64c742e53b6f500f33c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/apility/Laravel-FCM/zipball/e1484d3831f346d5dc03d64c742e53b6f500f33c",
+                "reference": "e1484d3831f346d5dc03d64c742e53b6f500f33c",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^6.0|^7.0",
+                "illuminate/support": "^5.0|^6.0|^7.0|^8.0",
+                "monolog/monolog": "^1.0|^2.0",
+                "php": ">=5.5.9"
+            },
+            "replace": {
+                "brozot/laravel-fcm": "*"
+            },
+            "require-dev": {
+                "laravel/laravel": "5.2.*",
+                "mockery/mockery": "0.9.*",
+                "phpunit/phpunit": "4.7.*",
+                "satooshi/php-coveralls": "dev-master"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LaravelFCM\\FCMServiceProvider"
+                    ],
+                    "aliases": {
+                        "FCM": "LaravelFCM\\Facades\\FCM",
+                        "FCMGroup": "LaravelFCM\\Facades\\FCMGroup"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LaravelFCM\\": "src/",
+                    "LaravelFCM\\Mocks\\": "tests/mocks"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Brosy",
+                    "email": "nicolas.brosy@gmail.com"
+                },
+                {
+                    "name": "Thomas Alrek",
+                    "email": "thomas@apility.no"
+                }
+            ],
+            "description": "Laravel / Lumen package for Firebase Cloud Messaging ",
+            "keywords": [
+                "FCM",
+                "Firebase Cloud Messaging",
+                "firebase",
+                "laravel",
+                "lumen",
+                "notification",
+                "push"
+            ],
+            "support": {
+                "source": "https://github.com/apility/Laravel-FCM/tree/v1.4.4"
+            },
+            "time": "2020-11-19T06:05:53+00:00"
+        },
         {
             "name": "asm89/stack-cors",
             "version": "1.3.0",
@@ -1671,11 +1747,11 @@
         },
         {
             "name": "laravel/nova",
-            "version": "dev-master",
+            "version": "dev-develop",
             "dist": {
                 "type": "path",
                 "url": "./nova",
-                "reference": "4487bd94976fcb353263d9d3ed7f0a3eefebdf47"
+                "reference": "c3b875c3d472526bc117b998e0ab2d4d4bb806e3"
             },
             "require": {
                 "brick/money": "^0.4.2",
@@ -3993,7 +4069,7 @@
             "dist": {
                 "type": "path",
                 "url": "./nova-components/Theme",
-                "reference": "edadc7c912f58bf696e91446b1d9bfe3923bfea9"
+                "reference": "8f6f0f9fb80f5d797bbd2958b8fdf3be00491513"
             },
             "require": {
                 "php": ">=7.1.0"
@@ -8079,5 +8155,5 @@
         "php": "^7.2.5"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.1.0"
 }

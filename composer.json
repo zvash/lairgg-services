@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.2.5",
+        "apility/laravel-fcm": "^1.4",
         "aws/aws-sdk-php": "3.173.19",
         "aws/aws-sdk-php-laravel": "^3.6",
         "fideloper/proxy": "^4.2",
