@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Game;
 use App\Gender;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\DeleteProfileImagesRequest;
 use App\Http\Requests\DeleteUserRequest;
 use App\Http\Requests\RegisterDeviceRequest;
@@ -23,6 +24,7 @@ use Carbon\Carbon;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -66,6 +68,34 @@ class UserController extends Controller
     {
         $user = $repository->deleteProfileImages($request);
         return $this->success($user);
+    }
+
+    /**
+     * @param ChangePasswordRequest $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function changePassword(ChangePasswordRequest $request)
+    {
+        $validated = $request->validated();
+        $user = $request->user();
+        if (! Hash::check($validated['current_password'], $user->password)) {
+            return $this->failMessage('Current password is wrong', 400);
+        }
+        $user->password = bcrypt($validated['password']);
+        $user->save();
+        $tokens = $user->tokens;
+        $currentToken = $user->token();
+        foreach ($tokens as $token) {
+            if ($token->id != $currentToken->id) {
+                $token->revoke();
+            }
+        }
+        $currentBearerToken = $request->bearerToken();
+        UserNotificationToken::query()
+            ->where('user_id', $user->id)
+            ->where('passport_token', '<>', $currentBearerToken)
+            ->delete();
+        return $this->success(['message' => 'Password is changed']);
     }
 
     /**
