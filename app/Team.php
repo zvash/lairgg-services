@@ -44,6 +44,7 @@ class Team extends Model
      */
     protected $casts = [
         'join_request' => 'boolean',
+        'game_id' => 'int',
     ];
 
     /**
