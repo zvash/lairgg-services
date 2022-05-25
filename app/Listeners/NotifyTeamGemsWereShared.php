@@ -6,6 +6,7 @@ use App\Enums\PushNotificationType;
 use App\Events\TeamGemsWereShared;
 use App\PushNotification;
 use App\Services\NotificationSender;
+use App\Team;
 use App\UserNotificationToken;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -50,7 +51,7 @@ class NotifyTeamGemsWereShared implements ShouldQueue
                 'body' => $body,
                 'image' => $event->team->logo,
                 'resource_id' => null,
-                'payload' => $event->team->toArray(),
+                'payload' => Team::find($event->team->id)->toArray(),
             ]);
 
             $pushService = new NotificationSender($subject, $notStyledBody);
