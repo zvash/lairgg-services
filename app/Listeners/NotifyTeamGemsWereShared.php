@@ -33,6 +33,9 @@ class NotifyTeamGemsWereShared implements ShouldQueue
         $teamTitle = $event->team->title;
         $slices = $event->sharedSlices;
         foreach ($slices as $userId => $amount) {
+            if (!$amount || $amount*1 == 0) {
+                continue;
+            }
             $subject = 'Gems were shared!';
             $body = __('notifications.gem.gems_from_team', [
                 'amount' => $amount,

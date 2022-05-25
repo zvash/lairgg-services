@@ -18,7 +18,7 @@ class PushNotificationRepository extends BaseRepository
      */
     public function allForUser(User $user)
     {
-        $paginated = $user->notifications()->paginate(20);
+        $paginated = $user->pushNotifications()->paginate(20);
         $data = $paginated->toArray()['data'];
         $ids = [0];
         foreach ($data as $item) {
