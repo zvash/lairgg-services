@@ -6,7 +6,7 @@ namespace App\Repositories;
 use App\Engines\BracketCreator;
 use App\Enums\ParticipantAcceptanceState;
 use App\Events\ParticipantStatusWasUpdated;
-use App\Http\Requests\JoinTournamentRequest;
+use App\Events\TournamentGemsWereReleased;
 use App\Http\Requests\TournamentJoinRequest;
 use App\Http\Requests\UpdateParticipantStatus;
 use App\Match;
@@ -22,7 +22,6 @@ use App\UserBalance;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 
 
 class TournamentRepository extends BaseRepository
@@ -901,6 +900,8 @@ class TournamentRepository extends BaseRepository
                                 'team_id' => $participant->participantable_id,
                                 'points' => $points,
                             ]);
+                        $userIds = Team::find($participant->participantable_id)->players->pluck('user_id')->all();
+                        event(new TournamentGemsWereReleased($tournament, $userIds, true));
                     } else if ($participant->participantable_type == User::class) {
                         UserBalance::query()
                             ->create([
@@ -909,6 +910,7 @@ class TournamentRepository extends BaseRepository
                                 'points' => $points,
                             ]);
                         User::find($participant->participantable_id)->points($points);
+                        event(new TournamentGemsWereReleased($tournament, [$participant->participantable_id], false));
                     }
                 } catch (\Exception $exception) {
                     return 'Already Released';
