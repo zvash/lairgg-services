@@ -51,7 +51,7 @@ class NotifyTeamGemsWereShared implements ShouldQueue
                 'body' => $body,
                 'image' => $event->team->logo,
                 'resource_id' => null,
-                'payload' => $event->team->withoutRelations()->toArray(),
+                'payload' => Team::find($event->team->id)->withoutRelations()->toArray(),
             ]);
 
             $pushService = new NotificationSender($subject, $notStyledBody);
