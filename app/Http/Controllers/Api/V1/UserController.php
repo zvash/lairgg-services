@@ -185,6 +185,9 @@ class UserController extends Controller
         foreach($userTokens as $token) {
             $token->revoke();
         }
+        UserNotificationToken::query()
+            ->where('user_id', $user->id)
+            ->delete();
         return $this->success(['message' => 'User is deleted']);
     }
 

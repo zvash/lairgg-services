@@ -129,6 +129,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function pushNotifications()
+    {
+        return $this->hasMany(PushNotification::class, 'user_id');
+    }
+
+    /**
      * The games that belong to the user.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany

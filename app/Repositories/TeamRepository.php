@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 
+use App\Events\TeamGemsWereShared;
 use App\Game;
 use App\Http\Requests\DeleteTeamImagesRequest;
 use App\Http\Requests\StoreTeamRequest;
@@ -396,14 +397,17 @@ class TeamRepository extends BaseRepository
         if ($sumOfGems > $currentGems) {
             throw new \Exception('Insufficient gems.');
         }
+        $sharedSlices = [];
         try {
             DB::beginTransaction();
             $balance->refresh();
             $balance->setAttribute('points', $currentGems - $sumOfGems)->save();
             foreach ($slices as $slice) {
                 User::find($slice['user_id'])->points($slice['gems']);
+                $sharedSlices[$slice['user_id']] = $slice['gems'];
             }
             DB::commit();
+            event(new TeamGemsWereShared($team, $sharedSlices));
             return $team->balance->gems;
         } catch (\Exception $exception) {
             DB::rollBack();

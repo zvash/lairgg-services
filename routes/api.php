@@ -80,6 +80,10 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                 });
 
+                $router->group(['prefix' => 'notifications'], function ($router) {
+                    $router->get('/all', 'PushNotificationController@all');
+                });
+
                 $router->group(['prefix' => 'organizations'], function ($router) {
 
                     $router->get('/{organizationId}/bio', 'OrganizationController@bio');

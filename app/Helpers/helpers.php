@@ -21,3 +21,25 @@ function getToday()
     return \Carbon\Carbon::now('UTC')
         ->addMinutes(config('app.request_utc_offset', 0));
 }
+
+/**
+ * @param string $time
+ * @return float|int
+ */
+function convertTimeToMinutes(string $time)
+{
+    $timeParts = explode(':', $time);
+    if (empty($timeParts[0]) || !is_numeric($timeParts[0])) {
+        return 0;
+    }
+    $hourPartToMinute = 60 * $timeParts[0];
+    $coe = 1;
+    if ($hourPartToMinute < 0) {
+        $coe = -1;
+    }
+    $minutes = abs($hourPartToMinute);
+    if (!empty($timeParts[1]) && is_numeric($timeParts[1])) {
+        $minutes += $timeParts[1];
+    }
+    return $minutes * $coe;
+}
