@@ -3,6 +3,7 @@
 namespace App\Engines;
 
 
+use App\Events\BracketWasReleased;
 use App\Exceptions\TournamentIsActiveException;
 use App\Match;
 use App\Participant;
@@ -56,6 +57,7 @@ class SingleEliminationEngine extends TournamentEngine
             $this->randomlyAssignParticipantsToMatches();
             $this->fillNextMatches();
             DB::commit();
+            event(new BracketWasReleased($this->tournament));
         } catch (TournamentIsActiveException $exception) {
             DB::rollBack();
             dd([$exception->getMessage(), 'TournamentIsActiveException']);

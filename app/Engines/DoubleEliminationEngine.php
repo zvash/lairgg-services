@@ -3,6 +3,7 @@
 namespace App\Engines;
 
 
+use App\Events\BracketWasReleased;
 use App\Match;
 use App\Tournament;
 use Illuminate\Support\Facades\DB;
@@ -55,6 +56,7 @@ class DoubleEliminationEngine extends TournamentEngine
             $this->randomlyAssignParticipantsToMatches();
             $this->fillNextMatches();
             DB::commit();
+            event(new BracketWasReleased($this->tournament));
         } catch (TournamentIsActiveException $exception) {
             DB::rollBack();
             dd($exception->getMessage());

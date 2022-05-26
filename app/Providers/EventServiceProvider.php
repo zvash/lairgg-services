@@ -4,6 +4,7 @@ namespace App\Providers;
 
 
 use App\CashOut;
+use App\Events\BracketWasReleased;
 use App\Events\InvitationCreated;
 use App\Events\OrderStatusWasChangedToShipped;
 use App\Events\ParticipantStatusWasUpdated;
@@ -11,6 +12,7 @@ use App\Events\TeamGemsWereShared;
 use App\Events\TournamentGemsWereReleased;
 use App\Events\TournamentRulesWereUpdated;
 use App\Listeners\EmailInvitation;
+use App\Listeners\NotifyBracketWasReleased;
 use App\Listeners\NotifyInvitation;
 use App\Listeners\NotifyParticipantJoinRequestWasAccepted;
 use App\Listeners\NotifyParticipantJoinRequestWasRejected;
@@ -59,6 +61,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         TournamentRulesWereUpdated::class => [
             NotifyTournamentRulesWereUpdated::class,
+        ],
+        BracketWasReleased::class => [
+            NotifyBracketWasReleased::class,
         ]
     ];
 

@@ -42,7 +42,7 @@ class NotifyTeamGemsWereShared implements ShouldQueue
                 'amount' => $amount,
                 'team' => $teamTitle,
             ]);
-            $notStyledBody = str_replace('*', '', $body);
+            $notStyledBody = str_replace('**', '', $body);
 
             PushNotification::query()->create([
                 'user_id' => $userId,

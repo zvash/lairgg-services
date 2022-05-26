@@ -4,7 +4,7 @@ namespace App\Listeners;
 
 use App\Enums\ParticipantAcceptanceState;
 use App\Enums\PushNotificationType;
-use App\Events\TournamentRulesWereUpdated;
+use App\Events\BracketWasReleased;
 use App\PushNotification;
 use App\Services\NotificationSender;
 use App\Team;
@@ -13,7 +13,7 @@ use App\UserNotificationToken;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class NotifyTournamentRulesWereUpdated implements ShouldQueue
+class NotifyBracketWasReleased implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -28,15 +28,15 @@ class NotifyTournamentRulesWereUpdated implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  TournamentRulesWereUpdated  $event
+     * @param  BracketWasReleased  $event
      * @return void
      */
-    public function handle(TournamentRulesWereUpdated $event)
+    public function handle(BracketWasReleased $event)
     {
         $tournament = $event->tournament;
         $participants = $tournament->participants()->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])->get();
-        $title = 'Update';
-        $body = __('notifications.tournament.rules', [
+        $title = 'Tournament Bracket';
+        $body = __('notifications.tournament.bracket', [
             'tournament' => $tournament->title,
         ]);
         $type = PushNotificationType::TOURNAMENT;
