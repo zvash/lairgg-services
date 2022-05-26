@@ -10,6 +10,8 @@ use App\Events\ParticipantStatusWasUpdated;
 use App\Events\TeamGemsWereShared;
 use App\Events\TournamentGemsWereReleased;
 use App\Listeners\EmailInvitation;
+use App\Listeners\NotifyInvitation;
+use App\Listeners\NotifyParticipantJoinRequestWasAccepted;
 use App\Listeners\NotifyTeamGemsWereShared;
 use App\Listeners\NotifyTournamentGemsWereReleased;
 use App\Listeners\SendCustomEmailVerificationNotification;
@@ -34,9 +36,11 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvitationCreated::class => [
             EmailInvitation::class,
+            NotifyInvitation::class,
         ],
         ParticipantStatusWasUpdated::class => [
             UpdateBracketWithNewlyAcceptedParticipant::class,
+            NotifyParticipantJoinRequestWasAccepted::class,
         ],
         OrderStatusWasChangedToShipped::class => [
             SendOrderWasShippedEmail::class
@@ -46,7 +50,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         TournamentGemsWereReleased::class => [
             NotifyTournamentGemsWereReleased::class
-        ]
+        ],
     ];
 
     /**
