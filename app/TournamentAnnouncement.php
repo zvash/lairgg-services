@@ -15,6 +15,7 @@ class TournamentAnnouncement extends Model
     protected $appends = [
         'creator',
         'is_new',
+        'sent_at',
     ];
 
     /**
@@ -57,5 +58,19 @@ class TournamentAnnouncement extends Model
     public function getCreatorAttribute()
     {
         return $this->staff->username;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSentAtAttribute()
+    {
+        $createdAt = $this->created_at;
+        $timezone = request()->header('timezone');
+        if ($timezone) {
+            $minutes = convertTimeToMinutes($timezone);
+            return $createdAt->addMinutes($minutes);
+        }
+        return $createdAt;
     }
 }
