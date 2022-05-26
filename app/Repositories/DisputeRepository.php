@@ -22,9 +22,12 @@ class DisputeRepository extends BaseRepository
      */
     public function close(Dispute $dispute)
     {
+        $previousState = $dispute->state;
         $dispute->state = DisputeState::CLOSED;
         $dispute->save();
-        event(new MatchLobbyHadAnAction($dispute->match, request()->user(), 'dispute_closed'));
+        if ($previousState != DisputeState::CLOSED) {
+            event(new MatchLobbyHadAnAction($dispute->match, request()->user(), 'dispute_closed'));
+        }
         return $dispute;
     }
 }
