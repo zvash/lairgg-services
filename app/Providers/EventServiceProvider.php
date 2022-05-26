@@ -9,18 +9,22 @@ use App\Events\OrderStatusWasChangedToShipped;
 use App\Events\ParticipantStatusWasUpdated;
 use App\Events\TeamGemsWereShared;
 use App\Events\TournamentGemsWereReleased;
+use App\Events\TournamentRulesWereUpdated;
 use App\Listeners\EmailInvitation;
 use App\Listeners\NotifyInvitation;
 use App\Listeners\NotifyParticipantJoinRequestWasAccepted;
 use App\Listeners\NotifyParticipantJoinRequestWasRejected;
 use App\Listeners\NotifyTeamGemsWereShared;
 use App\Listeners\NotifyTournamentGemsWereReleased;
+use App\Listeners\NotifyTournamentRulesWereUpdated;
 use App\Listeners\SendCustomEmailVerificationNotification;
 use App\Listeners\SendOrderWasShippedEmail;
 use App\Listeners\UpdateBracketWithNewlyAcceptedParticipant;
 use App\Observers\CashOutObserver;
 use App\Observers\OrderObserver;
+use App\Observers\TournamentObserver;
 use App\Order;
+use App\Tournament;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -53,6 +57,9 @@ class EventServiceProvider extends ServiceProvider
         TournamentGemsWereReleased::class => [
             NotifyTournamentGemsWereReleased::class
         ],
+        TournamentRulesWereUpdated::class => [
+            NotifyTournamentRulesWereUpdated::class,
+        ]
     ];
 
     /**
@@ -65,5 +72,6 @@ class EventServiceProvider extends ServiceProvider
         parent::boot();
         CashOut::observe(CashOutObserver::class);
         Order::observe(OrderObserver::class);
+        Tournament::observe(TournamentObserver::class);
     }
 }

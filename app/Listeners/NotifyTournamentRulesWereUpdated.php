@@ -4,7 +4,7 @@ namespace App\Listeners;
 
 use App\Enums\ParticipantAcceptanceState;
 use App\Enums\PushNotificationType;
-use App\Events\ParticipantStatusWasUpdated;
+use App\Events\TournamentRulesWereUpdated;
 use App\PushNotification;
 use App\Services\NotificationSender;
 use App\Team;
@@ -13,7 +13,7 @@ use App\UserNotificationToken;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class NotifyParticipantJoinRequestWasRejected implements ShouldQueue
+class NotifyTournamentRulesWereUpdated implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -28,34 +28,30 @@ class NotifyParticipantJoinRequestWasRejected implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  ParticipantStatusWasUpdated  $event
+     * @param  TournamentRulesWereUpdated  $event
      * @return void
      */
-    public function handle(ParticipantStatusWasUpdated $event)
+    public function handle(TournamentRulesWereUpdated $event)
     {
-        $participant = $event->participant;
-        $tournament = $participant->tournament;
-        if ($participant->status != ParticipantAcceptanceState::REJECTED) {
-            return;
-        }
-        $title = 'Declined';
-        $body = '';
+        $tournament = $event->tournament;
+        $participants = $tournament->participants()->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])->get();
+        $title = 'Update';
+        $body = __('notifications.tournament.rules', [
+            'tournament' => $tournament->title,
+        ]);
         $type = PushNotificationType::TOURNAMENT;
         $image = $tournament->image;
         $userIds = [];
-        if ($participant->participantable_type == User::class) {
-            $userIds[] = $participant->participantable_id;
-            $body = __('notifications.tournament.join_request_declined', [
-                'tournament' => $tournament->title,
-            ]);
-        } else if ($participant->participantable_type == Team::class) {
-            $team = Team::find($participant->participantable_id);
-            $userIds = $team->players->pluck('user_id')->all();
-            $body = __('notifications.tournament.join_team_request_declined', [
-                'tournament' => $tournament->title,
-                'team' => $team->title,
-            ]);
+        foreach ($participants as $participant) {
+            if ($participant->participantable_type == User::class) {
+                $userIds[] = $participant->participantable_id;
+            } else if ($participant->participantable_type == Team::class) {
+                $team = Team::find($participant->participantable_id);
+                $teamUserIds = $team->players->pluck('user_id')->all();
+                $userIds = array_merge($userIds, $teamUserIds);
+            }
         }
+        $userIds = array_unique($userIds);
 
         foreach ($userIds as $userId) {
             PushNotification::query()->create([
