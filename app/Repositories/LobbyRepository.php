@@ -6,6 +6,7 @@ namespace App\Repositories;
 use App\Dispute;
 use App\Enums\DisputeState;
 use App\Enums\ParticipantAcceptanceState;
+use App\Events\MatchLobbyHadAnAction;
 use App\Http\Requests\CreateDisputeRequest;
 use App\Lobby;
 use App\LobbyMessage;
@@ -190,6 +191,7 @@ class LobbyRepository extends BaseRepository
         $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
         $lobbyMessage->save();
         Redis::publish('lobby-server-message-channel', json_encode($newMessage));
+        event(new MatchLobbyHadAnAction($match, $user, 'coin_toss_request'));
         return $lobbyMessage->uuid;
     }
 
@@ -364,6 +366,7 @@ class LobbyRepository extends BaseRepository
                 $lobbyMessage->message = json_encode($message);
                 $lobbyMessage->save();
                 Redis::publish('lobby-server-edit-message-channel', $lobbyMessage->message);
+                event(new MatchLobbyHadAnAction($match, $user, 'coin_toss_accepted'));
                 return $isWinner;
             }
         }
@@ -398,6 +401,7 @@ class LobbyRepository extends BaseRepository
                 $lobbyMessage->message = json_encode($message);
                 $lobbyMessage->save();
                 Redis::publish('lobby-server-edit-message-channel', $lobbyMessage->message);
+                event(new MatchLobbyHadAnAction($lobby->owner, $user, 'coin_toss_declined'));
                 return $lobbyMessage;
             }
         }
@@ -445,6 +449,7 @@ class LobbyRepository extends BaseRepository
             'screenshot' => isset($inputs['screenshot']) ? $screenshot : null,
         ]);
         Redis::publish('lobby-server-message-channel', json_encode($newMessage));
+        event(new MatchLobbyHadAnAction($lobby->owner, $request->user(), 'dispute_submitted'));
         return $dispute;
     }
 
