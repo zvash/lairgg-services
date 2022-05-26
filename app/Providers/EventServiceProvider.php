@@ -6,6 +6,7 @@ namespace App\Providers;
 use App\CashOut;
 use App\Events\BracketWasReleased;
 use App\Events\InvitationCreated;
+use App\Events\NewTournamentAnnouncementWasCreated;
 use App\Events\OrderStatusWasChangedToShipped;
 use App\Events\ParticipantStatusWasUpdated;
 use App\Events\TeamGemsWereShared;
@@ -14,6 +15,7 @@ use App\Events\TournamentRulesWereUpdated;
 use App\Listeners\EmailInvitation;
 use App\Listeners\NotifyBracketWasReleased;
 use App\Listeners\NotifyInvitation;
+use App\Listeners\NotifyNewTournamentAnnouncementWasCreated;
 use App\Listeners\NotifyParticipantJoinRequestWasAccepted;
 use App\Listeners\NotifyParticipantJoinRequestWasRejected;
 use App\Listeners\NotifyTeamGemsWereShared;
@@ -24,9 +26,11 @@ use App\Listeners\SendOrderWasShippedEmail;
 use App\Listeners\UpdateBracketWithNewlyAcceptedParticipant;
 use App\Observers\CashOutObserver;
 use App\Observers\OrderObserver;
+use App\Observers\TournamentAnnouncementObserver;
 use App\Observers\TournamentObserver;
 use App\Order;
 use App\Tournament;
+use App\TournamentAnnouncement;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -64,6 +68,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         BracketWasReleased::class => [
             NotifyBracketWasReleased::class,
+        ],
+        NewTournamentAnnouncementWasCreated::class => [
+            NotifyNewTournamentAnnouncementWasCreated::class,
         ]
     ];
 
@@ -78,5 +85,6 @@ class EventServiceProvider extends ServiceProvider
         CashOut::observe(CashOutObserver::class);
         Order::observe(OrderObserver::class);
         Tournament::observe(TournamentObserver::class);
+        TournamentAnnouncement::observe(TournamentAnnouncementObserver::class);
     }
 }
