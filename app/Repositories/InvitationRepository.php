@@ -6,6 +6,7 @@ namespace App\Repositories;
 use App\Enums\ParticipantAcceptanceState;
 use App\Events\InvitationCreated;
 use App\Events\ParticipantStatusWasUpdated;
+use App\Events\TeamPlayersWereChanged;
 use App\Invitation;
 use App\Participant;
 use App\Team;
@@ -253,6 +254,7 @@ class InvitationRepository extends BaseRepository
             $team = Team::find($firstInvitation->invite_aware_id);
             if ($team->players()->where('user_id', $user->id)->count() == 0) {
                 $team->players()->syncWithoutDetaching([$user->id], ['captain' => false]);
+                event(new TeamPlayersWereChanged($team, 'player_joined', $user));
             }
             $this->removeInvitations($invitations->all());
             return $team->players()->where('user_id', $user->id)->get();

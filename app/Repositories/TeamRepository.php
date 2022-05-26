@@ -4,6 +4,8 @@ namespace App\Repositories;
 
 
 use App\Events\TeamGemsWereShared;
+use App\Events\TeamPlayersWereChanged;
+use App\Events\TeamWasDeleted;
 use App\Game;
 use App\Http\Requests\DeleteTeamImagesRequest;
 use App\Http\Requests\StoreTeamRequest;
@@ -300,6 +302,7 @@ class TeamRepository extends BaseRepository
                 ->where('user_id', $userId)
                 ->update(['captain' => true]);
             DB::commit();
+            event(new TeamPlayersWereChanged($team, 'player_promoted', User::find($userId)));
             return $userId;
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -322,6 +325,7 @@ class TeamRepository extends BaseRepository
             ->where('team_id', $team->id)
             ->where('user_id', $userId)
             ->delete();
+        event(new TeamPlayersWereChanged($team, 'player_removed', User::find($userId)));
         return 'done';
     }
 
@@ -345,7 +349,9 @@ class TeamRepository extends BaseRepository
                 $this->promote($team, $notCaptainPlayer->user_id);
             }
         }
-        return $this->removeFromTeam($team, $user->id);
+        $result = $this->removeFromTeam($team, $user->id);
+        event(new TeamPlayersWereChanged($team, 'player_left', $user));
+        return $result;
     }
 
     /**
@@ -358,13 +364,18 @@ class TeamRepository extends BaseRepository
         DB::beginTransaction();
         try {
             $players = Player::whereTeamId($team->id)->get();
+            $userIds = [];
             foreach ($players as $player) {
+                $userIds[] = $player->user_id;
                 $this->removeFromTeam($team, $player->user_id);
             }
             Invitation::query()->where('invite_aware_type', 'App\Team')
                 ->where('invite_aware_id', $team->id)->delete();
+            $teamTitle = $team->title;
+            $logo = $team->logo;
             $team->delete();
             DB::commit();
+            event(new TeamWasDeleted($teamTitle, $logo, request()->user(), $userIds));
             return 'done';
         } catch (\Exception $exception) {
             DB::rollBack();

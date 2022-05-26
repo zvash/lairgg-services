@@ -10,6 +10,8 @@ use App\Events\NewTournamentAnnouncementWasCreated;
 use App\Events\OrderStatusWasChangedToShipped;
 use App\Events\ParticipantStatusWasUpdated;
 use App\Events\TeamGemsWereShared;
+use App\Events\TeamPlayersWereChanged;
+use App\Events\TeamWasDeleted;
 use App\Events\TournamentGemsWereReleased;
 use App\Events\TournamentRulesWereUpdated;
 use App\Listeners\EmailInvitation;
@@ -19,6 +21,8 @@ use App\Listeners\NotifyNewTournamentAnnouncementWasCreated;
 use App\Listeners\NotifyParticipantJoinRequestWasAccepted;
 use App\Listeners\NotifyParticipantJoinRequestWasRejected;
 use App\Listeners\NotifyTeamGemsWereShared;
+use App\Listeners\NotifyTeamPlayersWereChanged;
+use App\Listeners\NotifyTeamWasDeleted;
 use App\Listeners\NotifyTournamentGemsWereReleased;
 use App\Listeners\NotifyTournamentRulesWereUpdated;
 use App\Listeners\SendCustomEmailVerificationNotification;
@@ -71,6 +75,12 @@ class EventServiceProvider extends ServiceProvider
         ],
         NewTournamentAnnouncementWasCreated::class => [
             NotifyNewTournamentAnnouncementWasCreated::class,
+        ],
+        TeamPlayersWereChanged::class => [
+            NotifyTeamPlayersWereChanged::class,
+        ],
+        TeamWasDeleted::class => [
+            NotifyTeamWasDeleted::class,
         ]
     ];
 
