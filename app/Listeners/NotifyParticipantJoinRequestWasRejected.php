@@ -13,7 +13,7 @@ use App\UserNotificationToken;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class NotifyParticipantJoinRequestWasAccepted implements ShouldQueue
+class NotifyParticipantJoinRequestWasRejected
 {
     /**
      * Create the event listener.
@@ -35,39 +35,26 @@ class NotifyParticipantJoinRequestWasAccepted implements ShouldQueue
     {
         $participant = $event->participant;
         $tournament = $participant->tournament;
-        if (!in_array($participant->status, [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])) {
+        if ($participant->status != ParticipantAcceptanceState::REJECTED) {
             return;
         }
-        $title = 'Accepted';
+        $title = 'Declined';
         $body = '';
         $type = PushNotificationType::TOURNAMENT;
         $image = $tournament->image;
         $userIds = [];
         if ($participant->participantable_type == User::class) {
             $userIds[] = $participant->participantable_id;
-            if ($event->previousState != ParticipantAcceptanceState::RESERVED) {
-                $body = __('notifications.tournament.join_request_accepted', [
-                    'tournament' => $tournament->title,
-                ]);
-            } else {
-                $body = __('notifications.tournament.reserve_accepted', [
-                    'tournament' => $tournament->title,
-                ]);
-            }
+            $body = __('notifications.tournament.join_request_declined', [
+                'tournament' => $tournament->title,
+            ]);
         } else if ($participant->participantable_type == Team::class) {
             $team = Team::find($participant->participantable_id);
             $userIds = $team->players->pluck('user_id')->all();
-            if ($event->previousState != ParticipantAcceptanceState::RESERVED) {
-                $body = __('notifications.tournament.join_team_request_accepted', [
-                    'tournament' => $tournament->title,
-                    'team' => $team->title,
-                ]);
-            } else {
-                $body = __('notifications.tournament.reserve_team_accepted', [
-                    'tournament' => $tournament->title,
-                    'team' => $team->title,
-                ]);
-            }
+            $body = __('notifications.tournament.join_team_request_declined', [
+                'tournament' => $tournament->title,
+                'team' => $team->title,
+            ]);
         }
 
         foreach ($userIds as $userId) {

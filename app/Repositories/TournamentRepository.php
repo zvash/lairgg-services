@@ -869,9 +869,10 @@ class TournamentRepository extends BaseRepository
         $participant = $tournament->participants()->where('participants.id', $participantId)->first();
         if ($participant) {
             if ($participant->status != $status) {
+                $previousStatus = $participant->status;
                 $participant->status = $status;
                 $participant->save();
-                event(new ParticipantStatusWasUpdated($participant));
+                event(new ParticipantStatusWasUpdated($participant, $previousStatus));
             }
             return $participant;
         }

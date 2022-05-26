@@ -12,6 +12,7 @@ use App\Events\TournamentGemsWereReleased;
 use App\Listeners\EmailInvitation;
 use App\Listeners\NotifyInvitation;
 use App\Listeners\NotifyParticipantJoinRequestWasAccepted;
+use App\Listeners\NotifyParticipantJoinRequestWasRejected;
 use App\Listeners\NotifyTeamGemsWereShared;
 use App\Listeners\NotifyTournamentGemsWereReleased;
 use App\Listeners\SendCustomEmailVerificationNotification;
@@ -41,6 +42,7 @@ class EventServiceProvider extends ServiceProvider
         ParticipantStatusWasUpdated::class => [
             UpdateBracketWithNewlyAcceptedParticipant::class,
             NotifyParticipantJoinRequestWasAccepted::class,
+            NotifyParticipantJoinRequestWasRejected::class,
         ],
         OrderStatusWasChangedToShipped::class => [
             SendOrderWasShippedEmail::class
