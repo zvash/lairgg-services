@@ -43,10 +43,12 @@ return [
     ],
     'match' => [
         'score_submitted' => '**:player** has submitted the match score.',
+    ],
+    'match_lobby' => [
         'dispute_submitted' => '**:player** has submitted a dispute.',
         'dispute_closed' => 'Dispute has been closed.',
         'coin_toss_request' => '**:player** has requested a coin toss.',
         'coin_toss_accepted' => 'Your coin toss request has been accepted by **:player**.',
         'coin_toss_declined' => 'Your coin toss request has been declined by **:player**.',
-    ],
+    ]
 ];
