@@ -5,11 +5,15 @@ namespace App\Providers;
 
 use App\CashOut;
 use App\Events\BracketWasReleased;
+use App\Events\CashoutStatusWasChanged;
+use App\Events\CashoutWasCreated;
 use App\Events\InvitationCreated;
 use App\Events\MatchLobbyHadAnAction;
 use App\Events\NewTournamentAnnouncementWasCreated;
 use App\Events\OrderStatusWasChangedToShipped;
 use App\Events\ParticipantStatusWasUpdated;
+use App\Events\ShopOrderStateWasUpdated;
+use App\Events\ShopOrderWasCreated;
 use App\Events\TeamGemsWereShared;
 use App\Events\TeamPlayersWereChanged;
 use App\Events\TeamWasDeleted;
@@ -17,11 +21,15 @@ use App\Events\TournamentGemsWereReleased;
 use App\Events\TournamentRulesWereUpdated;
 use App\Listeners\EmailInvitation;
 use App\Listeners\NotifyBracketWasReleased;
+use App\Listeners\NotifyCashoutStatusWasChanged;
+use App\Listeners\NotifyCashoutWasCreated;
 use App\Listeners\NotifyInvitation;
 use App\Listeners\NotifyMatchLobbyHadAnAction;
 use App\Listeners\NotifyNewTournamentAnnouncementWasCreated;
 use App\Listeners\NotifyParticipantJoinRequestWasAccepted;
 use App\Listeners\NotifyParticipantJoinRequestWasRejected;
+use App\Listeners\NotifyShopOrderStateWasUpdated;
+use App\Listeners\NotifyShopOrderWasCreated;
 use App\Listeners\NotifyTeamGemsWereShared;
 use App\Listeners\NotifyTeamPlayersWereChanged;
 use App\Listeners\NotifyTeamWasDeleted;
@@ -86,6 +94,18 @@ class EventServiceProvider extends ServiceProvider
         ],
         MatchLobbyHadAnAction::class => [
             NotifyMatchLobbyHadAnAction::class,
+        ],
+        CashoutWasCreated::class => [
+            NotifyCashoutWasCreated::class,
+        ],
+        CashoutStatusWasChanged::class => [
+            NotifyCashoutStatusWasChanged::class,
+        ],
+        ShopOrderWasCreated::class => [
+            NotifyShopOrderWasCreated::class,
+        ],
+        ShopOrderStateWasUpdated::class => [
+            NotifyShopOrderStateWasUpdated::class,
         ]
     ];
 

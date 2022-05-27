@@ -3,6 +3,8 @@
 namespace App\Observers;
 
 use App\CashOut;
+use App\Events\CashoutStatusWasChanged;
+use App\Events\CashoutWasCreated;
 use App\OrderRequest;
 
 class CashOutObserver
@@ -21,6 +23,14 @@ class CashOutObserver
             'requestable_id' => $cashOut->id,
         ];
         OrderRequest::query()->create($params);
+        event(new CashoutWasCreated($cashOut));
+    }
+
+    public function updating(CashOut $cashOut)
+    {
+        if ($cashOut->isDirty('status')) {
+            event(new CashoutStatusWasChanged($cashOut));
+        }
     }
 
     /**

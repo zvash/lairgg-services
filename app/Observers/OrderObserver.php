@@ -2,6 +2,8 @@
 
 namespace App\Observers;
 
+use App\Events\ShopOrderStateWasUpdated;
+use App\Events\ShopOrderWasCreated;
 use App\Order;
 use App\OrderRequest;
 
@@ -21,6 +23,14 @@ class OrderObserver
             'requestable_id' => $order->id,
         ];
         OrderRequest::query()->create($params);
+        event(new ShopOrderWasCreated($order));
+    }
+
+    public function updating(Order $order)
+    {
+        if ($order->isDirty('state')) {
+            event(new ShopOrderStateWasUpdated($order));
+        }
     }
 
     /**

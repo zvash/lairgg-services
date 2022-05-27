@@ -13,7 +13,8 @@ class PushNotificationType extends Enum
     const TEAM_INVITATION = 'team_invitation';
     const TOURNAMENT = 'tournament';
     const TEAM = 'team';
-    const ORDER = 'order';
+    const SHOP = 'order';
+    const CASH_OUT = 'cash_out';
     const MATCH = 'match';
     const MATCH_LOBBY = 'match_lobby';
     const TOURNAMENT_LOBBY = 'tournament_lobby';
