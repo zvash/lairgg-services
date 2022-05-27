@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Jobs\ProcessNotFinalOrders;
+use App\ScheduledJobs\NotifyTournamentWillHaveAnActionInFuture;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -25,8 +26,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->job(new ProcessNotFinalOrders())->everyMinute()
-            ->withoutOverlapping(5);
+        $schedule->job(new ProcessNotFinalOrders())
+            ->everyMinute()
+            ->withoutOverlapping(5)
+            ->onOneServer();
+
+        $schedule->call(new NotifyTournamentWillHaveAnActionInFuture())
+            ->everyMinute()
+            ->onOneServer();
     }
 
     /**

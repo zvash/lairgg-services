@@ -34,9 +34,12 @@ return [
     'message' => [
         'team_deleted' => '**:team** has been deleted by **:player**.'
     ],
-    'order' => [
+    'shop' => [
         'preparing' => 'Your order is preparing.',
         'shipped' => 'Your order has been shipped.',
+        'place' => 'Your order has been placed.',
+    ],
+    'cash_out' => [
         'cash_out_denied' => 'Your request to cash out has been denied.',
         'cash_out_approved' => 'Your request to cash out has been approved.',
         'place' => 'Your order has been placed.',
