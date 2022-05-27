@@ -28,7 +28,7 @@ class OrderObserver
 
     public function updating(Order $order)
     {
-        if ($order->isDirty('state')) {
+        if ($order->isDirty('status')) {
             event(new ShopOrderStateWasUpdated($order));
         }
     }
