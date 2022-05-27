@@ -29,13 +29,11 @@ class Kernel extends ConsoleKernel
         $schedule->job(new ProcessNotFinalOrders())
             ->everyMinute()
             ->withoutOverlapping(5)
-            ->name('process not final orders')
-            ->onOneServer();
+            ->name('process not final orders');
 
         $schedule->call(new NotifyTournamentWillHaveAnActionInFuture())
             ->everyMinute()
-            ->name('notify changes that will happen to tournaments')
-            ->onOneServer();
+            ->name('notify changes that will happen to tournaments');
     }
 
     /**
