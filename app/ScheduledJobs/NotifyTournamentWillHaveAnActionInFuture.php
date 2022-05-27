@@ -23,8 +23,8 @@ class NotifyTournamentWillHaveAnActionInFuture
         $now = Carbon::now();
         $oneMinuteFromNow = Carbon::now()->addMinute()->subSecond();
         $readyToCheckInTournaments = Tournament::query()
-            ->whereRaw("started_at - INTERVAL check_in_period MINUTE >= {$now->format('Y-m-d H:i:s')}")
-            ->whereRaw("started_at - INTERVAL check_in_period MINUTE <= {$oneMinuteFromNow->format('Y-m-d H:i:s')}")
+            ->whereRaw("started_at - INTERVAL check_in_period MINUTE >= '{$now->format('Y-m-d H:i:s')}'")
+            ->whereRaw("started_at - INTERVAL check_in_period MINUTE <= '{$oneMinuteFromNow->format('Y-m-d H:i:s')}'")
             ->get()
             ->all();
 
