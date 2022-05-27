@@ -901,8 +901,12 @@ class TournamentRepository extends BaseRepository
                                 'team_id' => $participant->participantable_id,
                                 'points' => $points,
                             ]);
-                        $userIds = Team::find($participant->participantable_id)->players->pluck('user_id')->all();
-                        event(new TournamentGemsWereReleased($tournament, $userIds, true));
+                        $userIds = Team::find($participant->participantable_id)
+                            ->players()
+                            ->where('captain', 1)
+                            ->pluck('user_id')
+                            ->all();
+                        event(new TournamentGemsWereReleased($tournament, true, $userIds, true, $participant->participantable_id));
                     } else if ($participant->participantable_type == User::class) {
                         UserBalance::query()
                             ->create([
@@ -911,7 +915,7 @@ class TournamentRepository extends BaseRepository
                                 'points' => $points,
                             ]);
                         User::find($participant->participantable_id)->points($points);
-                        event(new TournamentGemsWereReleased($tournament, [$participant->participantable_id], false));
+                        event(new TournamentGemsWereReleased($tournament, true, [$participant->participantable_id], false));
                     }
                 } catch (\Exception $exception) {
                     return 'Already Released';

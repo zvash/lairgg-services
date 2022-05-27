@@ -32,8 +32,14 @@ class NotifyTournamentGemsWereReleased implements ShouldQueue
     {
         $tournamentTitle = $event->tournament->title;
         $notificationTemplate = 'notifications.prize.prize_from_tournament';
+        $payload = [
+            'is_team_tournament' => $event->isTeamTournament,
+            'prize_has_gem' => $event->isGem,
+            'team_id' => null,
+        ];
         if ($event->isTeamTournament) {
             $notificationTemplate = 'notifications.prize.prize_for_team';
+            $payload['team_id'] = $event->teamId;
         }
         $subject = 'You won a prize!';
         $body = __($notificationTemplate, [
@@ -49,7 +55,7 @@ class NotifyTournamentGemsWereReleased implements ShouldQueue
                 'body' => $body,
                 'image' => $event->tournament->logo,
                 'resource_id' => $event->tournament->id,
-                'payload' => null,
+                'payload' => $payload,
             ]);
         }
 

@@ -31,16 +31,30 @@ class TournamentGemsWereReleased
     public $isTeamTournament;
 
     /**
+     * @var int $teamId
+     */
+    public $teamId;
+
+    /**
+     * @var boolean $isGem
+     */
+    public $isGem;
+
+    /**
      * TournamentGemsWereReleased constructor.
      * @param Tournament $tournament
+     * @param bool $isGem
      * @param array $userIds
      * @param bool $isTeamTournament
+     * @param int|null $teamId
      */
-    public function __construct(Tournament $tournament, array $userIds, bool $isTeamTournament)
+    public function __construct(Tournament $tournament, bool $isGem, array $userIds, bool $isTeamTournament, int $teamId = null)
     {
         $this->tournament = $tournament;
+        $this->isGem = $isGem;
         $this->userIds = $userIds;
         $this->isTeamTournament = $isTeamTournament;
+        $this->teamId = $teamId;
     }
 
 

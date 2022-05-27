@@ -43,15 +43,19 @@ class NotifyMatchLobbyHadAnAction implements ShouldQueue
         $image = $event->user->avatar;
         $userIds = [];
 
+        $participantTitles = [];
+
         $participants = $match->getParticipants();
         foreach ($participants as $participant) {
             if ($participant->participantable_type == User::class) {
                 $userIds[] = $participant->participantable_id;
+                $participantTitles[] = User::find($participant->participantable_id)->username;
             } else if ($participant->participantable_type == Team::class) {
                 $captainId = Team::find($participant->participantable_id)->players()->where('captain', 1)->get()->pluck('user_id')->first();
                 if ($captainId) {
                     $userIds[] = $captainId;
                 }
+                $participantTitles[] = Team::find($participant->participantable_id)->title;
             }
         }
 
@@ -77,7 +81,7 @@ class NotifyMatchLobbyHadAnAction implements ShouldQueue
                 'body' => $body,
                 'image' => $image,
                 'resource_id' => $resourceId,
-                'payload' => null,
+                'payload' => ['participants_titles' => $participantTitles],
             ]);
         }
 
