@@ -33,6 +33,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->call(new NotifyTournamentWillHaveAnActionInFuture())
             ->everyMinute()
+            ->withoutOverlapping(2)
             ->name('notify changes that will happen to tournaments');
     }
 
