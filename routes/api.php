@@ -82,6 +82,7 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                 $router->group(['prefix' => 'notifications'], function ($router) {
                     $router->get('/all', 'PushNotificationController@all');
+                    $router->get('/unread-count', 'PushNotificationController@unreadCount');
                 });
 
                 $router->group(['prefix' => 'organizations'], function ($router) {

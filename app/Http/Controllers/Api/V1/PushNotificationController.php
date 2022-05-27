@@ -20,4 +20,15 @@ class PushNotificationController extends Controller
     {
         return $this->success($repository->allForUser($request->user()));
     }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function unreadCount(Request $request)
+    {
+        $user = $request->user();
+        $unreadCount = $user->pushNotifications()->whereNull('read_at')->count();
+        return $this->success(['unread_count' => $unreadCount]);
+    }
 }
