@@ -40,7 +40,7 @@ class NotifyAboutTournamentStateChanges implements ShouldQueue
     {
         $this->tournaments = $tournaments;
         $this->action = $action;
-        Log::info($action . ' -> tournaments count: ' , count_chars($tournaments));
+        Log::info($action . ' -> tournaments count: ' . count($tournaments));
     }
 
 
