@@ -32,7 +32,6 @@ class NotifyShopOrderStateWasUpdated implements ShouldQueue
     public function handle(ShopOrderStateWasUpdated $event)
     {
         $template = 'notifications.shop.';
-        $template = 'notifications.cash_out.';
         if ($event->order->status == OrderStatus::PROCESSING) {
             $template .= 'preparing';
         } else if ($event->order->status == OrderStatus::SHIPPED) {
