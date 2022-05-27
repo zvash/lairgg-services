@@ -40,7 +40,6 @@ class NotifyAboutTournamentStateChanges implements ShouldQueue
     {
         $this->tournaments = $tournaments;
         $this->action = $action;
-        Log::info($action . ' -> tournaments count: ' . count($tournaments));
     }
 
 
@@ -51,7 +50,6 @@ class NotifyAboutTournamentStateChanges implements ShouldQueue
      */
     public function handle()
     {
-        Log::info($this->action . ' job started');
         $template = 'notifications.tournament.' . $this->action;
         foreach ($this->tournaments as $tournament) {
             $participants = $tournament->participants()->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])->get();
