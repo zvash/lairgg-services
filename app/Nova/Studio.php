@@ -91,7 +91,7 @@ class Studio extends Resource
                 ->required()
                 ->creationRules('required')
                 ->updateRules('nullable')
-                ->rules('mimes:jpeg,jpg,png'),
+                ->rules('mimes:jpeg,jpg,png,webp'),
 
             Text::make('Title')
                 ->sortable()

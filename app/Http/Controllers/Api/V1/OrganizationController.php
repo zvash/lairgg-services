@@ -212,8 +212,8 @@ class OrganizationController extends Controller
             'slug' => 'required|filled|unique:organizations',
             'bio' => 'string',
             'timezone' => 'required|string|in:' . implode(',', $timezones),
-            'logo' => 'mimes:jpeg,jpg,png',
-            'cover' => 'mimes:jpeg,jpg,png',
+            'logo' => 'mimes:jpeg,jpg,png,webp',
+            'cover' => 'mimes:jpeg,jpg,png,webp',
             'status' => 'required|boolean'
         ];
         return $this->validateRules($request, $rules);
@@ -237,8 +237,8 @@ class OrganizationController extends Controller
             ],
             'bio' => 'string',
             'timezone' => 'string|in:' . implode(',', $timezones),
-            'logo' => 'mimes:jpeg,jpg,png',
-            'cover' => 'mimes:jpeg,jpg,png',
+            'logo' => 'mimes:jpeg,jpg,png,webp',
+            'cover' => 'mimes:jpeg,jpg,png,webp',
             'status' => 'boolean'
         ];
         return $this->validateRules($request, $rules);

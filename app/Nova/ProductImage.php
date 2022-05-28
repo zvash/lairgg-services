@@ -86,7 +86,7 @@ class productImage extends Resource
                 ->required()
                 ->creationRules('required')
                 ->updateRules('nullable')
-                ->rules('mimes:jpeg,jpg,png'),
+                ->rules('mimes:jpeg,jpg,png,webp'),
         ];
     }
     protected function relations()

@@ -20,7 +20,7 @@ class SetPlayScoreRequest extends FormRequest
             'scores.*.score' => 'int',
             'scores.*.is_forfeit' => 'required|boolean',
             'map_id' => 'int|min:0|exists:maps,id',
-            'screenshot' => 'mimes:jpeg,jpg,png',
+            'screenshot' => 'mimes:jpeg,jpg,png,webp',
         ];
     }
 }

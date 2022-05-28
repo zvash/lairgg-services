@@ -100,7 +100,7 @@ class Game extends Resource
                 ->required()
                 ->creationRules('required')
                 ->updateRules('nullable')
-                ->rules('mimes:jpeg,jpg,png'),
+                ->rules('mimes:jpeg,jpg,png,webp'),
 
             Image::make('Image')
                 ->disk('s3')
@@ -112,7 +112,7 @@ class Game extends Resource
                 ->required()
                 ->creationRules('required')
                 ->updateRules('nullable')
-                ->rules('mimes:jpeg,jpg,png'),
+                ->rules('mimes:jpeg,jpg,png,webp'),
 
             Image::make('Cover')
                 ->disk('s3')
@@ -124,7 +124,7 @@ class Game extends Resource
                 ->required()
                 ->creationRules('required')
                 ->updateRules('nullable')
-                ->rules('mimes:jpeg,jpg,png'),
+                ->rules('mimes:jpeg,jpg,png,webp'),
 
             Text::make('Title')
                 ->sortable()

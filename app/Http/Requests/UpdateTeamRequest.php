@@ -16,8 +16,8 @@ class UpdateTeamRequest extends FormRequest
         return [
             'title' => 'string|filled|min:3',
             'bio' => 'string',
-            'logo' => 'mimes:jpeg,jpg,png',
-            'cover' => 'mimes:jpeg,jpg,png',
+            'logo' => 'mimes:jpeg,jpg,png,webp',
+            'cover' => 'mimes:jpeg,jpg,png,webp',
             'game_id' => 'int|exists:games,id',
             'links' => 'array|nullable',
             'links.*' => [

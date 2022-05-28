@@ -17,8 +17,8 @@ class UpdateUserRequest extends FormRequest
         return [
             'first_name' => 'regex:/^[\pL\pM\s-]+$/u|max:50',
             'last_name' => 'regex:/^[\pL\pM\s-]+$/u|max:50',
-            'avatar' => 'mimes:jpeg,jpg,png',
-            'cover' => 'mimes:jpeg,jpg,png',
+            'avatar' => 'mimes:jpeg,jpg,png,webp',
+            'cover' => 'mimes:jpeg,jpg,png,webp',
             'bio' => 'string',
             'dob' => 'date|date_format:Y-m-d',
             'phone' => 'regex:/^([0-9\s\-\+\(\)]*)$/|min:10',

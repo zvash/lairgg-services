@@ -16,8 +16,8 @@ class StoreTeamRequest extends FormRequest
         return [
             'title' => 'required|string|filled|min:3',
             'bio' => 'string',
-            'logo' => 'mimes:jpeg,jpg,png',
-            'cover' => 'mimes:jpeg,jpg,png',
+            'logo' => 'mimes:jpeg,jpg,png,webp',
+            'cover' => 'mimes:jpeg,jpg,png,webp',
             'game_id' => 'required|int|exists:games,id',
         ];
     }

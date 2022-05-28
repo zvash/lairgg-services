@@ -120,7 +120,7 @@ class User extends Resource
                 ->prunable()
                 ->deletable()
                 ->nullable()
-                ->rules('nullable', 'mimes:jpeg,jpg,png'),
+                ->rules('nullable', 'mimes:jpeg,jpg,png,webp'),
 
             Image::make('Cover')
                 ->hideFromIndex()
@@ -130,7 +130,7 @@ class User extends Resource
                 ->prunable()
                 ->deletable()
                 ->nullable()
-                ->rules('nullable', 'mimes:jpeg,jpg,png'),
+                ->rules('nullable', 'mimes:jpeg,jpg,png,webp'),
 
             Text::make('Full name', function () {
                 return $this->title();

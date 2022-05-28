@@ -96,7 +96,7 @@ class Team extends Resource
                 ->prunable()
                 ->deletable()
                 ->nullable()
-                ->rules('nullable', 'mimes:jpeg,jpg,png'),
+                ->rules('nullable', 'mimes:jpeg,jpg,png,webp'),
 
             Image::make('Cover')
                 ->disk('s3')
@@ -106,7 +106,7 @@ class Team extends Resource
                 ->prunable()
                 ->deletable()
                 ->nullable()
-                ->rules('nullable', 'mimes:jpeg,jpg,png'),
+                ->rules('nullable', 'mimes:jpeg,jpg,png,webp'),
 
             Text::make('Title')
                 ->sortable()

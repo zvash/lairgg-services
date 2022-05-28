@@ -100,7 +100,7 @@ class Product extends Resource
                 ->prunable()
                 ->deletable()
                 ->nullable()
-                ->rules('nullable', 'mimes:jpeg,jpg,png'),
+                ->rules('nullable', 'mimes:jpeg,jpg,png,webp'),
 
             Boolean::make('Is Featured'),
 

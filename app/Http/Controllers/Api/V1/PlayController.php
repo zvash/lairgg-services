@@ -75,7 +75,7 @@ class PlayController extends Controller
     {
         $rules = [
             'map_id' => 'int:exists:maps,id',
-            'screenshot' => 'mimes:jpeg,jpg,png',
+            'screenshot' => 'mimes:jpeg,jpg,png,webp',
         ];
         return $this->validateRules($request, $rules);
     }

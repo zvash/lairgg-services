@@ -93,7 +93,7 @@ class Page extends Resource
                 ->prunable()
                 ->deletable()
                 ->nullable()
-                ->rules('nullable', 'mimes:jpeg,jpg,png'),
+                ->rules('nullable', 'mimes:jpeg,jpg,png,webp'),
 
             Text::make('Title')
                 ->sortable()

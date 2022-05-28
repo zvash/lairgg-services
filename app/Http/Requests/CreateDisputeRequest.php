@@ -15,7 +15,7 @@ class CreateDisputeRequest extends FormRequest
     {
         return [
             'title' => 'required|string|min:4',
-            'screenshot' => 'mimes:jpeg,jpg,png',
+            'screenshot' => 'mimes:jpeg,jpg,png,webp',
         ];
     }
 }
