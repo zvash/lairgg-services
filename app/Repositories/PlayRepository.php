@@ -116,14 +116,35 @@ class PlayRepository extends BaseRepository
             }
         }
         $match = $play->match;
+        $winnerAndLosers = $match->getWinnerAndLosers();
         if ($match->isOver()) {
-            $winnerAndLosers = $match->getWinnerAndLosers();
             if ($winnerAndLosers['winner_id']) {
                 $match->setAttribute('winner_team_id', $winnerAndLosers['winner_id'])->save();
                 $match->addWinnerToNextMatchForWinners();
                 $match->addLoserToNextMatchForLosers();
+            } else {
+                $this->removeParticipantsFromNextMatches($match, $winnerAndLosers);
             }
+        } else {
+            $this->removeParticipantsFromNextMatches($match, $winnerAndLosers);
         }
         return $play;
+    }
+
+    /**
+     * @param Match $match
+     * @param array $winnerAndLosers
+     */
+    private function removeParticipantsFromNextMatches(Match $match, array $winnerAndLosers): void
+    {
+        $currentWinner = $match->winner_id;
+        if ($currentWinner) {
+            $match->setAttribute('winner_team_id', null)->save();
+            $match->removeParticipantFromNextMatchForWinners($currentWinner);
+            $loserIds = isset($winnerAndLosers['losers_ids']) ? $winnerAndLosers['losers_ids'] : [];
+            foreach ($loserIds as $loserId) {
+                $match->removeParticipantFromNextMatchForLosers($loserId);
+            }
+        }
     }
 }

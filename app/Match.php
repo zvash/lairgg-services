@@ -308,6 +308,28 @@ class Match extends Model
     }
 
     /**
+     * @param int $participantId
+     */
+    public function removeParticipantFromNextMatchForWinners(int $participantId)
+    {
+        $nextMatch = $this->tournament->engine()->getNextMatchForWinner($this);
+        if ($nextMatch) {
+            $this->removeParticipantFromMatch($participantId, $nextMatch);
+        }
+    }
+
+    /**
+     * @param int $participantId
+     */
+    public function removeParticipantFromNextMatchForLosers(int $participantId)
+    {
+        $nextMatch = $this->tournament->engine()->getNextMatchForLoser($this);
+        if ($nextMatch) {
+            $this->removeParticipantFromMatch($participantId, $nextMatch);
+        }
+    }
+
+    /**
      *
      */
     public function addLoserToNextMatchForLosers()
@@ -546,5 +568,26 @@ class Match extends Model
             'group' => $this->group,
             'number_of_groups' => $numberOfGroups,
         ];
+    }
+
+    /**
+     * @param int $participantId
+     * @param Match|null $match
+     */
+    private function removeParticipantFromMatch(int $participantId, ?Match $match): void
+    {
+        $playsIds = $match->plays->pluck('id')->all();
+        $playsIds[] = 0;
+        $parties = Party::query()
+            ->whereIn('play_id', $playsIds)
+            ->where('team_id', $participantId)
+            ->get();
+        foreach ($parties as $party) {
+            $party->setArrtibute('team_id', null)
+                ->setAttribute('score', null)
+                ->setAttribute('is_winner', 0)
+                ->setAttribute('is_forfeit', 0)
+                ->save();
+        }
     }
 }
