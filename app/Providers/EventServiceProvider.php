@@ -64,7 +64,7 @@ class EventServiceProvider extends ServiceProvider
             NotifyInvitation::class,
         ],
         ParticipantStatusWasUpdated::class => [
-            UpdateBracketWithNewlyAcceptedParticipant::class,
+            //UpdateBracketWithNewlyAcceptedParticipant::class,
             NotifyParticipantJoinRequestWasAccepted::class,
             NotifyParticipantJoinRequestWasRejected::class,
         ],

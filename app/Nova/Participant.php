@@ -2,15 +2,9 @@
 
 namespace App\Nova;
 
+use App\Enums\ParticipantAcceptanceState;
 use Illuminate\Http\Request;
-use Laravel\Nova\Fields\{
-    BelongsTo,
-    DateTime,
-    ID,
-    MorphMany,
-    MorphTo,
-    Number
-};
+use Laravel\Nova\Fields\{BelongsTo, DateTime, ID, MorphMany, MorphTo, Number, Select};
 use Laravel\Nova\Panel;
 
 class Participant extends Resource
@@ -86,8 +80,16 @@ class Participant extends Resource
      */
     protected function details()
     {
+        $status = ParticipantAcceptanceState::toArray();
+        $sameKeyStatus = [];
+        foreach ($status as $value) {
+            $sameKeyStatus[$value] = $value;
+        }
         return [
             ID::make()->sortable(),
+
+            Select::make('Status')
+                ->options($sameKeyStatus),
 
             DateTime::make('Checked in at')
                 ->sortable()
