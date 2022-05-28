@@ -58,6 +58,7 @@ class TournamentRepository extends BaseRepository
         $userCanJoin = false;
         $userJoinStatus = 'not-joined';
         $userCheckedIn = false;
+        $userIsCaptain = false;
 
         $teamParticipants = $tournament->players > 1;
         if ($teamParticipants) {
@@ -73,10 +74,16 @@ class TournamentRepository extends BaseRepository
                 ->where('participantable_type', User::class)
                 ->where('participantable_id', $user->id)
                 ->first();
+            $userIsCaptain = true;
         }
         if ($participationRecord) {
             $userJoinStatus = $participationRecord->status;
             $userCheckedIn = $participationRecord->checked_in_at != null;
+            if ($participationRecord->participantable_type == Team::class) {
+                $team = Team::find($participationRecord->participantable_id);
+                $captain = $team->players()->where('captain', 1)->first();
+                $userIsCaptain = $captain->user_id == $user->id;
+            }
         }
         $now = \Carbon\Carbon::now();
         $startTime = $tournament->started_at;
@@ -94,6 +101,7 @@ class TournamentRepository extends BaseRepository
         $tournament['participants_type'] = $teamParticipants ? 'team' : 'player';
         //$tournament['participants'] = $participants;
         $tournament['current_size'] = count($participants);
+        $tournament['viewer_is_captain'] = $userIsCaptain;
         $tournament['join_status'] = [
             'can_join' => $userCanJoin,
             'status' => $userJoinStatus,
