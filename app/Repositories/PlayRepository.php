@@ -137,7 +137,7 @@ class PlayRepository extends BaseRepository
      */
     private function removeParticipantsFromNextMatches(Match $match, array $winnerAndLosers): void
     {
-        $currentWinner = $match->winner_id;
+        $currentWinner = $match->winner_team_id;
         if ($currentWinner) {
             $match->setAttribute('winner_team_id', null)->save();
             $match->removeParticipantFromNextMatchForWinners($currentWinner);
