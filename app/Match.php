@@ -200,9 +200,18 @@ class Match extends Model
      */
     public function isOver()
     {
-        return $this->plays()->whereHas('parties', function ($parties) {
-            return $parties->whereNull('score');
-        })->count() == 0;
+        $scores = $this->getMidGameScores()->all();
+        $playsCount = $this->plays()->count();
+        $halfScore = intval($playsCount / 2);
+        foreach ($scores as $record) {
+            if ($record['score'] > $halfScore) {
+                return true;
+            }
+        }
+        return false;
+//        return $this->plays()->whereHas('parties', function ($parties) {
+//            return $parties->whereNull('score');
+//        })->count() == 0;
     }
 
     /**
@@ -213,7 +222,7 @@ class Match extends Model
         return !$this->winner_team_id &&
             $this->plays()->whereHas('parties', function ($parties) {
                 return $parties->whereNotNull('score');
-            })->count();
+            })->count() > 0;
     }
 
     /**
