@@ -18,10 +18,8 @@ class TournamentObserver
      */
     public function created(Tournament $tournament)
     {
-        Nova::whenServing(function (NovaRequest $request) use ($tournament) {
-            $repository = new \App\Repositories\LobbyRepository();
-            $repository->createBy($tournament);
-        });
+        $repository = new \App\Repositories\LobbyRepository();
+        $repository->createBy($tournament);
     }
     /**
      * Handle the tournament "updating" event.
