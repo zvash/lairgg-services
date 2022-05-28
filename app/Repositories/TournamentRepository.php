@@ -581,7 +581,8 @@ class TournamentRepository extends BaseRepository
      */
     public function getUserTournaments(User $user, int $paginate = 0)
     {
-        $tournaments = $this->userTournamentsQueryBuilder($user);
+        $tournaments = $this->userTournamentsQueryBuilder($user)
+            ->orderBy('started_at', 'DESC');;
 
         if ($paginate) {
             return $tournaments->paginate($paginate);
