@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use App\Nova\Actions\ReleaseRandomBracket;
 use App\Enums\{
     Platform, Status, TournamentStructure
 };
@@ -414,6 +415,24 @@ class Tournament extends Resource
             HasMany::make('Participants'),
 
             HasMany::make('Matches'),
+        ];
+    }
+
+    /**
+     * Get the actions available for the resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array
+     */
+    public function actions(Request $request)
+    {
+        return [
+            (new ReleaseRandomBracket())
+                ->confirmText('Do you want to create a new bracket and release it?')
+                ->confirmButtonText('Yes')
+                ->cancelButtonText('No')
+                ->showOnTableRow()
+                ->showOnDetail(),
         ];
     }
 }

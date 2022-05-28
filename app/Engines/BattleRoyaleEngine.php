@@ -84,6 +84,7 @@ class BattleRoyaleEngine extends TournamentEngine
      */
     public function createBracket()
     {
+        return false;
         // TODO: Implement createBracket() method.
     }
 

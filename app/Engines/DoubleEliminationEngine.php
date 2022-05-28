@@ -57,11 +57,14 @@ class DoubleEliminationEngine extends TournamentEngine
             $this->fillNextMatches();
             DB::commit();
             event(new BracketWasReleased($this->tournament));
+            return true;
         } catch (TournamentIsActiveException $exception) {
             DB::rollBack();
+            return false;
             dd($exception->getMessage());
         } catch (\Exception $exception) {
             DB::rollBack();
+            return false;
             dd($exception->getMessage());
         }
     }
