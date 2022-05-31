@@ -586,7 +586,7 @@ class Match extends Model
             ->where('team_id', $participantId)
             ->get();
         foreach ($parties as $party) {
-            $party->setArrtibute('team_id', null)
+            $party->setAttribute('team_id', null)
                 ->setAttribute('score', null)
                 ->setAttribute('is_winner', 0)
                 ->setAttribute('is_forfeit', 0)
