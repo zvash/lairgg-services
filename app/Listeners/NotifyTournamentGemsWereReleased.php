@@ -53,7 +53,7 @@ class NotifyTournamentGemsWereReleased implements ShouldQueue
                 'type' => PushNotificationType::PRIZE,
                 'title' => $subject,
                 'body' => $body,
-                'image' => $event->tournament->logo,
+                'image' => $event->tournament->image,
                 'resource_id' => $event->tournament->id,
                 'payload' => $payload,
             ]);
