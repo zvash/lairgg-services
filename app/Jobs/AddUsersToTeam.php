@@ -63,7 +63,7 @@ class AddUsersToTeam
             'last_name' => $this->faker->lastName(),
             'email' => $this->faker->email(),
             'username' => str_replace('.', '_', $this->faker->userName()),
-            'timezone' => 'Europe/Lisbon',
+            'timezone' => 'Europe/London',
             'gender_id' => 1,
             'password' => bcrypt('passwords'),
         ];
