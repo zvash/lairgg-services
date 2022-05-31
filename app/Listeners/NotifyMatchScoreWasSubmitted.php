@@ -2,9 +2,8 @@
 
 namespace App\Listeners;
 
-use App\Enums\ParticipantAcceptanceState;
 use App\Enums\PushNotificationType;
-use App\Events\TournamentRulesWereUpdated;
+use App\Events\MatchScoreWasSubmitted;
 use App\PushNotification;
 use App\Services\NotificationSender;
 use App\Team;
@@ -13,7 +12,7 @@ use App\UserNotificationToken;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class NotifyTournamentRulesWereUpdated implements ShouldQueue
+class NotifyMatchScoreWasSubmitted implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -28,29 +27,40 @@ class NotifyTournamentRulesWereUpdated implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  TournamentRulesWereUpdated  $event
+     * @param  MatchScoreWasSubmitted  $event
      * @return void
      */
-    public function handle(TournamentRulesWereUpdated $event)
+    public function handle(MatchScoreWasSubmitted $event)
     {
-        $tournament = $event->tournament;
-        $participants = $tournament->participants()->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])->get();
-        $title = 'Update';
-        $body = __('notifications.tournament.rules', [
-            'tournament' => $tournament->title,
+        $match = $event->match;
+        $template = 'notifications.match.score_submitted';
+        $title = 'Score Submitted';
+        $body = __($template, [
+            'player' => $event->user->username,
         ]);
-        $type = PushNotificationType::TOURNAMENT;
-        $image = $tournament->image;
+        $type = PushNotificationType::MATCH;
+        $resourceId = $match->id;
+        $image = $event->user->avatar;
         $userIds = [];
+
+        $participantTitles = [];
+
+        $participants = $match->getParticipants();
         foreach ($participants as $participant) {
             if ($participant->participantable_type == User::class) {
                 $userIds[] = $participant->participantable_id;
+                $participantTitles[] = User::find($participant->participantable_id)->username;
             } else if ($participant->participantable_type == Team::class) {
-                $team = Team::find($participant->participantable_id);
-                $teamUserIds = $team->players->pluck('user_id')->all();
-                $userIds = array_merge($userIds, $teamUserIds);
+                $captainId = Team::find($participant->participantable_id)->players()->where('captain', 1)->get()->pluck('user_id')->first();
+                if ($captainId) {
+                    $userIds[] = $captainId;
+                }
+                $participantTitles[] = Team::find($participant->participantable_id)->title;
             }
         }
+
+        $userIds = $this->removeItemFromArray($userIds, $event->user->id);
+
         $userIds = array_unique($userIds);
 
         foreach ($userIds as $userId) {
@@ -60,8 +70,8 @@ class NotifyTournamentRulesWereUpdated implements ShouldQueue
                 'title' => $title,
                 'body' => $body,
                 'image' => $image,
-                'resource_id' => $tournament->id,
-                'payload' => null,
+                'resource_id' => $resourceId,
+                'payload' => ['participants_titles' => $participantTitles],
             ]);
         }
 
@@ -76,5 +86,18 @@ class NotifyTournamentRulesWereUpdated implements ShouldQueue
         if ($tokens) {
             $pushService->addTokens($tokens)->send();
         }
+    }
+
+    /**
+     * @param $arr
+     * @param $item
+     * @return mixed
+     */
+    private function removeItemFromArray($arr, $item)
+    {
+        if (($key = array_search($item, $arr)) !== false) {
+            unset($arr[$key]);
+        }
+        return $arr;
     }
 }

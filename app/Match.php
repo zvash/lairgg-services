@@ -231,7 +231,10 @@ class Match extends Model
     public function isRestMatch()
     {
         $firstPlay = $this->plays()->first();
-        return $firstPlay->parties()->whereNotNull('team_id')->count() == 1;
+        $hasJustOnePlayer = $firstPlay->parties()->whereNotNull('team_id')->count() == 1;
+        if ($hasJustOnePlayer) {
+            $previousMatch = $this->getPreviousMatches();
+        }
     }
 
     /**

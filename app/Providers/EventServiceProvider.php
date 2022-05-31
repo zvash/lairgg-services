@@ -9,6 +9,7 @@ use App\Events\CashoutStatusWasChanged;
 use App\Events\CashoutWasCreated;
 use App\Events\InvitationCreated;
 use App\Events\MatchLobbyHadAnAction;
+use App\Events\MatchScoreWasSubmitted;
 use App\Events\NewTournamentAnnouncementWasCreated;
 use App\Events\OrderStatusWasChangedToShipped;
 use App\Events\ParticipantStatusWasUpdated;
@@ -25,6 +26,7 @@ use App\Listeners\NotifyCashoutStatusWasChanged;
 use App\Listeners\NotifyCashoutWasCreated;
 use App\Listeners\NotifyInvitation;
 use App\Listeners\NotifyMatchLobbyHadAnAction;
+use App\Listeners\NotifyMatchScoreWasSubmitted;
 use App\Listeners\NotifyNewTournamentAnnouncementWasCreated;
 use App\Listeners\NotifyParticipantJoinRequestWasAccepted;
 use App\Listeners\NotifyParticipantJoinRequestWasRejected;
@@ -106,7 +108,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         ShopOrderStateWasUpdated::class => [
             NotifyShopOrderStateWasUpdated::class,
-        ]
+        ],
+        MatchScoreWasSubmitted::class => [
+            NotifyMatchScoreWasSubmitted::class,
+        ],
     ];
 
     /**

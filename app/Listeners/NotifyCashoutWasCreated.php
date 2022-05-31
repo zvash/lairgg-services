@@ -52,7 +52,7 @@ class NotifyCashoutWasCreated implements ShouldQueue
             ]);
         }
 
-        $notStyledBody = str_replace('**', '', $body);
+        $notStyledBody = str_replace('**', '"', $body);
         $pushService = new NotificationSender($title, $notStyledBody);
         $userIds[] = 0;
         $tokens = UserNotificationToken::query()

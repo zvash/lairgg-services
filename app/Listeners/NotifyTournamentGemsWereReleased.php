@@ -45,7 +45,7 @@ class NotifyTournamentGemsWereReleased implements ShouldQueue
         $body = __($notificationTemplate, [
             'tournament' => $tournamentTitle,
         ]);
-        $notStyledBody = str_replace('**', '', $body);
+        $notStyledBody = str_replace('**', '"', $body);
 
         foreach ($event->userIds as $userId) {
             PushNotification::query()->create([

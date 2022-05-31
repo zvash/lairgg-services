@@ -6,6 +6,7 @@ use App\Play;
 use App\Repositories\PlayRepository;
 use App\Tournament;
 use Faker\Factory as Faker;
+use http\Client\Curl\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -64,7 +65,7 @@ class TournamentResultCreator implements ShouldQueue
             foreach ($plays as $play) {
                 $this->updatePlay($play);
                 $scores = $this->scoreCreator($play);
-                $repository->setPlayScores($play, $scores);
+                $repository->setPlayScores($play, $scores, null);
             }
         }
     }

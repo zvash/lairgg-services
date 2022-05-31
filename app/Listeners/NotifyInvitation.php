@@ -66,7 +66,7 @@ class NotifyInvitation implements ShouldQueue
             'payload' => null,
         ]);
 
-        $notStyledBody = str_replace('**', '', $body);
+        $notStyledBody = str_replace('**', '"', $body);
         $pushService = new NotificationSender($title, $notStyledBody);
         $tokens = UserNotificationToken::query()
             ->where('user_id', $user->id)

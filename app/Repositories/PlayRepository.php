@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 
+use App\Events\MatchScoreWasSubmitted;
 use App\Match;
 use App\Play;
 use App\User;
@@ -49,7 +50,7 @@ class PlayRepository extends BaseRepository
         $this->checkIfMatchScoresAreEditable($play->match);
         $play = $this->editPlayWithRequest($request, $play, $request->user());
         $scoreRecords = $request->get('scores');
-        return $this->setPlayScores($play, $scoreRecords);
+        return $this->setPlayScores($play, $scoreRecords, $request->user());
     }
 
     /**
@@ -80,10 +81,11 @@ class PlayRepository extends BaseRepository
     /**
      * @param Play $play
      * @param array $scoreRecords
+     * @param User $user
      * @return Play
      * @throws \Exception
      */
-    public function setPlayScores(Play $play, array $scoreRecords): Play
+    public function setPlayScores(Play $play, array $scoreRecords, ?User $user): Play
     {
         $numberOfForfeiters = 0;
         foreach ($scoreRecords as $scoreRecord) {
@@ -94,6 +96,7 @@ class PlayRepository extends BaseRepository
         if ($numberOfForfeiters > count($scoreRecords) - 1) {
             throw new \Exception('Too many participants has forfeited the game');
         }
+        $notify = false;
         foreach ($scoreRecords as $record) {
             $party = $play->parties()->whereId($record['party_id'])->first();
             if ($party) {
@@ -113,7 +116,11 @@ class PlayRepository extends BaseRepository
                     ->setAttribute('is_winner', $record['is_winner'])
                     ->setAttribute('is_forfeit', $record['is_forfeit'])
                     ->save();
+                $notify = true;
             }
+        }
+        if ($notify && $user) {
+            event(new MatchScoreWasSubmitted($play->match, $user));
         }
         $match = $play->match;
         $winnerAndLosers = $match->getWinnerAndLosers();
