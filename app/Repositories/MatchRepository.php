@@ -91,6 +91,27 @@ class MatchRepository extends BaseRepository
         return $disputes;
     }
 
+    /**
+     * @param Match $match
+     * @return mixed|null
+     */
+    public function autoWinIfItIsARestMatch(Match $match)
+    {
+        if ($match->winner_team_id === null && $match->isRestMatch()) {
+            $participant = $match->getParticipants()->first();
+            $match->winner_team_id = $participant->id;
+            $match->save();
+            $match->addWinnerToNextMatchForWinners();
+            return $match->id;
+        }
+        return null;
+    }
+
+    /**
+     * @param Match $match
+     * @param User $user
+     * @return array
+     */
     public function specificMatchOverview(Match $match, User $user)
     {
         $userIsCaptain = false;

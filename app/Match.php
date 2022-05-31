@@ -230,11 +230,26 @@ class Match extends Model
      */
     public function isRestMatch()
     {
-        $firstPlay = $this->plays()->first();
-        $hasJustOnePlayer = $firstPlay->parties()->whereNotNull('team_id')->count() == 1;
-        if ($hasJustOnePlayer) {
-            $previousMatch = $this->getPreviousMatches();
+        $participants = $this->getParticipants();
+        $participantsCount = $participants->count();
+        if ($participantsCount != 1) {
+            return false;
         }
+        $participantId = $participants->first()->id;
+        $previousMatches = $this->getPreviousMatches();
+        if (!$previousMatches) {
+            return true;
+        }
+        foreach ($previousMatches as $previousMatch) {
+            $previousMatchParticipantsIds = $previousMatch->getParticipants()->pluck('id')->all();
+            if (in_array($participantId, $previousMatchParticipantsIds)) {
+                continue;
+            }
+            if (count($previousMatchParticipantsIds) == 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use App\Nova\Actions\AutoWinRestMatches;
 use App\Nova\Actions\MakeAnnouncement;
 use App\Nova\Actions\ReleaseRandomBracket;
 use App\Enums\{
@@ -439,6 +440,13 @@ class Tournament extends Resource
                 ->confirmText('Do you want to make an announcement for this tournament?')
                 ->confirmButtonText('Announce!')
                 ->cancelButtonText('Cancel')
+                ->showOnTableRow()
+                ->showOnDetail(),
+
+            (new AutoWinRestMatches())
+                ->confirmText('Do you want to auto-win current rest matches?')
+                ->confirmButtonText('Yes')
+                ->cancelButtonText('No')
                 ->showOnTableRow()
                 ->showOnDetail(),
         ];

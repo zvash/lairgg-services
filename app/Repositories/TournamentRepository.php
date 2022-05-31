@@ -935,6 +935,24 @@ class TournamentRepository extends BaseRepository
     }
 
     /**
+     * @param Tournament $tournament
+     * @param MatchRepository $repository
+     * @return array
+     */
+    public function submitAutoWins(Tournament $tournament, MatchRepository $repository)
+    {
+        $matchIds = [];
+        $matches = $tournament->matches;
+        foreach ($matches as $match) {
+            $matchId = $repository->autoWinIfItIsARestMatch($match);
+            if ($matchId) {
+                $matchIds[] = $matchId;
+            }
+        }
+        return $matchIds;
+    }
+
+    /**
      * @param Request $request
      * @return array
      */
