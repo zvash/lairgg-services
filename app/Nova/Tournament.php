@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use App\Nova\Actions\MakeAnnouncement;
 use App\Nova\Actions\ReleaseRandomBracket;
 use App\Enums\{
     Platform, Status, TournamentStructure
@@ -431,6 +432,13 @@ class Tournament extends Resource
                 ->confirmText('Do you want to create a new bracket and release it?')
                 ->confirmButtonText('Yes')
                 ->cancelButtonText('No')
+                ->showOnTableRow()
+                ->showOnDetail(),
+
+            (new MakeAnnouncement())
+                ->confirmText('Do you want to make an announcement for this tournament?')
+                ->confirmButtonText('Announce!')
+                ->cancelButtonText('Cancel')
                 ->showOnTableRow()
                 ->showOnDetail(),
         ];
