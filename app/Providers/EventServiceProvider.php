@@ -39,6 +39,7 @@ use App\Listeners\NotifyTournamentGemsWereReleased;
 use App\Listeners\NotifyTournamentRulesWereUpdated;
 use App\Listeners\SendCustomEmailVerificationNotification;
 use App\Listeners\SendOrderWasShippedEmail;
+use App\Listeners\SetCheckedInFalseForRejectedParticipant;
 use App\Listeners\UpdateBracketWithNewlyAcceptedParticipant;
 use App\Observers\CashOutObserver;
 use App\Observers\OrderObserver;
@@ -69,6 +70,7 @@ class EventServiceProvider extends ServiceProvider
             //UpdateBracketWithNewlyAcceptedParticipant::class,
             NotifyParticipantJoinRequestWasAccepted::class,
             NotifyParticipantJoinRequestWasRejected::class,
+            SetCheckedInFalseForRejectedParticipant::class,
         ],
         OrderStatusWasChangedToShipped::class => [
             SendOrderWasShippedEmail::class
