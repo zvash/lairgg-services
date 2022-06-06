@@ -29,7 +29,7 @@ class PlayPolicy extends BasePolicy
         } else if ($this->userIsCaptainOfTheMatchParty($user, $play)) {
             return Response::allow();
         }
-        return Response::deny('You are not authorized to update this play.');
+        return Response::deny(__('strings.policy.play_edit_access'));
     }
 
     /**

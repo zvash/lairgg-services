@@ -51,7 +51,7 @@ class OrganizationPolicy extends BasePolicy
             ->count();
         return $isAdmin
             ? Response::allow()
-            : Response::deny('You are not an admin for this organization.');
+            : Response::deny(__('strings.policy.organization_edit_access'));
     }
 
     /**
@@ -75,7 +75,7 @@ class OrganizationPolicy extends BasePolicy
             ->count();
         return $isAdmin
             ? Response::allow()
-            : Response::deny('You are not an admin for this organization.');
+            : Response::deny(__('strings.policy.organization_edit_access'));
     }
 
     /**
@@ -98,7 +98,7 @@ class OrganizationPolicy extends BasePolicy
             ->count();
         return $isAdminOrModerator
             ? Response::allow()
-            : Response::deny('You do not have administrative access to add staff to this organization');
+            : Response::deny(__('string.policy.organization_add_staff_access'));
     }
 
 }

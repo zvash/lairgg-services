@@ -60,20 +60,20 @@ class PlayRepository extends BaseRepository
     private function checkIfMatchScoresAreEditable(Match $match)
     {
         if (!$match->partiesAreReady()) {
-            throw new \Exception('Participants of the match are not determined yet.');
+            throw new \Exception(__('strings.play.participants_are_missing'));
         }
 
         $nextMatchForWinner = $match->getNextMatchForWinner();
         if ($nextMatchForWinner) {
             if ($nextMatchForWinner->isOver() || $nextMatchForWinner->isActive()) {
-                throw new \Exception('Next match has already started. Scores are not editable.');
+                throw new \Exception(__('strings.play.next_match_started_scores_not_editable'));
             }
         }
 
         $nextMatchForLoser = $match->getNextMatchForLoser();
         if ($nextMatchForLoser) {
             if ($nextMatchForLoser->isOver() || $nextMatchForLoser->isActive()) {
-                throw new \Exception('Next match has already started. Scores are not editable.');
+                throw new \Exception(__('strings.play.next_match_started_scores_not_editable'));
             }
         }
     }
@@ -94,7 +94,7 @@ class PlayRepository extends BaseRepository
             }
         }
         if ($numberOfForfeiters > count($scoreRecords) - 1) {
-            throw new \Exception('Too many participants has forfeited the game');
+            throw new \Exception(__('strings.play.too_many_forfeits'));
         }
         $notify = false;
         foreach ($scoreRecords as $record) {

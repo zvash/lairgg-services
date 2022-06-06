@@ -20,7 +20,7 @@ class TeamPolicy
     {
         return $this->userIsCaptain($user, $team)
             ? Response::allow()
-            : Response::deny('Only captains can invite new members');
+            : Response::deny(__('strings.policy.team_invite_access'));
     }
 
     /**
@@ -32,7 +32,7 @@ class TeamPolicy
     {
         return $this->userIsCaptain($user, $team)
             ? Response::allow()
-            : Response::deny('Only captains can share gems');
+            : Response::deny(__('strings.policy.team_share_gem_access'));
     }
 
     /**
@@ -44,7 +44,7 @@ class TeamPolicy
     {
         return $this->userIsCaptain($user, $team)
             ? Response::allow()
-            : Response::deny('Only captains can remove a member');
+            : Response::deny(__('strings.policy.team_remove_member_access'));
     }
 
     /**
@@ -56,7 +56,7 @@ class TeamPolicy
     {
         return $this->userIsCaptain($user, $team)
             ? Response::allow()
-            : Response::deny('Only captains can delete their teams');
+            : Response::deny(__('strings.policy.team_delete_access'));
     }
 
     /**
@@ -68,14 +68,14 @@ class TeamPolicy
     {
         return $this->userIsCaptain($user, $team)
             ? Response::allow()
-            : Response::deny('Only captains can promote members');
+            : Response::deny(__('strings.policy.team_promote_member_access'));
     }
 
     public function canInvite(User $user, Team $team)
     {
         return $this->userIsCaptain($user, $team)
             ? Response::allow()
-            : Response::deny('Only captains can invite new members');
+            : Response::deny(__('strings.policy.team_invite_access'));
     }
 
     /**
@@ -87,14 +87,14 @@ class TeamPolicy
     {
         return $this->userIsCaptain($user, $team)
             ? Response::allow()
-            : Response::deny('Only captains can update the team');
+            : Response::deny(__('strings.policy.team_edit_access'));
     }
 
     public function canAccessJoinUrl(User $user, Team $team)
     {
         return $this->userIdBelongsToTeam($user->id, $team)
             ? Response::allow()
-            : Response::deny('Only team members can access to the join url');
+            : Response::deny(__('strings.policy.team_join_url_view_access'));
     }
 
     /**
@@ -106,7 +106,7 @@ class TeamPolicy
     {
         return $this->userIsCaptain($user, $team)
             ? Response::allow()
-            : Response::deny('Only captains can set team\'s join URL');
+            : Response::deny(__('strings.policy.team_join_url_edit_access'));
     }
 
     /**
@@ -118,7 +118,7 @@ class TeamPolicy
     {
         return $this->userIsCaptain($user, $team)
             ? Response::allow()
-            : Response::deny('Only captain can cancel invitations');
+            : Response::deny(__('strings.policy.team_cancel_invitation_access'));
     }
 
     /**

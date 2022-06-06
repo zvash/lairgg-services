@@ -124,12 +124,12 @@ class LobbyController extends Controller
     {
         $user = $request->user();
         $lobby = Lobby::where('name', $lobbyName)->first();
-        if ($lobby /*&& $repository->issuerIsAParticipant($user, $lobby)*/) {
+        if ($lobby && $repository->issuerIsAParticipant($user, $lobby)) {
             $result = $repository->acceptCoinToss($user, $lobby, $uuid);
             if ($result !== null) {
                 return $this->success(['has_won' => $result]);
             }
-            return $this->failMessage('Invalid request!', 400);
+            return $this->failMessage(__('strings.invalid_request'), 400);
         }
         return $this->failNotFound();
     }
@@ -145,12 +145,12 @@ class LobbyController extends Controller
     {
         $user = $request->user();
         $lobby = Lobby::where('name', $lobbyName)->first();
-        if ($lobby /*&& $repository->issuerIsAParticipant($user, $lobby)*/) {
+        if ($lobby && $repository->issuerIsAParticipant($user, $lobby)) {
             $result = $repository->rejectCoinToss($user, $lobby, $uuid);
             if ($result !== null) {
                 return $this->success($result);
             }
-            return $this->failMessage('Invalid request!', 400);
+            return $this->failMessage(__('strings.invalid_request'), 400);
         }
         return $this->failNotFound();
     }

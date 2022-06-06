@@ -52,10 +52,10 @@ class ShopRepository extends BaseRepository
     {
         $product = Product::query()->find($inputs['product_id']);
         if ($product->quantity - $product->orders()->where('is_final', false)->count() < 1) {
-            throw new \Exception('We are out of stock for this item at the moment.');
+            throw new \Exception(__('strings.shop.out_of_stock'));
         }
         if ($product->points > $user->availablePoints()) {
-            throw new \Exception('You don\'t have enough gems to buy this product.');
+            throw new \Exception(__('strings.shop.not_enough_gems'));
         }
         $inputs['redeem_points'] = $product->points;
         $inputs['user_id'] = $user->id;

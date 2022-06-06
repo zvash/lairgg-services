@@ -114,7 +114,11 @@ class TeamController extends Controller
 
         list($identifier, $user) = $this->validateParticipantIdentifier($request);
         $invitationRepository->createTeamInvitation($team, $identifier, Auth::user(), $user);
-        return $this->success(['message' => "{$identifier} is invited to join the {$team->title} team."]);
+        $message = __('strings.invitation.invited_to_team', [
+            'identifier' => $identifier,
+            'team_title' => $team->title
+        ]);
+        return $this->success(['message' => $message]);
     }
 
     /**
@@ -167,7 +171,7 @@ class TeamController extends Controller
         }
 
         if ($validated['user_id'] == $request->user()->id) {
-            return $this->failMessage('Captain cannot be removed', 400);
+            return $this->failMessage(__('strings.team.captain_cannot_be_removed'), 400);
         }
 
         try {
@@ -304,9 +308,13 @@ class TeamController extends Controller
                 ->first()
                 ->user;
             $invitationRepository->createTeamInvitation($team, $identifier, $captain, $user);
-            return $this->success(['message' => "{$identifier} is invited to join the {$team->title} team."]);
+            $message = __('strings.invitation.invited_to_team', [
+                'identifier' => $identifier,
+                'team_title' => $team->title
+            ]);
+            return $this->success(['message' => $message]);
         }
-        return $this->failMessage('Join URL was not valid', 402);
+        return $this->failMessage(__('strings.invitation.join_url_is_not_valid'), 402);
 
     }
 
@@ -339,7 +347,7 @@ class TeamController extends Controller
             User::find($validated['user_id']),
             $team
         );
-        return $this->success(['message' => 'done']);
+        return $this->success(['message' => __('strings.done')]);
     }
 
     /**

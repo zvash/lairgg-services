@@ -79,7 +79,7 @@ class UserController extends Controller
         $validated = $request->validated();
         $user = $request->user();
         if (! Hash::check($validated['current_password'], $user->password)) {
-            return $this->failMessage('Current password is wrong', 400);
+            return $this->failMessage(__('strings.password.wrong_current_password'), 400);
         }
         $user->password = bcrypt($validated['password']);
         $user->save();
@@ -95,7 +95,7 @@ class UserController extends Controller
             ->where('user_id', $user->id)
             ->where('passport_token', '<>', $currentBearerToken)
             ->delete();
-        return $this->success(['message' => 'Password is changed']);
+        return $this->success(['message' => __('strings.password.password_was_changed')]);
     }
 
     /**
@@ -109,7 +109,7 @@ class UserController extends Controller
             ->where('passport_token', $token)
             ->delete();
         \auth()->user()->token()->revoke();
-        return $this->success(['message' => 'logged out']);
+        return $this->success(['message' => __('strings.user.logged_out')]);
     }
 
     /**
@@ -188,7 +188,7 @@ class UserController extends Controller
         UserNotificationToken::query()
             ->where('user_id', $user->id)
             ->delete();
-        return $this->success(['message' => 'User is deleted']);
+        return $this->success(['message' => __('strings.user.user_was_deleted')]);
     }
 
     /**
@@ -388,7 +388,6 @@ class UserController extends Controller
     {
         $user = $request->user();
         return $this->success($repository->getUserTeamsForTournament($user, $tournament));
-        return $this->success($repository->getUserTeamsForTournament($user, $tournament));
     }
 
     /**
@@ -486,7 +485,10 @@ class UserController extends Controller
                 $user->$key = $value;
                 $setKeys[] = $key;
             } else {
-                throw new \Exception("This user has already set the $key field", 400);
+                $message = __('strings.user.user_identifier_already_been_set', [
+                    'key' => $key,
+                ]);
+                throw new \Exception($message, 400);
             }
         }
         return $setKeys;

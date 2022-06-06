@@ -53,7 +53,7 @@ class GameRepository extends BaseRepository
             $user->games()->detach([$gameId]);
             return $user->games()->get();
         }
-        throw new \Exception('Followed gamed cannot be less than three!');
+        throw new \Exception(__('strings.game.less_than_three_games_error'));
     }
 
     /**

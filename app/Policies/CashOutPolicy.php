@@ -20,6 +20,6 @@ class CashOutPolicy
     {
         return $user->id == $cashOut->user_id
             ? Response::allow()
-            : Response::deny('You do not have access to this cash out request.');
+            : Response::deny(__('strings.policy.cash_out_read_access'));
     }
 }

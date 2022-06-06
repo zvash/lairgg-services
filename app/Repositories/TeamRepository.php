@@ -290,7 +290,7 @@ class TeamRepository extends BaseRepository
     public function promote(Team $team, int $userId)
     {
         if (Player::whereTeamId($team->id)->whereUserId($userId)->count() == 0) {
-            throw new \Exception('New captain must be a member of the team');
+            throw new \Exception(__('strings.team.captain_must_be_in_the_team'));
         }
         DB::beginTransaction();
         try {
@@ -306,7 +306,7 @@ class TeamRepository extends BaseRepository
             return $userId;
         } catch (\Exception $exception) {
             DB::rollBack();
-            throw new \Exception('Captain was not changed');
+            throw new \Exception(__('strings.team.captain_was_not_changed'));
         }
     }
 
@@ -319,7 +319,7 @@ class TeamRepository extends BaseRepository
     public function removeFromTeam(Team $team, int $userId)
     {
         if (Player::whereTeamId($team->id)->whereUserId($userId)->count() == 0) {
-            throw new \Exception('Specified player is not a member of this team.');
+            throw new \Exception(__('strings.team.not_a_team_member'));
         }
         Player::query()
             ->where('team_id', $team->id)
@@ -379,7 +379,7 @@ class TeamRepository extends BaseRepository
             return 'done';
         } catch (\Exception $exception) {
             DB::rollBack();
-            throw new \Exception('Team was not removed');
+            throw new \Exception(__('strings.team.team_was_not_removed'));
         }
     }
 
@@ -396,7 +396,7 @@ class TeamRepository extends BaseRepository
         $sumOfGems = 0;
         foreach ($slices as $slice) {
             if (! in_array($slice['user_id'], $playerUserIds)) {
-                throw new \Exception('User is not a member of the team.');
+                throw new \Exception(__('strings.team.user_not_a_team_member'));
             }
             $sumOfGems += $slice['gems'];
         }
@@ -406,7 +406,7 @@ class TeamRepository extends BaseRepository
             $currentGems = $balance->points;
         }
         if ($sumOfGems > $currentGems) {
-            throw new \Exception('Insufficient gems.');
+            throw new \Exception(__('strings.team.insufficient_gems'));
         }
         $sharedSlices = [];
         try {

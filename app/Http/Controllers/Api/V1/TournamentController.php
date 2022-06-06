@@ -125,7 +125,7 @@ class TournamentController extends Controller
         if ($bracket) {
             return $this->success($bracket);
         }
-        return $this->failMessage('Could not create a bracket for this tournament', 400);
+        return $this->failMessage(__('strings.tournament.new_bracket_error'), 400);
     }
 
     /**
@@ -469,7 +469,11 @@ class TournamentController extends Controller
 
         list($identifier, $user) = $this->validateParticipantIdentifier($request);
         $invitationRepository->createTournamentInvitation($tournament, $identifier, $request->user(), $user);
-        return $this->success(['message' => "{$identifier} is invited to join the {$tournament->title} tournament."]);
+        $message = __('strings.invitation.invited_to_tournament', [
+            'identifier' => $identifier,
+            'team_title' => $tournament->title
+        ]);
+        return $this->success(['message' => $message]);
     }
 
     /**

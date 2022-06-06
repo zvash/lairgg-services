@@ -31,6 +31,6 @@ class ParticipantPolicy extends BasePolicy
             ->count();
         return $isAdminOrModerator
             ? Response::allow()
-            : Response::deny('You do not have administrative access to edit this tournament');
+            : Response::deny(__('strings.policy.tournament_edit_access'));
     }
 }

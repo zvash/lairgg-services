@@ -772,10 +772,10 @@ class TournamentRepository extends BaseRepository
         if ($teamTournament) {
             $team = $user->teams()->where('teams.id', $participantableId)->first();
             if (!$team) {
-                throw new \Exception('Team not found');
+                throw new \Exception(__('strings.tournament.team_not_found'));
             }
             if ($team->players()->count() < $tournament->players) {
-                throw new \Exception('Your team does not have enough players!');
+                throw new \Exception(__('strings.tournament.not_enough_players_in_team'));
             }
             $participantable = $team;
             $participantableType = Team::class;
@@ -812,17 +812,17 @@ class TournamentRepository extends BaseRepository
     public function removeUserFromTournament(User $user, Tournament $tournament)
     {
         //get participant
-        $participant = $this->getuserparticipantintournament($user, $tournament);
+        $participant = $this->getUserParticipantInTournament($user, $tournament);
         if (!$participant) {
-            throw new \Exception('User is not a participant of this tournament');
+            throw new \Exception(__('strings.tournament.not_a_participant'));
         }
         //check if user has privilege
         if (!$this->userIsInChargeOfParticipant($user, $participant)) {
-            throw new \Exception('User has not enough privilege to decide for the tournament participant');
+            throw new \Exception(__('strings.tournament.not_enough_privileges'));
         }
         //check if tournament is started
         if ($this->tournamentIsStarted($tournament)) {
-            throw new \Exception('User cannot leave an already started tournament');
+            throw new \Exception(__('strings.tournament.cannot_leave_already_started_tournament'));
         }
         //remove participant from bracket
         Party::query()
@@ -841,22 +841,22 @@ class TournamentRepository extends BaseRepository
     public function checkUserInTournament(User $user, Tournament $tournament)
     {
         //get participant
-        $participant = $this->getuserparticipantintournament($user, $tournament);
+        $participant = $this->getUserParticipantInTournament($user, $tournament);
         if (!$participant) {
-            throw new \Exception('User is not a participant of this tournament');
+            throw new \Exception(__('strings.tournament.not_a_participant'));
         }
 
         if (!in_array($participant->status, [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])) {
-            throw new \Exception('You are not accepted yet');
+            throw new \Exception(__('strings.tournament.not_accepted'));
         }
 
         //check if user has privilege
         if (!$this->userIsInChargeOfParticipant($user, $participant)) {
-            throw new \Exception('User has not enough privilege to decide for the tournament participant');
+            throw new \Exception(__('strings.tournament.not_enough_privileges'));
         }
         //check if tournament is started
         if ($this->checkinIsNotAllowed($tournament)) {
-            throw new \Exception('User cannot check in an already started tournament');
+            throw new \Exception(__('strings.tournament.check_in_is_not_allowed'));
         }
         $participant->checked_in_at = Carbon::now();
         $participant->save();
@@ -885,7 +885,7 @@ class TournamentRepository extends BaseRepository
             }
             return $participant;
         }
-        throw new \Exception('This operation is not performable');
+        throw new \Exception(__('strings.operation_cannot_be_done'));
     }
 
     /**
@@ -895,7 +895,7 @@ class TournamentRepository extends BaseRepository
     public function releaseGems(Tournament $tournament)
     {
         if (!$tournament->hasFinished()) {
-            return 'Tournament has not finished yet.';
+            return __('strings.tournament.tournament_is_not_finished');
         }
         $participantsByRank = $tournament->getRankedParticipants();
         $gemsByRank = $tournament->getGemPrizesByRank();
@@ -927,11 +927,11 @@ class TournamentRepository extends BaseRepository
                         event(new TournamentGemsWereReleased($tournament, true, [$participant->participantable_id], false));
                     }
                 } catch (\Exception $exception) {
-                    return 'Already Released';
+                    return __('strings.tournament.gems_already_released');
                 }
             }
         }
-        return 'done';
+        return __('strings.done');
     }
 
     /**

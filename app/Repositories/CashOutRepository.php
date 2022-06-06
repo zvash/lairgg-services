@@ -21,7 +21,7 @@ class CashOutRepository extends BaseRepository
         $points = $inputs['points'];
         $email = $inputs['paypal_email'];
         if ($points > $user->availablePoints()) {
-            throw new \Exception('You don\'t have enough gems to register this cash out request.');
+            throw new \Exception(__('strings.cash_out.not_enough_gems'));
         }
         $inputs = [
             'user_id' => $user->id,

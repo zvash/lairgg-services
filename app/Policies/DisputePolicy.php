@@ -22,6 +22,6 @@ class DisputePolicy extends BasePolicy
         if ($this->isAdminOrModeratorOfTournament($user, $tournament)) {
             return Response::allow();
         }
-        return Response::deny('You do not have administrative access to close this dispute');
+        return Response::deny(__('strings.policy.dispute_close_access'));
     }
 }

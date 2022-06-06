@@ -34,7 +34,7 @@ class ForgotPasswordController extends Controller
         $email = $request->get('email');
         $code = $this->createPasswordResetCode($email);
         Mail::to($email)->queue((new ResetPasswordMail($code))->onConnection('sqs'));
-        return $this->success(['message' => 'Token was sent to provided email address.']);
+        return $this->success(['message' => __('strings.password.token_was_sent')]);
     }
 
     /**
@@ -49,7 +49,7 @@ class ForgotPasswordController extends Controller
         if ($this->resetRequestIsValid($email, $code)) {
             return $this->success(['valid_token' => true]);
         }
-        return $this->failMessage('invalid token or email address', 400);
+        return $this->failMessage(__('strings.password.invalid_token_or_email_address'), 400);
     }
 
     /**
@@ -70,7 +70,7 @@ class ForgotPasswordController extends Controller
         if ($user) {
             return $this->response($this->logUserInWithoutPassword($user), 200);
         }
-        return $this->failNotFound('User was not found!');
+        return $this->failNotFound(__('strings.password.user_was_not_found'));
     }
 
     /**

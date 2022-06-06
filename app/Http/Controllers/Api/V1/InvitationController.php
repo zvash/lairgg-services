@@ -60,7 +60,7 @@ class InvitationController extends Controller
         $request->validate(['token' => 'required|string|filled']);
         $user = $request->user();
         $invitationRepository->flashedOnce($user, $request->get('token'));
-        return $this->success(['message' => 'done']);
+        return $this->success(['message' => __('strings.done')]);
     }
 
     /**

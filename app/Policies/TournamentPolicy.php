@@ -28,7 +28,7 @@ class TournamentPolicy extends BasePolicy
             ->count();
         return $userIsMemberOfOrganization
             ? Response::allow()
-            : Response::deny('You are not a member of this organization.');
+            : Response::deny(__('strings.policy.tournament_create_access'));
     }
 
     /**
@@ -40,7 +40,7 @@ class TournamentPolicy extends BasePolicy
      */
     public function update(User $user, Tournament $tournament)
     {
-        return $this->onlyAdminOfTournament($user, $tournament, 'You do not have administrative access to edit this tournament');
+        return $this->onlyAdminOfTournament($user, $tournament, __('strings.policy.tournament_edit_access'));
     }
 
     /**
@@ -50,7 +50,7 @@ class TournamentPolicy extends BasePolicy
      */
     public function createBracket(User $user, Tournament $tournament)
     {
-        return $this->onlyAdminOfTournament($user, $tournament, 'You do not have administrative access to create a bracket this tournament');
+        return $this->onlyAdminOfTournament($user, $tournament, __('strings.policy.tournament_create_bracket_access'));
     }
 
     /**
@@ -60,7 +60,7 @@ class TournamentPolicy extends BasePolicy
      */
     public function canAddParticipants(User $user, Tournament $tournament)
     {
-        return $this->onlyAdminOfTournament($user, $tournament, 'You cannot add participants to this tournament');
+        return $this->onlyAdminOfTournament($user, $tournament, __('strings.policy.tournament_add_participant_access'));
     }
 
     /**
@@ -70,7 +70,7 @@ class TournamentPolicy extends BasePolicy
      */
     public function canUpdateParticipantStatus(User $user, Tournament $tournament)
     {
-        return $this->onlyAdminOfTournament($user, $tournament, 'You cannot update participant status for this tournament');
+        return $this->onlyAdminOfTournament($user, $tournament, __('strings.policy.tournament_update_participant_status_access'));
     }
 
     /**
@@ -80,7 +80,7 @@ class TournamentPolicy extends BasePolicy
      */
     public function canInviteParticipant(User $user, Tournament $tournament)
     {
-        return $this->onlyAdminOfTournament($user, $tournament, 'You cannot invite participants');
+        return $this->onlyAdminOfTournament($user, $tournament, __('strings.policy.tournament_send_invitation_access'));
     }
 
     /**

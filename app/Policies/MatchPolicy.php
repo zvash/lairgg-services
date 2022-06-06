@@ -30,11 +30,11 @@ class MatchPolicy extends BasePolicy
             ->where('user_id', $user->id)
             ->count();
         if (!$isAdminOrModerator) {
-            return Response::deny('You do not have administrative access to edit this tournament');
+            return Response::deny(__('strings.policy.tournament_edit_access'));
         }
 
         if ($match->matchHasStarted()) {
-            return Response::deny('This match cannot be edited because it has already started.');
+            return Response::deny(__('strings.policy.started_tournament_match_edit_access'));
         }
 
         return Response::allow();
@@ -58,11 +58,11 @@ class MatchPolicy extends BasePolicy
             ->where('user_id', $user->id)
             ->count();
         if (!$isAdminOrModerator) {
-            return Response::deny('You do not have administrative access to edit this tournament');
+            return Response::deny(__('strings.policy.tournament_edit_access'));
         }
 
         if ($match->matchHasStarted()) {
-            return Response::deny('This match cannot be edited because it has already started.');
+            return Response::deny(__('strings.policy.started_tournament_match_edit_access'));
         }
 
         return Response::allow();
