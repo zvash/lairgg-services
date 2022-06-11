@@ -35,7 +35,7 @@ return [
     'activity' => [
         'subject' => '⚠️ Unusual activity detected',
         'greeting' => 'Dear __:firstname__,',
-        'topic' => 'We noticed a __:action__ on your Virtuleap account:',
+        'topic' => 'We noticed a __:action__ on your LairGG account:',
         'button' => 'Contact Administrator',
         'signature' => 'If this request was not triggered by you, please immediatly change your password or contact an administrator.',
         'thanks' => 'Thanks,',

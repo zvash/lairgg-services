@@ -173,6 +173,7 @@ class LoginController extends Controller
 
     private function getTwitterAttributes($user)
     {
+        dd($user);
         $user = $user->user;
         return [
             'first_name' => null,
