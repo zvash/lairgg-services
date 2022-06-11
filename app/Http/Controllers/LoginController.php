@@ -173,13 +173,13 @@ class LoginController extends Controller
 
     private function getTwitterAttributes($user)
     {
-        dd($user);
+        $email = $user->email;
         $user = $user->user;
         return [
             'first_name' => null,
             'last_name' => null,
             'provider_user_id' => $user['id_str'],
-            'email' => null,
+            'email' => $email,
             'username' => null,
             'password' => make_random_hash(),
         ];
@@ -204,7 +204,7 @@ class LoginController extends Controller
      */
     private function verifyEmail($provider, User $user)
     {
-        if (in_array($provider, ['google', 'discord'])) {
+        if ($user->email) {
             $user->setAttribute('email_verified_at', date('Y-m-d H:i:s'))
                 ->save();
         }
