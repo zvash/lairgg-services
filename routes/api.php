@@ -18,6 +18,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
         $router->post('users/device/register', 'UserController@registerDeviceForPushNotification');
         $router->get('tournaments/{tournament}/matches/brackets/{bracket}', 'TournamentController@bracketMatches');
 
+        $router->get('countries', 'CountryController@all');
+
         $router->group(['prefix' => 'users'], function ($router) {
 
             $router->post('password/reset/email', 'ForgotPasswordController@sendCode')->name('password.reset.email');
