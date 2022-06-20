@@ -153,6 +153,7 @@ class MatchRepository extends BaseRepository
             $type = $participant->participantable_type == Team::class ? 'team' : 'user';
             $record = [
                 'id' => $participant->id,
+                'participantable_id' => $participant->participantable_id,
                 'participantable_type' => $type,
                 'score' => $match->getParticipantCurrentScore($participant),
                 'is_winner' => $match->winner_team_id == $participant->id,
