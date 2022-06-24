@@ -112,6 +112,15 @@ class MatchController extends Controller
         return $this->success($repository->specificMatchOverview($match, $user));
     }
 
+    public function setReady(Request $request, Match $match, MatchRepository $matchRepository, LobbyRepository $lobbyRepository)
+    {
+        $gate = Gate::inspect('setReady', $match);
+        if (!$gate->allowed()) {
+            return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
+        }
+        $user = $request->user();
+    }
+
     /**
      * @param Request $request
      * @return array

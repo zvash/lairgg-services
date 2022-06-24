@@ -71,6 +71,16 @@ class Participant extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function readyMatches()
+    {
+        return $this->belongsToMany(Match::class, 'match_participants', 'participant_id', 'match_id')
+            ->withPivot('id', 'ready_at')
+            ->using(MatchParticipant::class);
+    }
+
+    /**
      * @return string
      */
     public function getStatusDescriptionAttribute()

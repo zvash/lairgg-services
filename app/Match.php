@@ -73,6 +73,16 @@ class Match extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function readyParticipants()
+    {
+        return $this->belongsToMany(Participant::class, 'match_participants', 'match_id', 'participant_id')
+            ->withPivot('id', 'ready_at')
+            ->using(MatchParticipant::class);
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function winnerNextMatch()

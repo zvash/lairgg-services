@@ -250,6 +250,7 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->get('/{match}/lobby', 'MatchController@getLobbyName');
 
                     $router->get('/{match}/overview', 'MatchController@overview');
+                    $router->post('/{match}/ready', 'MatchController@setReady');
 
                 });
 

@@ -4,8 +4,10 @@ namespace App\Repositories;
 
 
 use App\Dispute;
+use App\Enums\ParticipantAcceptanceState;
 use App\Map;
 use App\Match;
+use App\MatchParticipant;
 use App\User;
 use App\Organization;
 use App\Participant;
@@ -14,6 +16,7 @@ use App\Play;
 use App\Team;
 use App\Tournament;
 use App\TournamentType;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class MatchRepository extends BaseRepository
@@ -147,6 +150,7 @@ class MatchRepository extends BaseRepository
                 'logo' => $game->logo,
             ],
             'maps' => Map::all()->toArray(),
+            'ready_state' => $this->getReadyState($user, $match, $matchParticipants),
         ];
         $participants = [];
         foreach ($matchParticipants as $participant) {
@@ -158,6 +162,7 @@ class MatchRepository extends BaseRepository
                 'score' => $match->getParticipantCurrentScore($participant),
                 'is_winner' => $match->winner_team_id == $participant->id,
             ];
+
             if ($type == 'team') {
                 $record['title'] = $participant->participantable->title;
                 $record['image'] = $participant->participantable->logo;
@@ -204,6 +209,11 @@ class MatchRepository extends BaseRepository
         return $information;
     }
 
+    public function setReady(Match $match, User $user, LobbyRepository $repository)
+    {
+
+    }
+
     /**
      * @param Tournament $tournament
      * @return int
@@ -220,5 +230,69 @@ class MatchRepository extends BaseRepository
             }
         }
         return 2;
+    }
+
+    /**
+     * @param User $user
+     * @param Match $match
+     * @param $participants
+     * @return array
+     */
+    private function getReadyState(User $user, Match $match, $participants)
+    {
+        $readyState = [
+            'viewer_is_participant' => false,
+        ];
+        $viewerIsAParticipant = false;
+        $participantIds = $participants->pluck('id')->toArray();
+        foreach ($participants as $participant) {
+            $type = $participant->participantable_type == Team::class ? 'team' : 'user';
+            $playerIds = [];
+            if ($type == 'team') {
+                $playerIds = $participant->participantable->players->pluck('user_id')->toArray();
+            } else if ($type == 'user') {
+                $playerIds[] = $participant->participantable_id;
+            }
+            if (in_array($user->id, $playerIds)) {
+                $viewerIsAParticipant = true;
+                $viewerIsReady = MatchParticipant::query()
+                    ->where('match_id', $match->id)
+                    ->where('participant_id', $participant->id)
+                    ->whereNotNull('ready_at')
+                    ->count() > 0;
+                $opponentIsReady = false;
+                foreach ($participantIds as $participantId) {
+                    if ($participantId == $participant->id) {
+                        continue;
+                    }
+                    $opponentIsReady = MatchParticipant::query()
+                            ->where('match_id', $match->id)
+                            ->where('participant_id', $participantId)
+                            ->whereNotNull('ready_at')
+                            ->count() > 0;
+                }
+                $readyState['viewer_is_participant'] = $viewerIsAParticipant;
+                $readyState['viewer_is_ready'] = $viewerIsReady;
+                $readyState['opponent_is_ready'] = $opponentIsReady;
+            }
+        }
+        return $readyState;
+    }
+
+    public function findMatchParticipantByUser(Match $match, User $user)
+    {
+        $tournament = $match->tournament;
+        return $tournament->participants()
+            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
+            ->whereHasMorph('participantable', [User::class, Team::class], function (Builder $participantable, $type) use ($user) {
+                if ($type == Team::class) {
+                    $participantable->whereHas('players', function (Builder $players) use ($user) {
+                        $players->where('user_id', $user->id);
+                    });
+                } else {
+                    $participantable->where('id', $user->id);
+                }
+            })
+            ->first();
     }
 }

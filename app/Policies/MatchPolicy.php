@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Team;
 use App\User;
 use App\Match;
 use App\StaffType;
@@ -66,5 +67,50 @@ class MatchPolicy extends BasePolicy
         }
 
         return Response::allow();
+    }
+
+    /**
+     * Determine whether the user can set ready for the match.
+     *
+     * @param \App\User $user
+     * @param Match $match
+     * @return mixed
+     */
+    public function setReady(User $user, Match $match)
+    {
+        $tournament = $match->tournament;
+        if ($this->isAdminOrModeratorOfTournament($user, $tournament)) {
+            return Response::allow();
+        } else if ($this->userIsCaptainOfTheMatchParty($user, $match)) {
+            return Response::allow();
+        }
+        return Response::deny(__('strings.policy.match_set_ready_access'));
+    }
+
+    /**
+     * @param User $user
+     * @param Match $match
+     * @return bool
+     */
+    private function userIsCaptainOfTheMatchParty(User $user, Match $match)
+    {
+        $participants = $match->getParticipants();
+        foreach ($participants as $participant) {
+            if ($participant->participantable_type == User::class) {
+                if ($participant->participantable_id == $user->id) {
+                    return true;
+                }
+            } else if ($participant->participantable_type == Team::class) {
+                $participantable = $participant->participantable;
+                $userIsCaptain = $participantable->players()
+                        ->where('user_id', $user->id)
+                        ->where('captain', 1)
+                        ->count() > 0;
+                if ($userIsCaptain) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
