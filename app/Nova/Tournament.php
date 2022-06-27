@@ -318,8 +318,9 @@ class Tournament extends Resource
         return [
             Number::make('Check in period', 'match_check_in_period')
                 ->hideFromIndex()
-                ->help('Number of minutes each team needs to check in before the match.')
+                ->help('Number of minutes each team needs to announce their readiness.')
                 ->min(1)
+                ->default(15)
                 ->required()
                 ->rules('required', 'integer', 'gte:1'),
 
