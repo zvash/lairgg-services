@@ -12,6 +12,10 @@ class MatchParticipant extends Model
         'ready_at',
     ];
 
+    protected $casts = [
+        'ready_at' => 'datetime',
+    ];
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

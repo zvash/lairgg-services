@@ -16,6 +16,7 @@ use App\Play;
 use App\Team;
 use App\Tournament;
 use App\TournamentType;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
@@ -210,9 +211,64 @@ class MatchRepository extends BaseRepository
         return $information;
     }
 
-    public function setReady(Match $match, User $user, LobbyRepository $repository)
+    /**
+     * @param Match $match
+     * @param User $user
+     * @param LobbyRepository $lobbyRepository
+     * @param PlayRepository $playRepository
+     * @return mixed
+     * @throws \Exception
+     */
+    public function setReady(Match $match, User $user, LobbyRepository $lobbyRepository, PlayRepository $playRepository)
     {
+        $playRepository->checkIfMatchScoresAreEditable($match);
+        $participant = $this->findMatchParticipantByUser($match, $user);
+        if (!$participant) {
+            throw new \Exception(__('strings.match.you_are_not_participant'));
+        }
+        $now = Carbon::now();
+        $startedAt = $match->started_at;
+        $fifteenMinutesAfterStartedAt = $startedAt->addMinutes(15);
+        if ($now->lt($match->started_at) || $now->gt($fifteenMinutesAfterStartedAt)) {
+            throw new \Exception(__('strings.match.not_in_ready_window'));
+        }
+        $matchParticipantRecord = MatchParticipant::query()
+            ->where('match_id', $match->id)
+            ->where('participant_id', $participant->id)
+            ->first();
 
+        $readyStateChanged = false;
+        if (!$matchParticipantRecord) {
+            MatchParticipant::query()
+                ->create([
+                    'match_id' => $match->id,
+                    'participant_id' => $participant->id,
+                    'ready_at' => Carbon::now(),
+                ]);
+            $readyStateChanged = true;
+        } else if (!$matchParticipantRecord->ready_at) {
+            $matchParticipantRecord->ready_at = Carbon::now();
+            $matchParticipantRecord->save();
+            $readyStateChanged = true;
+        }
+        $lobby = $match->lobby;
+        if (!$lobby) {
+            throw new \Exception(__('strings.operation_cannot_be_done'));
+        }
+        if (!$readyStateChanged) {
+            return $lobby;
+        }
+
+        $lobbyRepository->createReadyMessage($lobby, $user);
+        $readyCount = MatchParticipant::query()
+            ->where('match_id', $match->id)
+            ->whereNotNull('ready_at')
+            ->count();
+        if ($readyCount >= 2 && $readyCount == $match->getParticipants()->count()) {
+            sleep(1);
+            $lobbyRepository->createAutoCoinTossMessage($user, $lobby);
+        }
+        return $lobby;
     }
 
     /**
@@ -257,10 +313,10 @@ class MatchRepository extends BaseRepository
             if (in_array($user->id, $playerIds)) {
                 $viewerIsAParticipant = true;
                 $viewerIsReady = MatchParticipant::query()
-                    ->where('match_id', $match->id)
-                    ->where('participant_id', $participant->id)
-                    ->whereNotNull('ready_at')
-                    ->count() > 0;
+                        ->where('match_id', $match->id)
+                        ->where('participant_id', $participant->id)
+                        ->whereNotNull('ready_at')
+                        ->count() > 0;
                 $opponentIsReady = false;
                 foreach ($participantIds as $participantId) {
                     if ($participantId == $participant->id) {
@@ -280,20 +336,27 @@ class MatchRepository extends BaseRepository
         return $readyState;
     }
 
+    /**
+     * @param Match $match
+     * @param User $user
+     * @return Participant|null
+     */
     public function findMatchParticipantByUser(Match $match, User $user)
     {
-        $tournament = $match->tournament;
-        return $tournament->participants()
-            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
-            ->whereHasMorph('participantable', [User::class, Team::class], function (Builder $participantable, $type) use ($user) {
-                if ($type == Team::class) {
-                    $participantable->whereHas('players', function (Builder $players) use ($user) {
-                        $players->where('user_id', $user->id);
-                    });
-                } else {
-                    $participantable->where('id', $user->id);
+        $matchParticipants = $match->getParticipants();
+        foreach ($matchParticipants as $participant) {
+            if ($participant->participantable_type == User::class) {
+                if ($participant->participantable_id == $user->id) {
+                    return $participant;
                 }
-            })
-            ->first();
+            } else if ($participant->participantable_type == Team::class) {
+                $team = Team::find($participant->participantable_id);
+                $teamUserIds = $team->players->pluck('user_id')->all();
+                if (in_array($user->id, $teamUserIds)) {
+                    return $participant;
+                }
+            }
+        }
+        return null;
     }
 }

@@ -19,6 +19,10 @@ return [
         'out_of_stock' => 'This item is out of stock.',
         'not_enough_gems' => 'You don\'t have enough Gems.',
     ],
+    'match' => [
+        'you_are_not_participant' => 'You are not a participant in this match.',
+        'not_in_ready_window' => '',
+    ],
     'team' => [
         'captain_cannot_be_removed' => 'Captain cannot be removed',
         'captain_must_be_in_the_team' => 'New captain must be a member of the team.',

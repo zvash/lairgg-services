@@ -6,6 +6,7 @@ use App\Engines\BracketCreator;
 use App\Match;
 use App\Repositories\LobbyRepository;
 use App\Repositories\MatchRepository;
+use App\Repositories\PlayRepository;
 use Illuminate\Http\Request;
 use App\Enums\HttpStatusCode;
 use Illuminate\Support\Facades\Gate;
@@ -112,13 +113,26 @@ class MatchController extends Controller
         return $this->success($repository->specificMatchOverview($match, $user));
     }
 
-    public function setReady(Request $request, Match $match, MatchRepository $matchRepository, LobbyRepository $lobbyRepository)
+    /**
+     * @param Request $request
+     * @param Match $match
+     * @param MatchRepository $matchRepository
+     * @param LobbyRepository $lobbyRepository
+     * @param PlayRepository $playRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function setReady(Request $request, Match $match, MatchRepository $matchRepository, LobbyRepository $lobbyRepository, PlayRepository $playRepository)
     {
         $gate = Gate::inspect('setReady', $match);
         if (!$gate->allowed()) {
             return $this->failMessage($gate->message(), HttpStatusCode::FORBIDDEN);
         }
         $user = $request->user();
+        try {
+            return $this->success($matchRepository->setReady($match, $user, $lobbyRepository, $playRepository));
+        } catch (\Exception $exception) {
+            return $this->failMessage($exception->getMessage(), HttpStatusCode::BAD_REQUEST);
+        }
     }
 
     /**

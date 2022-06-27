@@ -142,6 +142,21 @@ class LobbyRepository extends BaseRepository
         return false;
     }
 
+    public function createReadyMessage(Lobby $lobby, User $user)
+    {
+        if (! $this->isMatchLobby($lobby)) {
+            return null;
+        }
+    }
+
+    public function createAutoCoinTossMessage(User $user, Lobby $lobby)
+    {
+        if (! $this->isMatchLobby($lobby)) {
+            return null;
+        }
+        $match = $lobby->owner;
+    }
+
     public function creatCoinTossMessage(User $user, Lobby $lobby, string $title)
     {
         if (! $this->isMatchLobby($lobby)) {

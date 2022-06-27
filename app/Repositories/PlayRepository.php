@@ -57,7 +57,7 @@ class PlayRepository extends BaseRepository
      * @param Match $match
      * @throws \Exception
      */
-    private function checkIfMatchScoresAreEditable(Match $match)
+    public function checkIfMatchScoresAreEditable(Match $match)
     {
         if (!$match->partiesAreReady()) {
             throw new \Exception(__('strings.play.participants_are_missing'));
