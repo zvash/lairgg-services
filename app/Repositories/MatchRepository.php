@@ -221,7 +221,7 @@ class MatchRepository extends BaseRepository
      */
     public function setReady(Match $match, User $user, LobbyRepository $lobbyRepository, PlayRepository $playRepository)
     {
-        $playRepository->checkIfMatchScoresAreEditable($match);
+//        $playRepository->checkIfMatchScoresAreEditable($match);
         $participant = $this->findMatchParticipantByUser($match, $user);
         if (!$participant) {
             throw new \Exception(__('strings.match.you_are_not_participant'));
