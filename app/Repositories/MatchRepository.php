@@ -141,6 +141,7 @@ class MatchRepository extends BaseRepository
                 'logo' => $tournament->logo,
                 'players' => $tournament->players,
                 'requires_score' => $tournament->requires_score,
+                'bracket_released_at' => $tournament->bracket_released_at,
             ],
             'game' => [
                 'id' => $game->id,
