@@ -229,9 +229,9 @@ class MatchRepository extends BaseRepository
         $now = Carbon::now();
         $startedAt = $match->started_at;
         $fifteenMinutesAfterStartedAt = $startedAt->addMinutes(15);
-        if ($now->lt($match->started_at) || $now->gt($fifteenMinutesAfterStartedAt)) {
-            throw new \Exception(__('strings.match.not_in_ready_window'));
-        }
+//        if ($now->lt($match->started_at) || $now->gt($fifteenMinutesAfterStartedAt)) {
+//            throw new \Exception(__('strings.match.not_in_ready_window'));
+//        }
         $matchParticipantRecord = MatchParticipant::query()
             ->where('match_id', $match->id)
             ->where('participant_id', $participant->id)
