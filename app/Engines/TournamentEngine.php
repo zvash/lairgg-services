@@ -11,6 +11,7 @@ use App\Party;
 use App\Play;
 use App\Repositories\LobbyRepository;
 use App\Tournament;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 
 abstract class TournamentEngine
@@ -79,6 +80,16 @@ abstract class TournamentEngine
      * @return mixed
      */
     abstract public function getRoundTitle(Match $match);
+
+    /**
+     * @param Tournament $tournament
+     */
+    public function markBracketReleaseTimestamp(Tournament $tournament)
+    {
+        $tournament
+            ->setAttribute('bracket_released_at', Carbon::now())
+            ->save();
+    }
 
     /**
      * Fill next match for winner and next match for loser

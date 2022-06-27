@@ -261,6 +261,11 @@ class Tournament extends Resource
                 ->required()
                 ->rules('required', 'date'),
 
+            DateTime::make('Bracket Released At', 'bracket_released_at')
+                ->hideFromIndex()
+                ->nullable()
+                ->rules('nullable', 'date', 'after:started_at'),
+
             DateTime::make('Ended at')
                 ->hideFromIndex()
                 ->required()

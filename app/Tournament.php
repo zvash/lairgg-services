@@ -81,6 +81,7 @@ class Tournament extends Model
         'join_request' => 'boolean',
         'entry_fee' => 'float',
         'status' => 'integer',
+        'bracket_released_at' => 'datetime',
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
         'match_check_in_period' => 'integer',

@@ -55,6 +55,7 @@ class DoubleEliminationEngine extends TournamentEngine
             $this->setTournamentMatchesDate($this->tournament);
             $this->randomlyAssignParticipantsToMatches();
             $this->fillNextMatches();
+            $this->markBracketReleaseTimestamp($this->tournament);
             DB::commit();
             event(new BracketWasReleased($this->tournament));
             return true;
