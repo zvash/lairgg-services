@@ -143,6 +143,7 @@ class MatchRepository extends BaseRepository
                 'players' => $tournament->players,
                 'requires_score' => $tournament->requires_score,
                 'bracket_released_at' => $tournament->bracket_released_at,
+                'match_check_in_period' => $tournament->match_check_in_period,
             ],
             'game' => [
                 'id' => $game->id,
@@ -228,8 +229,8 @@ class MatchRepository extends BaseRepository
         }
         $now = Carbon::now();
         $startedAt = $match->started_at;
-        $fifteenMinutesAfterStartedAt = $startedAt->addMinutes(15);
-//        if ($now->lt($match->started_at) || $now->gt($fifteenMinutesAfterStartedAt)) {
+        $minutesAfterStartedAt = $startedAt->addMinutes($match->tournament->match_check_in_period);
+//        if ($now->lt($match->started_at) || $now->gt($minutesAfterStartedAt)) {
 //            throw new \Exception(__('strings.match.not_in_ready_window'));
 //        }
         $matchParticipantRecord = MatchParticipant::query()
