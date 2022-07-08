@@ -7,7 +7,118 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
     <style type="text/css">
-        .vm-backdrop{position:fixed;top:0;right:0;bottom:0;left:0;background-color:rgba(0,0,0,0.5)}.vm-wrapper{position:fixed;top:0;right:0;bottom:0;left:0;overflow-x:hidden;overflow-y:auto;outline:0}.vm{position:relative;margin:0px auto;width:calc(100% - 20px);min-width:110px;max-width:500px;background-color:#fff;top:30px;cursor:default;box-shadow:0 5px 15px rgba(0,0,0,0.5)}.vm-titlebar{padding:10px 15px 10px 15px;overflow:auto;border-bottom:1px solid #e5e5e5}.vm-title{margin-top:2px;margin-bottom:0px;display:inline-block;font-size:18px;font-weight:normal}.vm-btn-close{color:#ccc;padding:0px;cursor:pointer;background:0 0;border:0;float:right;font-size:24px;line-height:1em}.vm-btn-close:before{content:'×';font-family:Arial}.vm-btn-close:hover,.vm-btn-close:focus,.vm-btn-close:focus:hover{color:#bbb;border-color:transparent;background-color:transparent}.vm-content{padding:10px 15px 15px 15px}.vm-content .full-hr{width:auto;border:0;border-top:1px solid #e5e5e5;margin-top:15px;margin-bottom:15px;margin-left:-14px;margin-right:-14px}.vm-fadeIn{animation-name:vm-fadeIn}@keyframes vm-fadeIn{0%{opacity:0}100%{opacity:1}}.vm-fadeOut{animation-name:vm-fadeOut}@keyframes vm-fadeOut{0%{opacity:1}100%{opacity:0}}.vm-fadeIn,.vm-fadeOut{animation-duration:0.25s;animation-fill-mode:both}
+        .vm-backdrop {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.5)
+        }
+
+        .vm-wrapper {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            outline: 0
+        }
+
+        .vm {
+            position: relative;
+            margin: 0px auto;
+            width: calc(100% - 20px);
+            min-width: 110px;
+            max-width: 500px;
+            background-color: #fff;
+            top: 30px;
+            cursor: default;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5)
+        }
+
+        .vm-titlebar {
+            padding: 10px 15px 10px 15px;
+            overflow: auto;
+            border-bottom: 1px solid #e5e5e5
+        }
+
+        .vm-title {
+            margin-top: 2px;
+            margin-bottom: 0px;
+            display: inline-block;
+            font-size: 18px;
+            font-weight: normal
+        }
+
+        .vm-btn-close {
+            color: #ccc;
+            padding: 0px;
+            cursor: pointer;
+            background: 0 0;
+            border: 0;
+            float: right;
+            font-size: 24px;
+            line-height: 1em
+        }
+
+        .vm-btn-close:before {
+            content: '×';
+            font-family: Arial
+        }
+
+        .vm-btn-close:hover, .vm-btn-close:focus, .vm-btn-close:focus:hover {
+            color: #bbb;
+            border-color: transparent;
+            background-color: transparent
+        }
+
+        .vm-content {
+            padding: 10px 15px 15px 15px
+        }
+
+        .vm-content .full-hr {
+            width: auto;
+            border: 0;
+            border-top: 1px solid #e5e5e5;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            margin-left: -14px;
+            margin-right: -14px
+        }
+
+        .vm-fadeIn {
+            animation-name: vm-fadeIn
+        }
+
+        @keyframes vm-fadeIn {
+            0% {
+                opacity: 0
+            }
+            100% {
+                opacity: 1
+            }
+        }
+
+        .vm-fadeOut {
+            animation-name: vm-fadeOut
+        }
+
+        @keyframes vm-fadeOut {
+            0% {
+                opacity: 1
+            }
+            100% {
+                opacity: 0
+            }
+        }
+
+        .vm-fadeIn, .vm-fadeOut {
+            animation-duration: 0.25s;
+            animation-fill-mode: both
+        }
 
         * {
             box-sizing: border-box;
@@ -184,11 +295,15 @@
         }
 
         .leftTextCell {
-            text-align: right;
+            text-align: left;
         }
 
         .rightTextCell {
-            text-align: left;
+            text-align: right;
+        }
+
+        .centerTextCell {
+            text-align: center;
         }
 
         .full-width {
@@ -291,13 +406,49 @@
         <ul id="messages" class="messages">
             <li v-for="(message, index) in messages" :class="`item-${index}`">
                 <table class="full-width">
-                    <template v-if="selfId != message.user.id">
+                    <template v-if="message.user.is_organizer && message.user.is_auto">
+                        <tr class="row">
+                            <template v-if="message.type == 'big_title'">
+                                <td class="bigTitleMessage leftTextCell text-30">
+                                    @{{ message.text }}
+                                </td>
+                            </template>
+                            <template v-else-if="message.type == 'ready_message'">
+                                <td class="readyMessage">
+                                    <table class="full-width">
+                                        <tr class="row">
+                                            <td class="leftTextCell">@{{ message.text }}</td>
+                                        </tr>
+                                        <tr v-for="(opponent, index) in message.opponents">
+                                            <td class="centerTextCell">
+                                                <span>@{{ opponent.title }} at @{{ opponent.ready_at }}</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </template>
+                            <template v-else-if="message.type == 'auto_coin_toss'">
+                                <td class="autoCoinTossMessage">
+                                    <table class="full-width">
+                                        <tr class="row">
+                                            <td class="leftTextCell">@{{ message.text }}</td>
+                                        </tr>
+                                        <td class="centerTextCell">
+                                            <span>@{{ message.result }}</span>
+                                        </td>
+                                    </table>
+                                </td>
+                            </template>
+                        </tr>
+                    </template>
+                    <template v-else-if="selfId != message.user.id">
                         <tr class="row">
                             <td class="imageCell cell" rowspan="3"><img
                                     v-show="index == 0 || message.user.id != messages[index - 1].user.id" class="avatar"
                                     :src="message.user.avatar"></td>
                             <td class="nameCell cell"
-                                v-if="index == 0 || message.user.id != messages[index - 1].user.id">@{{ message.user.username }}
+                                v-if="index == 0 || message.user.id != messages[index - 1].user.id">@{{
+                                message.user.username }}
                             </td>
                             <td class="nameCell cell" v-else>&nbsp</td>
                             <td class="emptyCell"></td>
@@ -359,12 +510,14 @@
         <template>
             <Modal v-model="showDisputeModal" title="Create a New Dispute">
                 <form id="disputeForm">
-                    <textarea class="" style="width: 100%; margin-bottom: 10px;" rows="4" cols="50" placeholder="Dispute explanation" v-model="disputeText"></textarea>
+                    <textarea class="" style="width: 100%; margin-bottom: 10px;" rows="4" cols="50"
+                              placeholder="Dispute explanation" v-model="disputeText"></textarea>
                     <label style="margin-bottom: 10px;">Screenshot:
                         <input type="file">
                     </label>
                     <br/>
-                    <button class="submitButton" style="margin-top: 30px;" v-on:click="createDispute"><label>Create Dispute</label></button>
+                    <button class="submitButton" style="margin-top: 30px;" v-on:click="createDispute"><label>Create
+                            Dispute</label></button>
                 </form>
             </Modal>
         </template>
@@ -372,9 +525,11 @@
         <template>
             <Modal v-model="showCoinTossModal" title="Request a Coin Toss">
                 <form id="coinTossForm">
-                    <textarea class="" style="width: 100%; margin-bottom: 10px;" rows="4" cols="50" placeholder="Specify a reason" v-model="coinTossText"></textarea>
+                    <textarea class="" style="width: 100%; margin-bottom: 10px;" rows="4" cols="50"
+                              placeholder="Specify a reason" v-model="coinTossText"></textarea>
 
-                    <button class="submitButton" style="margin-top: 30px;" v-on:click="createCoinTossRequest"><label>Request Coin Toss</label></button>
+                    <button class="submitButton" style="margin-top: 30px;" v-on:click="createCoinTossRequest"><label>Request
+                            Coin Toss</label></button>
                 </form>
             </Modal>
         </template>
@@ -401,7 +556,292 @@
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <script>
-    !function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t(require("vue")):"function"==typeof define&&define.amd?define(["vue"],t):(e="undefined"!=typeof globalThis?globalThis:e||self).VueModal=t(e.Vue)}(this,(function(e){"use strict";function t(e){return e&&"object"==typeof e&&"default"in e?e:{default:e}}for(var n=t(e),o="-_",s=36;s--;)o+=s.toString(36);for(s=36;s---10;)o+=s.toString(36).toUpperCase();function i(e){return(i="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}var a={selector:"vue-portal-target-".concat(function(e){var t="";for(s=e||21;s--;)t+=o[64*Math.random()|0];return t}())},r=function(e){return a.selector=e},l="undefined"!=typeof window&&void 0!==("undefined"==typeof document?"undefined":i(document)),d=n.default.extend({abstract:!0,name:"PortalOutlet",props:["nodes","tag"],data:function(e){return{updatedNodes:e.nodes}},render:function(e){var t=this.updatedNodes&&this.updatedNodes();return t?t.length<2&&!t[0].text?t:e(this.tag||"DIV",t):e()},destroyed:function(){var e=this.$el;e.parentNode.removeChild(e)}}),u=n.default.extend({name:"VueSimplePortal",props:{disabled:{type:Boolean},prepend:{type:Boolean},selector:{type:String,default:function(){return"#".concat(a.selector)}},tag:{type:String,default:"DIV"}},render:function(e){if(this.disabled){var t=this.$scopedSlots&&this.$scopedSlots.default();return t?t.length<2&&!t[0].text?t:e(this.tag,t):e()}return e()},created:function(){this.getTargetEl()||this.insertTargetEl()},updated:function(){var e=this;this.$nextTick((function(){e.disabled||e.slotFn===e.$scopedSlots.default||(e.container.updatedNodes=e.$scopedSlots.default),e.slotFn=e.$scopedSlots.default}))},beforeDestroy:function(){this.unmount()},watch:{disabled:{immediate:!0,handler:function(e){e?this.unmount():this.$nextTick(this.mount)}}},methods:{getTargetEl:function(){if(l)return document.querySelector(this.selector)},insertTargetEl:function(){if(l){var e=document.querySelector("body"),t=document.createElement(this.tag);t.id=this.selector.substring(1),e.appendChild(t)}},mount:function(){var e=this.getTargetEl(),t=document.createElement("DIV");this.prepend&&e.firstChild?e.insertBefore(t,e.firstChild):e.appendChild(t),this.container=new d({el:t,parent:this,propsData:{tag:this.tag,nodes:this.$scopedSlots.default}})},unmount:function(){this.container&&(this.container.$destroy(),delete this.container)}}});"undefined"!=typeof window&&window.Vue&&window.Vue===n.default&&n.default.use((function(e){var t=arguments.length>1&&void 0!==arguments[1]?arguments[1]:{};e.component(t.name||"portal",u),t.defaultSelector&&r(t.defaultSelector)}));var c={type:[String,Object,Array],default:""},f='a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])',p=0;function h(e,t,n,o,s,i,a,r,l,d){"boolean"!=typeof a&&(l=r,r=a,a=!1);var u,c="function"==typeof n?n.options:n;if(e&&e.render&&(c.render=e.render,c.staticRenderFns=e.staticRenderFns,c._compiled=!0,s&&(c.functional=!0)),o&&(c._scopeId=o),i?(u=function(e){(e=e||this.$vnode&&this.$vnode.ssrContext||this.parent&&this.parent.$vnode&&this.parent.$vnode.ssrContext)||"undefined"==typeof __VUE_SSR_CONTEXT__||(e=__VUE_SSR_CONTEXT__),t&&t.call(this,l(e)),e&&e._registeredComponents&&e._registeredComponents.add(i)},c._ssrRegister=u):t&&(u=a?function(e){t.call(this,d(e,this.$root.$options.shadowRoot))}:function(e){t.call(this,r(e))}),u)if(c.functional){var f=c.render;c.render=function(e,t){return u.call(t),f(e,t)}}else{var p=c.beforeCreate;c.beforeCreate=p?[].concat(p,u):[u]}return n}var m={name:"VueModal",components:{Portal:u},model:{prop:"basedOn",event:"close"},props:{title:{type:String,default:""},baseZindex:{type:Number,default:1051},bgClass:c,wrapperClass:c,modalClass:c,modalStyle:c,inClass:Object.assign({},c,{default:"vm-fadeIn"}),outClass:Object.assign({},c,{default:"vm-fadeOut"}),bgInClass:Object.assign({},c,{default:"vm-fadeIn"}),bgOutClass:Object.assign({},c,{default:"vm-fadeOut"}),appendTo:{type:String,default:"body"},live:{type:Boolean,default:!1},enableClose:{type:Boolean,default:!0},basedOn:{type:Boolean,default:!1}},data:function(){return{zIndex:0,id:null,show:!1,mount:!1,elToFocus:null}},created:function(){this.live&&(this.mount=!0)},mounted:function(){this.id="vm-"+this._uid,this.$watch("basedOn",(function(e){var t=this;e?(this.mount=!0,this.$nextTick((function(){t.show=!0}))):this.show=!1}),{immediate:!0})},beforeDestroy:function(){this.elToFocus=null},methods:{close:function(){!0===this.enableClose&&this.$emit("close",!1)},clickOutside:function(e){e.target===this.$refs["vm-wrapper"]&&this.close()},keydown:function(e){if(27===e.which&&this.close(),9===e.which){var t=[].slice.call(this.$refs["vm-wrapper"].querySelectorAll(f)).filter((function(e){return!!(e.offsetWidth||e.offsetHeight||e.getClientRects().length)}));e.shiftKey?e.target!==t[0]&&e.target!==this.$refs["vm-wrapper"]||(e.preventDefault(),t[t.length-1].focus()):e.target===t[t.length-1]&&(e.preventDefault(),t[0].focus())}},getAllVisibleWrappers:function(){return[].slice.call(document.querySelectorAll("[data-vm-wrapper-id]")).filter((function(e){return"none"!==e.display}))},getTopZindex:function(){return this.getAllVisibleWrappers().reduce((function(e,t){return parseInt(t.style.zIndex)>e?parseInt(t.style.zIndex):e}),0)},handleFocus:function(e){var t=e.querySelector("[autofocus]");if(t)t.focus();else{var n=e.querySelectorAll(f);n.length?n[0].focus():e.focus()}},beforeOpen:function(){this.elToFocus=document.activeElement;var e=this.getTopZindex();this.zIndex=p?p+2:0===e?this.baseZindex:e+2,p=this.zIndex,this.$emit("before-open")},opening:function(){this.$emit("opening")},afterOpen:function(){this.handleFocus(this.$refs["vm-wrapper"]),this.$emit("after-open")},beforeClose:function(){this.$emit("before-close")},closing:function(){this.$emit("closing")},afterClose:function(){var e=this;this.zIndex=0,this.live||(this.mount=!1),this.$nextTick((function(){window.requestAnimationFrame((function(){var t=e.getTopZindex();if(t>0)for(var n=e.getAllVisibleWrappers(),o=0;o<n.length;o++){var s=n[o];if(parseInt(s.style.zIndex)===t){s.contains(e.elToFocus)?e.elToFocus.focus():e.handleFocus(s);break}}else document.body.contains(e.elToFocus)&&e.elToFocus.focus();p=0,e.$emit("after-close")}))}))}}},v=function(){var e=this,t=e.$createElement,n=e._self._c||t;return e.mount?n("portal",{attrs:{selector:e.appendTo}},[n("transition",{attrs:{name:"vm-backdrop-transition","enter-active-class":e.bgInClass,"leave-active-class":e.bgOutClass}},[n("div",{directives:[{name:"show",rawName:"v-show",value:e.show,expression:"show"}],staticClass:"vm-backdrop",class:e.bgClass,style:{"z-index":e.zIndex-1},attrs:{"data-vm-backdrop-id":e.id}})]),e._v(" "),n("transition",{attrs:{name:"vm-transition","enter-active-class":e.inClass,"leave-active-class":e.outClass},on:{"before-enter":e.beforeOpen,enter:e.opening,"after-enter":e.afterOpen,"before-leave":e.beforeClose,leave:e.closing,"after-leave":e.afterClose}},[n("div",{directives:[{name:"show",rawName:"v-show",value:e.show,expression:"show"}],ref:"vm-wrapper",staticClass:"vm-wrapper",class:e.wrapperClass,style:{"z-index":e.zIndex,cursor:e.enableClose?"pointer":"default"},attrs:{"data-vm-wrapper-id":e.id,tabindex:"-1",role:"dialog","aria-label":e.title,"aria-modal":"true"},on:{click:function(t){return e.clickOutside(t)},keydown:function(t){return e.keydown(t)}}},[n("div",{ref:"vm",staticClass:"vm",class:e.modalClass,style:e.modalStyle,attrs:{"data-vm-id":e.id}},[e._t("titlebar",(function(){return[n("div",{staticClass:"vm-titlebar"},[n("h3",{staticClass:"vm-title"},[e._v("\n              "+e._s(e.title)+"\n            ")]),e._v(" "),e.enableClose?n("button",{staticClass:"vm-btn-close",attrs:{type:"button","aria-label":"Close"},on:{click:function(t){return t.preventDefault(),e.close.apply(null,arguments)}}}):e._e()])]})),e._v(" "),e._t("content",(function(){return[n("div",{staticClass:"vm-content"},[e._t("default")],2)]}))],2)])])],1):e._e()};v._withStripped=!0;return h({render:v,staticRenderFns:[]},void 0,m,void 0,!1,void 0,!1,void 0,void 0,void 0)}));
+    !function (e, t) {
+        "object" == typeof exports && "undefined" != typeof module ? module.exports = t(require("vue")) : "function" == typeof define && define.amd ? define(["vue"], t) : (e = "undefined" != typeof globalThis ? globalThis : e || self).VueModal = t(e.Vue)
+    }(this, (function (e) {
+        "use strict";
+
+        function t(e) {
+            return e && "object" == typeof e && "default" in e ? e : {default: e}
+        }
+
+        for (var n = t(e), o = "-_", s = 36; s--;) o += s.toString(36);
+        for (s = 36; s-- - 10;) o += s.toString(36).toUpperCase();
+
+        function i(e) {
+            return (i = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (e) {
+                return typeof e
+            } : function (e) {
+                return e && "function" == typeof Symbol && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e
+            })(e)
+        }
+
+        var a = {
+                selector: "vue-portal-target-".concat(function (e) {
+                    var t = "";
+                    for (s = e || 21; s--;) t += o[64 * Math.random() | 0];
+                    return t
+                }())
+            }, r = function (e) {
+                return a.selector = e
+            }, l = "undefined" != typeof window && void 0 !== ("undefined" == typeof document ? "undefined" : i(document)),
+            d = n.default.extend({
+                abstract: !0, name: "PortalOutlet", props: ["nodes", "tag"], data: function (e) {
+                    return {updatedNodes: e.nodes}
+                }, render: function (e) {
+                    var t = this.updatedNodes && this.updatedNodes();
+                    return t ? t.length < 2 && !t[0].text ? t : e(this.tag || "DIV", t) : e()
+                }, destroyed: function () {
+                    var e = this.$el;
+                    e.parentNode.removeChild(e)
+                }
+            }), u = n.default.extend({
+                name: "VueSimplePortal",
+                props: {
+                    disabled: {type: Boolean}, prepend: {type: Boolean}, selector: {
+                        type: String, default: function () {
+                            return "#".concat(a.selector)
+                        }
+                    }, tag: {type: String, default: "DIV"}
+                },
+                render: function (e) {
+                    if (this.disabled) {
+                        var t = this.$scopedSlots && this.$scopedSlots.default();
+                        return t ? t.length < 2 && !t[0].text ? t : e(this.tag, t) : e()
+                    }
+                    return e()
+                },
+                created: function () {
+                    this.getTargetEl() || this.insertTargetEl()
+                },
+                updated: function () {
+                    var e = this;
+                    this.$nextTick((function () {
+                        e.disabled || e.slotFn === e.$scopedSlots.default || (e.container.updatedNodes = e.$scopedSlots.default), e.slotFn = e.$scopedSlots.default
+                    }))
+                },
+                beforeDestroy: function () {
+                    this.unmount()
+                },
+                watch: {
+                    disabled: {
+                        immediate: !0, handler: function (e) {
+                            e ? this.unmount() : this.$nextTick(this.mount)
+                        }
+                    }
+                },
+                methods: {
+                    getTargetEl: function () {
+                        if (l) return document.querySelector(this.selector)
+                    }, insertTargetEl: function () {
+                        if (l) {
+                            var e = document.querySelector("body"), t = document.createElement(this.tag);
+                            t.id = this.selector.substring(1), e.appendChild(t)
+                        }
+                    }, mount: function () {
+                        var e = this.getTargetEl(), t = document.createElement("DIV");
+                        this.prepend && e.firstChild ? e.insertBefore(t, e.firstChild) : e.appendChild(t), this.container = new d({
+                            el: t,
+                            parent: this,
+                            propsData: {tag: this.tag, nodes: this.$scopedSlots.default}
+                        })
+                    }, unmount: function () {
+                        this.container && (this.container.$destroy(), delete this.container)
+                    }
+                }
+            });
+        "undefined" != typeof window && window.Vue && window.Vue === n.default && n.default.use((function (e) {
+            var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {};
+            e.component(t.name || "portal", u), t.defaultSelector && r(t.defaultSelector)
+        }));
+        var c = {type: [String, Object, Array], default: ""},
+            f = 'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+            p = 0;
+
+        function h(e, t, n, o, s, i, a, r, l, d) {
+            "boolean" != typeof a && (l = r, r = a, a = !1);
+            var u, c = "function" == typeof n ? n.options : n;
+            if (e && e.render && (c.render = e.render, c.staticRenderFns = e.staticRenderFns, c._compiled = !0, s && (c.functional = !0)), o && (c._scopeId = o), i ? (u = function (e) {
+                (e = e || this.$vnode && this.$vnode.ssrContext || this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) || "undefined" == typeof __VUE_SSR_CONTEXT__ || (e = __VUE_SSR_CONTEXT__), t && t.call(this, l(e)), e && e._registeredComponents && e._registeredComponents.add(i)
+            }, c._ssrRegister = u) : t && (u = a ? function (e) {
+                t.call(this, d(e, this.$root.$options.shadowRoot))
+            } : function (e) {
+                t.call(this, r(e))
+            }), u) if (c.functional) {
+                var f = c.render;
+                c.render = function (e, t) {
+                    return u.call(t), f(e, t)
+                }
+            } else {
+                var p = c.beforeCreate;
+                c.beforeCreate = p ? [].concat(p, u) : [u]
+            }
+            return n
+        }
+
+        var m = {
+            name: "VueModal",
+            components: {Portal: u},
+            model: {prop: "basedOn", event: "close"},
+            props: {
+                title: {type: String, default: ""},
+                baseZindex: {type: Number, default: 1051},
+                bgClass: c,
+                wrapperClass: c,
+                modalClass: c,
+                modalStyle: c,
+                inClass: Object.assign({}, c, {default: "vm-fadeIn"}),
+                outClass: Object.assign({}, c, {default: "vm-fadeOut"}),
+                bgInClass: Object.assign({}, c, {default: "vm-fadeIn"}),
+                bgOutClass: Object.assign({}, c, {default: "vm-fadeOut"}),
+                appendTo: {type: String, default: "body"},
+                live: {type: Boolean, default: !1},
+                enableClose: {type: Boolean, default: !0},
+                basedOn: {type: Boolean, default: !1}
+            },
+            data: function () {
+                return {zIndex: 0, id: null, show: !1, mount: !1, elToFocus: null}
+            },
+            created: function () {
+                this.live && (this.mount = !0)
+            },
+            mounted: function () {
+                this.id = "vm-" + this._uid, this.$watch("basedOn", (function (e) {
+                    var t = this;
+                    e ? (this.mount = !0, this.$nextTick((function () {
+                        t.show = !0
+                    }))) : this.show = !1
+                }), {immediate: !0})
+            },
+            beforeDestroy: function () {
+                this.elToFocus = null
+            },
+            methods: {
+                close: function () {
+                    !0 === this.enableClose && this.$emit("close", !1)
+                }, clickOutside: function (e) {
+                    e.target === this.$refs["vm-wrapper"] && this.close()
+                }, keydown: function (e) {
+                    if (27 === e.which && this.close(), 9 === e.which) {
+                        var t = [].slice.call(this.$refs["vm-wrapper"].querySelectorAll(f)).filter((function (e) {
+                            return !!(e.offsetWidth || e.offsetHeight || e.getClientRects().length)
+                        }));
+                        e.shiftKey ? e.target !== t[0] && e.target !== this.$refs["vm-wrapper"] || (e.preventDefault(), t[t.length - 1].focus()) : e.target === t[t.length - 1] && (e.preventDefault(), t[0].focus())
+                    }
+                }, getAllVisibleWrappers: function () {
+                    return [].slice.call(document.querySelectorAll("[data-vm-wrapper-id]")).filter((function (e) {
+                        return "none" !== e.display
+                    }))
+                }, getTopZindex: function () {
+                    return this.getAllVisibleWrappers().reduce((function (e, t) {
+                        return parseInt(t.style.zIndex) > e ? parseInt(t.style.zIndex) : e
+                    }), 0)
+                }, handleFocus: function (e) {
+                    var t = e.querySelector("[autofocus]");
+                    if (t) t.focus(); else {
+                        var n = e.querySelectorAll(f);
+                        n.length ? n[0].focus() : e.focus()
+                    }
+                }, beforeOpen: function () {
+                    this.elToFocus = document.activeElement;
+                    var e = this.getTopZindex();
+                    this.zIndex = p ? p + 2 : 0 === e ? this.baseZindex : e + 2, p = this.zIndex, this.$emit("before-open")
+                }, opening: function () {
+                    this.$emit("opening")
+                }, afterOpen: function () {
+                    this.handleFocus(this.$refs["vm-wrapper"]), this.$emit("after-open")
+                }, beforeClose: function () {
+                    this.$emit("before-close")
+                }, closing: function () {
+                    this.$emit("closing")
+                }, afterClose: function () {
+                    var e = this;
+                    this.zIndex = 0, this.live || (this.mount = !1), this.$nextTick((function () {
+                        window.requestAnimationFrame((function () {
+                            var t = e.getTopZindex();
+                            if (t > 0) for (var n = e.getAllVisibleWrappers(), o = 0; o < n.length; o++) {
+                                var s = n[o];
+                                if (parseInt(s.style.zIndex) === t) {
+                                    s.contains(e.elToFocus) ? e.elToFocus.focus() : e.handleFocus(s);
+                                    break
+                                }
+                            } else document.body.contains(e.elToFocus) && e.elToFocus.focus();
+                            p = 0, e.$emit("after-close")
+                        }))
+                    }))
+                }
+            }
+        }, v = function () {
+            var e = this, t = e.$createElement, n = e._self._c || t;
+            return e.mount ? n("portal", {attrs: {selector: e.appendTo}}, [n("transition", {
+                attrs: {
+                    name: "vm-backdrop-transition",
+                    "enter-active-class": e.bgInClass,
+                    "leave-active-class": e.bgOutClass
+                }
+            }, [n("div", {
+                directives: [{name: "show", rawName: "v-show", value: e.show, expression: "show"}],
+                staticClass: "vm-backdrop",
+                class: e.bgClass,
+                style: {"z-index": e.zIndex - 1},
+                attrs: {"data-vm-backdrop-id": e.id}
+            })]), e._v(" "), n("transition", {
+                attrs: {
+                    name: "vm-transition",
+                    "enter-active-class": e.inClass,
+                    "leave-active-class": e.outClass
+                },
+                on: {
+                    "before-enter": e.beforeOpen,
+                    enter: e.opening,
+                    "after-enter": e.afterOpen,
+                    "before-leave": e.beforeClose,
+                    leave: e.closing,
+                    "after-leave": e.afterClose
+                }
+            }, [n("div", {
+                directives: [{name: "show", rawName: "v-show", value: e.show, expression: "show"}],
+                ref: "vm-wrapper",
+                staticClass: "vm-wrapper",
+                class: e.wrapperClass,
+                style: {"z-index": e.zIndex, cursor: e.enableClose ? "pointer" : "default"},
+                attrs: {
+                    "data-vm-wrapper-id": e.id,
+                    tabindex: "-1",
+                    role: "dialog",
+                    "aria-label": e.title,
+                    "aria-modal": "true"
+                },
+                on: {
+                    click: function (t) {
+                        return e.clickOutside(t)
+                    }, keydown: function (t) {
+                        return e.keydown(t)
+                    }
+                }
+            }, [n("div", {
+                ref: "vm",
+                staticClass: "vm",
+                class: e.modalClass,
+                style: e.modalStyle,
+                attrs: {"data-vm-id": e.id}
+            }, [e._t("titlebar", (function () {
+                return [n("div", {staticClass: "vm-titlebar"}, [n("h3", {staticClass: "vm-title"}, [e._v("\n              " + e._s(e.title) + "\n            ")]), e._v(" "), e.enableClose ? n("button", {
+                    staticClass: "vm-btn-close",
+                    attrs: {type: "button", "aria-label": "Close"},
+                    on: {
+                        click: function (t) {
+                            return t.preventDefault(), e.close.apply(null, arguments)
+                        }
+                    }
+                }) : e._e()])]
+            })), e._v(" "), e._t("content", (function () {
+                return [n("div", {staticClass: "vm-content"}, [e._t("default")], 2)]
+            }))], 2)])])], 1) : e._e()
+        };
+        v._withStripped = !0;
+        return h({render: v, staticRenderFns: []}, void 0, m, void 0, !1, void 0, !1, void 0, void 0, void 0)
+    }));
 
     function joinRoom(bearer, token) {
         this.password = '';
@@ -467,6 +907,7 @@
         });
         socket.on('chat.messages', function (messages) {
             console.log('chat.messages');
+            console.log(messages);
             vm.messages = messages;
             setTimeout(function () {
                 scrollToElement(vm, false);
@@ -554,7 +995,7 @@
         });
     }
 
-    function isElementInViewport (el) {
+    function isElementInViewport(el) {
 
         // Special bonus for those using jQuery
         if (typeof jQuery === "function" && el instanceof jQuery) {
@@ -575,7 +1016,7 @@
         let listIndex = vm.messages.length - 1;
         const prevEl = vm.$el.getElementsByClassName('item-' + (listIndex - 1))[0];
         if (prevEl) {
-            if (! isElementInViewport(prevEl) && mode) {
+            if (!isElementInViewport(prevEl) && mode) {
                 return;
             }
         }
@@ -599,7 +1040,7 @@
         }
     }
 
-    function showToast(text, color, duration=3000) {
+    function showToast(text, color, duration = 3000) {
         Toastify({
             text: text,
             duration: duration,
@@ -645,11 +1086,11 @@
             },
             login: function (e) {
                 e.preventDefault();
+                axios.post('http://lairgg.test/login', {
                 //axios.post('https://dev.lair.gg/login', {
-                axios.post('https://dev.lair.gg/login', {
                     "grant_type": "password",
                     "client_id": "2",
-                    "client_secret": "RTbAk0FX472rVlq5DRWZR5pgrSudBEITaPGycwhg",
+                    "client_secret": "8unH9NsZBJzU6nZ9egeqRFARQMnEgQMDE7yL3hbn",//"RTbAk0FX472rVlq5DRWZR5pgrSudBEITaPGycwhg",
                     "username": this.email,
                     "password": this.password,
                     "scope": "*"

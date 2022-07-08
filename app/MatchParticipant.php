@@ -16,6 +16,10 @@ class MatchParticipant extends Model
         'ready_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'ready_at_with_timezone',
+    ];
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -30,5 +34,19 @@ class MatchParticipant extends Model
     public function participant()
     {
         return $this->belongsTo(Participant::class, 'participant_id');
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getReadyAtWithTimezoneAttribute()
+    {
+        $readyAt = $this->ready_at;
+        $timezone = request()->header('timezone');
+        if ($readyAt && $timezone) {
+            $minutes = convertTimeToMinutes($timezone);
+            return $readyAt->addMinutes($minutes);
+        }
+        return $readyAt;
     }
 }

@@ -18,6 +18,10 @@ class LobbyMessage extends Model
         'message',
     ];
 
+    protected $casts = [
+        //'message' => 'array',
+    ];
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

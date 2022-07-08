@@ -260,14 +260,22 @@ class MatchRepository extends BaseRepository
             return $lobby;
         }
 
-        $lobbyRepository->createReadyMessage($lobby, $user);
         $readyCount = MatchParticipant::query()
             ->where('match_id', $match->id)
             ->whereNotNull('ready_at')
             ->count();
+
+        if ($readyCount == 1) {
+            $lobbyRepository->createBigTitleMessage($lobby, 'Prematch prep');
+        }
+
+        $lobbyRepository->createReadyMessage($lobby, $user);
+
         if ($readyCount >= 2 && $readyCount == $match->getParticipants()->count()) {
             sleep(1);
-            $lobbyRepository->createAutoCoinTossMessage($user, $lobby);
+            $lobbyRepository->createAutoCoinTossMessage($lobby);
+            sleep(1);
+            $lobbyRepository->creatPickAndBanFirstMessage($lobby);
         }
         return $lobby;
     }

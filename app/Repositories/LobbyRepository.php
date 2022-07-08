@@ -11,6 +11,8 @@ use App\Http\Requests\CreateDisputeRequest;
 use App\Lobby;
 use App\LobbyMessage;
 use App\Match;
+use App\MatchParticipant;
+use App\Participant;
 use App\Team;
 use App\Tournament;
 use App\User;
@@ -117,6 +119,15 @@ class LobbyRepository extends BaseRepository
         return $lobby->owner instanceof Match;
     }
 
+    /**
+     * @param Lobby $lobby
+     * @return bool
+     */
+    public function isTournamentLobby(Lobby $lobby)
+    {
+        return $lobby->owner instanceof Tournament;
+    }
+
     public function issuerIsAParticipant(User $user, Lobby $lobby)
     {
         if ($this->isMatchLobby($lobby)) {
@@ -131,7 +142,7 @@ class LobbyRepository extends BaseRepository
             }
             foreach ($participants as $participant) {
                 if ($participant->participantable_type == Team::class) {
-                    $captain = Team::find($participant->participantable_id )->players()->whereCaptain(1)->first();
+                    $captain = Team::find($participant->participantable_id)->players()->whereCaptain(1)->first();
                     if ($captain && $captain->user_id == $user->id) {
                         return true;
                     }
@@ -144,22 +155,166 @@ class LobbyRepository extends BaseRepository
 
     public function createReadyMessage(Lobby $lobby, User $user)
     {
-        if (! $this->isMatchLobby($lobby)) {
+        if (!$this->isMatchLobby($lobby)) {
             return null;
         }
+        $staffUserId = $this->getFirstStaffUserId($lobby);
+        $staff = $this->prepareStaffUserObjectForLobbyByUserId($staffUserId);
+        $lobbyMessage = $this->getLobbyMessageWithType($lobby, 'ready_message');
+        $match = $lobby->owner;
+        if (! $lobbyMessage) {
+            $timestamp = time();
+            $uuid = Str::orderedUuid()->toString();
+            $message = [
+                'text' => 'TEAMS STATUS',
+                'subtitle' => 'Waiting for your opponent to ready...',
+                'type' => 'ready_message',
+                'user' => $staff->toArray(),
+                'timestamp' => $timestamp,
+                'uuid' => $uuid,
+                'lobby_name' => $lobby->name,
+                'is_final' => false,
+                'opponents' => [
+                    0 => $this->getParticipantInformation($user, $match),
+                ],
+            ];
+            $lobbyMessageAttributes = [
+                'uuid' => $uuid,
+                'lobby_id' => $lobby->id,
+                'user_id' => $staff->id,
+                'lobby_name' => $lobby->name,
+                'type' => 'ready_message',
+                'sequence' => $this->getNextSequence($lobby),
+                'sent_at' => date('Y-m-d H:i:s', intval($timestamp / 1000)),
+                'message' => json_encode($message),
+            ];
+            $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
+            $lobbyMessage->save();
+            Redis::publish('lobby-server-message-channel', json_encode($message));
+        } else {
+            $message = $this->extractMessageFromLobbyMessage($lobbyMessage);
+            $participantInformation = $this->getParticipantInformation($user, $match);
+            if (count($message['opponents']) == 1 && $message['opponents'][0]['id'] != $participantInformation['id']) {
+                $message['is_final'] = true;
+                $message['subtitle'] = null;
+                $message['opponents'][] = $participantInformation;
+                $lobbyMessage->message = json_encode($message);
+                $lobbyMessage->save();
+                Redis::publish('lobby-server-edit-message-channel', $lobbyMessage->message);
+            }
+        }
+        return $lobbyMessage->uuid;
     }
 
-    public function createAutoCoinTossMessage(User $user, Lobby $lobby)
+    public function creatPickAndBanFirstMessage(Lobby $lobby)
     {
-        if (! $this->isMatchLobby($lobby)) {
+        if (!$this->isMatchLobby($lobby)) {
             return null;
         }
         $match = $lobby->owner;
+        $timestamp = time();
+        $uuid = Str::orderedUuid()->toString();
+        $staffUserId = $this->getFirstStaffUserId($lobby);
+        $staff = $this->prepareStaffUserObjectForLobbyByUserId($staffUserId);
+        $lobbyMessage = $this->getLobbyMessageWithType($lobby, 'auto_coin_toss');
+        if ($lobbyMessage) {
+            return $lobbyMessage->uuid;
+        }
+        $participants = $match->getParticipants()->toArray();
+        if (count($participants) != 2) {
+            return 0;
+        }
+    }
+
+    public function createBigTitleMessage(Lobby $lobby, string $title)
+    {
+        if (!$this->isMatchLobby($lobby)) {
+            return null;
+        }
+        $match = $lobby->owner;
+        $timestamp = time();
+        $uuid = Str::orderedUuid()->toString();
+        $staffUserId = $this->getFirstStaffUserId($lobby);
+        $staff = $this->prepareStaffUserObjectForLobbyByUserId($staffUserId);
+        $newMessage = [
+            'type' => 'big_title',
+            'user' => $staff->toArray(),
+            'timestamp' => $timestamp,
+            'text' => $title,
+            'uuid' => $uuid,
+            'lobby_name' => $lobby->name,
+            'is_final' => true,
+        ];
+        $lobbyMessageAttributes = [
+            'uuid' => $uuid,
+            'lobby_id' => $lobby->id,
+            'user_id' => $staff->id,
+            'lobby_name' => $lobby->name,
+            'type' => 'big_title',
+            'sequence' => $this->getNextSequence($lobby),
+            'sent_at' => date('Y-m-d H:i:s', intval($timestamp / 1000)),
+            'message' => json_encode($newMessage),
+        ];
+        $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
+        $lobbyMessage->save();
+        Redis::publish('lobby-server-message-channel', json_encode($newMessage));
+        return $lobbyMessage->uuid;
+    }
+
+    public function createAutoCoinTossMessage(Lobby $lobby)
+    {
+        if (!$this->isMatchLobby($lobby)) {
+            return null;
+        }
+        $match = $lobby->owner;
+        $timestamp = time();
+        $uuid = Str::orderedUuid()->toString();
+        $staffUserId = $this->getFirstStaffUserId($lobby);
+        $staff = $this->prepareStaffUserObjectForLobbyByUserId($staffUserId);
+        $lobbyMessage = $this->getLobbyMessageWithType($lobby, 'auto_coin_toss');
+        if ($lobbyMessage) {
+            return $lobbyMessage->uuid;
+        }
+        $participants = $match->getParticipants()->toArray();
+        if (count($participants) != 2) {
+            return 0;
+        }
+        $winnerIndex = mt_rand(0, 1);
+        $winner = $participants[$winnerIndex];
+        $match->coin_toss_winner_id = $winner['id'];
+        $match->save();
+        $coinTossResult = $this->getAutoCoinTossInformation($match);
+        $newMessage = [
+            'type' => 'auto_coin_toss',
+            'user' => $staff->toArray(),
+            'timestamp' => $timestamp,
+            'text' => $coinTossResult['title'],
+            'result' => $coinTossResult['text'],
+            'uuid' => $uuid,
+            'lobby_name' => $lobby->name,
+            'is_final' => true,
+            'winner' => null,
+            'loser' => null,
+        ];
+        $lobbyMessageAttributes = [
+            'uuid' => $uuid,
+            'lobby_id' => $lobby->id,
+            'user_id' => $staff->id,
+            'lobby_name' => $lobby->name,
+            'type' => 'auto_coin_toss',
+            'sequence' => $this->getNextSequence($lobby),
+            'sent_at' => date('Y-m-d H:i:s', intval($timestamp / 1000)),
+            'message' => json_encode($newMessage),
+        ];
+        $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
+        $lobbyMessage->save();
+        Redis::publish('lobby-server-message-channel', json_encode($newMessage));
+        return $lobbyMessage->uuid;
     }
 
     public function creatCoinTossMessage(User $user, Lobby $lobby, string $title)
     {
-        if (! $this->isMatchLobby($lobby)) {
+        if (!$this->isMatchLobby($lobby)) {
             return null;
         }
         $match = $lobby->owner;
@@ -187,7 +342,7 @@ class LobbyRepository extends BaseRepository
                 [
                     'title' => 'Decline',
                     'action' => "api/v1/lobbies/{$lobby->name}/coin-toss/$uuid/decline",
-                ],[
+                ], [
                     'title' => 'Accept',
                     'action' => "api/v1/lobbies/{$lobby->name}/coin-toss/$uuid/accept",
                 ]
@@ -572,6 +727,68 @@ class LobbyRepository extends BaseRepository
 
     /**
      * @param User $user
+     * @param Match $match
+     * @return array|null
+     */
+    private function getParticipantInformation(User $user, Match $match)
+    {
+        $participants = $match->getParticipants();
+        foreach ($participants as $participant) {
+            $captain = $participant->getCaptain();
+            if ($captain && $captain->id == $user->id) {
+                $matchParticipant = MatchParticipant::query()
+                    ->where('participant_id', $participant->id)
+                    ->where('match_id', $match->id)
+                    ->first();
+                $readyAt = null;
+                $readyAtWithTimeZone = null;
+                if ($matchParticipant && $matchParticipant->ready_at) {
+                    $readyAt = $matchParticipant->ready_at;
+                    $readyAtWithTimeZone = $matchParticipant->ready_at_with_timezone;
+                }
+                if ($participant->participantable_type == Team::class) {
+                    $team = Team::find($participant->participantable_id);
+                    return [
+                        'id' => $participant->id,
+                        'title' => 'Team ' . $team->title . ' is ready!',
+                        'logo' => $this->makeFullUrl($team->logo),
+                        'ready_at' => $readyAtWithTimeZone,
+                    ];
+
+                } else if ($participant->participantable_type == User::class) {
+                    return [
+                        'id' => $participant->id,
+                        'title' => $captain->username . ' is ready!',
+                        'logo' => $this->makeFullUrl($captain->avatar),
+                        'ready_at' => $readyAtWithTimeZone,
+                    ];
+                }
+            }
+        }
+        return null;
+    }
+
+    private function getAutoCoinTossInformation(Match $match)
+    {
+        $playCount = $match->plays()->count();
+        $title = "PICK & BAN (BO{$playCount})";
+        $participant = Participant::find($match->coin_toss_winner_id);
+        $text = '';
+        if ($participant->participantable_type == Team::class) {
+            $team = Team::find($participant->participantable_id);
+            $text = "Team {$team->title} won the coin toss. They will choose to ban the first map.";
+        } else if ($participant->participantable_type == User::class) {
+            $captain = $participant->getCaptain();
+            $text = "{$captain->username} won the coin toss. They will choose to ban the first map.";
+        }
+        return [
+            'title' => $title,
+            'text' => $text,
+        ];
+    }
+
+    /**
+     * @param User $user
      * @param Lobby $lobby
      * @return User
      */
@@ -590,5 +807,49 @@ class LobbyRepository extends BaseRepository
         return $user;
     }
 
+    /**
+     * @param int $userId
+     * @return mixed
+     */
+    private function prepareStaffUserObjectForLobbyByUserId(int $userId)
+    {
+        $user = User::find($userId);
+        $user->is_organizer = true;
+        $user->is_auto = true;
+        $user->avatar = $this->makeFullUrl($user->avatar);
+        $user->cover = $this->makeFullUrl($user->cover);
+        return $user;
+    }
 
+    /**
+     * @param Lobby $lobby
+     * @return int
+     */
+    private function getFirstStaffUserId(Lobby $lobby)
+    {
+        $organization = null;
+        if ($this->isMatchLobby($lobby)) {
+            $match = Match::find($lobby->lobby_aware_id);
+            $organization = $match->tournament->organization;
+            return $organization->staff()->first()->user_id;
+        } else if ($this->isTournamentLobby($lobby)) {
+            $tournament = Tournament::find($lobby->lobby_aware_id);
+            $organization = $tournament->organization;
+            return $organization->staff()->first()->user_id;
+        }
+        return 1;
+    }
+
+    private function getLobbyMessageWithType(Lobby $lobby, string $type)
+    {
+        return LobbyMessage::query()
+            ->where('lobby_id', $lobby->id)
+            ->where('type', $type)
+            ->first();
+    }
+
+    private function extractMessageFromLobbyMessage(LobbyMessage $lobbyMessage)
+    {
+        return json_decode($lobbyMessage->message, true);
+    }
 }
