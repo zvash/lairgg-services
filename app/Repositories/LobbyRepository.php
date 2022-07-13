@@ -908,22 +908,28 @@ class LobbyRepository extends BaseRepository
                     if ($mode == 'defender') {
                         $otherMode = 'attacker';
                     }
-                    $selectorParticipantId = -1;
-                    $otherParticipantId = -1;
+                    $activeParticipant = [];
+                    $otherParticipant = [];
                     foreach ($participantInformationByTurn as $item) {
                         if ($item['captain_id'] == $user->id) {
-                            $selectorParticipantId = $item['participant_id'];
                             $activeParticipant = $item;
                         } else {
-                            $otherParticipantId = $item['participant_id'];
+                            $otherParticipant = $item;
                         }
                     }
-                    $mapsInformation[$index][$mode] = $selectorParticipantId;
-                    $mapsInformation[$index][$otherMode] = $otherParticipantId;
-                    $lastMessage['maps'] = $mapsInformation;
                     if (!$activeParticipant) {
                         throw new \Exception(__('strings.invalid_request'));
                     }
+
+                    $mapsInformation[$index][$mode] = [
+                        'title' => $activeParticipant['title'],
+                        'logo' => $activeParticipant['logo'],
+                    ];
+                    $mapsInformation[$index][$otherMode] = [
+                        'title' => $otherParticipant['title'],
+                        'logo' => $otherParticipant['logo'],
+                    ];
+                    $lastMessage['maps'] = $mapsInformation;
 
                     $lastMessage['image'] = $activeParticipant['logo'];
                     $prefix = '';
