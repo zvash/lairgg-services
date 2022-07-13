@@ -17,6 +17,7 @@ use App\Team;
 use App\Tournament;
 use App\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 
@@ -185,7 +186,7 @@ class LobbyRepository extends BaseRepository
                 'lobby_name' => $lobby->name,
                 'type' => 'ready_message',
                 'sequence' => $this->getNextSequence($lobby),
-                'sent_at' => date('Y-m-d H:i:s', intval($timestamp / 1000)),
+                'sent_at' => date('Y-m-d H:i:s', $timestamp),
                 'message' => json_encode($message),
             ];
             $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
@@ -213,17 +214,31 @@ class LobbyRepository extends BaseRepository
         }
         $match = $lobby->owner;
         $timestamp = time();
-        $uuid = Str::orderedUuid()->toString();
-        $staffUserId = $this->getFirstStaffUserId($lobby);
-        $staff = $this->prepareStaffUserObjectForLobbyByUserId($staffUserId);
-        $lobbyMessage = $this->getLobbyMessageWithType($lobby, 'auto_coin_toss');
+        $lobbyMessage = $this->getLobbyMessageWithType($lobby, 'pick_and_ban');
         if ($lobbyMessage) {
             return $lobbyMessage->uuid;
         }
+        $newMessage = $this->getPickAndBanActionsAndInformation($match, $lobby, null);
+        $newMessage['timestamp'] = $timestamp;
+        $uuid = $newMessage['uuid'];
         $participants = $match->getParticipants()->toArray();
         if (count($participants) != 2) {
             return 0;
         }
+        $lobbyMessageAttributes = [
+            'uuid' => $uuid,
+            'lobby_id' => $lobby->id,
+            'user_id' => $newMessage['user']['id'],
+            'lobby_name' => $lobby->name,
+            'type' => 'pick_and_ban',
+            'sequence' => $this->getNextSequence($lobby),
+            'sent_at' => date('Y-m-d H:i:s', $timestamp),
+            'message' => json_encode($newMessage),
+        ];
+        $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
+        $lobbyMessage->save();
+        Redis::publish('lobby-server-message-channel', json_encode($newMessage));
+        return $lobbyMessage->uuid;
     }
 
     public function createBigTitleMessage(Lobby $lobby, string $title)
@@ -252,7 +267,7 @@ class LobbyRepository extends BaseRepository
             'lobby_name' => $lobby->name,
             'type' => 'big_title',
             'sequence' => $this->getNextSequence($lobby),
-            'sent_at' => date('Y-m-d H:i:s', intval($timestamp / 1000)),
+            'sent_at' => date('Y-m-d H:i:s', $timestamp),
             'message' => json_encode($newMessage),
         ];
         $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
@@ -303,7 +318,7 @@ class LobbyRepository extends BaseRepository
             'lobby_name' => $lobby->name,
             'type' => 'auto_coin_toss',
             'sequence' => $this->getNextSequence($lobby),
-            'sent_at' => date('Y-m-d H:i:s', intval($timestamp / 1000)),
+            'sent_at' => date('Y-m-d H:i:s', $timestamp),
             'message' => json_encode($newMessage),
         ];
         $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
@@ -355,7 +370,7 @@ class LobbyRepository extends BaseRepository
             'lobby_name' => $lobby->name,
             'type' => 'coin_toss',
             'sequence' => $this->getNextSequence($lobby),
-            'sent_at' => date('Y-m-d H:i:s', intval($timestamp / 1000)),
+            'sent_at' => date('Y-m-d H:i:s', $timestamp),
             'message' => json_encode($newMessage),
         ];
         $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
@@ -606,7 +621,7 @@ class LobbyRepository extends BaseRepository
             'lobby_name' => $lobby->name,
             'type' => 'dispute',
             'sequence' => $this->getNextSequence($lobby),
-            'sent_at' => date('Y-m-d H:i:s', intval($timestamp / 1000)),
+            'sent_at' => date('Y-m-d H:i:s', $timestamp),
             'message' => json_encode($newMessage),
         ];
         $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
@@ -768,6 +783,316 @@ class LobbyRepository extends BaseRepository
         return null;
     }
 
+    /**
+     * @param Request $request
+     * @param Lobby $lobby
+     * @param int $mapId
+     * @param string $action
+     * @return string
+     * @throws \Exception
+     */
+    public function pickOrBanMap(Request $request, Lobby $lobby, int $mapId, string $action)
+    {
+        $user = $request->user();
+        $match = $lobby->owner;
+        $lobbyMessage = $this->getLobbyMessageWithType($lobby, 'pick_and_ban');
+        if (! $lobbyMessage) {
+            throw new \Exception(__('strings.operation_cannot_be_done'));
+        }
+        $lastMessage = $this->extractMessageFromLobbyMessage($lobbyMessage);
+        $participantInformationByTurn = $this->getParticipantsInformationByTurn($match);
+        if (
+            $lastMessage['actions']
+            && array_key_exists('type', $lastMessage['actions'])
+            && $lastMessage['actions']['type'] == $action
+            && array_key_exists('visible_to', $lastMessage['actions'])
+            && $lastMessage['actions']['visible_to'] == $user->id
+            && array_key_exists('maps', $lastMessage)
+            && is_array($lastMessage['maps'])
+        ) {
+            $activeParticipant = null;
+            foreach ($participantInformationByTurn as $item) {
+                if ($item['captain_id'] == $user->id) {
+                    $activeParticipant = $item;
+                    break;
+                }
+            }
+            if (!$activeParticipant) {
+                throw new \Exception(__('strings.invalid_request'));
+            }
+
+            $lastMessage['image'] = $activeParticipant['logo'];
+            $prefix = '';
+            if ($activeParticipant['type'] == 'team') {
+                $prefix = 'Team ';
+            }
+
+            $actionText = 'picked';
+            if ($action == 'ban') {
+                $actionText = 'banned';
+            }
+
+            $mapsInformation = $lastMessage['maps'];
+            $mapTitle = '';
+            $choosableMapId = 0;
+            foreach ($mapsInformation as $index => $information) {
+                if ($information['map_id'] == $mapId && $information['status'] == 'undecided') {
+                    $mapTitle = $information['title'];
+                    $choosableMapId = $information['map_id'];
+                    $mapsInformation[$index]['status'] = $actionText;
+                    $lastMessage['maps'] = $mapsInformation;
+                    break;
+                }
+            }
+            if ($mapId != $choosableMapId) {
+                throw new \Exception(__('strings.invalid_request'));
+            }
+
+            $lastMessage['summary'][] = [
+                'text' => "{$prefix}{$activeParticipant['title']} {$actionText} {$mapTitle}",
+                'image' => $activeParticipant['logo'],
+                'timestamp' => time(),
+            ];
+            $lobbyMessage->message = json_encode($lastMessage);
+            $lobbyMessage->save();
+
+            $lastMessage = $this->getPickAndBanActionsAndInformation($match, $lobby, $lastMessage);
+
+            $lobbyMessage->message = json_encode($lastMessage);
+            $lobbyMessage->save();
+            Redis::publish('lobby-server-edit-message-channel', $lobbyMessage->message);
+            return $actionText;
+        }
+        throw new \Exception(__('strings.operation_cannot_be_done'));
+    }
+
+    /**
+     * @param Request $request
+     * @param Lobby $lobby
+     * @param int $mapId
+     * @param string $mode
+     * @return string
+     * @throws \Exception
+     */
+    public function pickSide(Request $request, Lobby $lobby, int $mapId, string $mode)
+    {
+        $user = $request->user();
+        $match = $lobby->owner;
+        $lobbyMessage = $this->getLobbyMessageWithType($lobby, 'pick_and_ban');
+        if (! $lobbyMessage) {
+            throw new \Exception(__('strings.operation_cannot_be_done'));
+        }
+        $lastMessage = $this->extractMessageFromLobbyMessage($lobbyMessage);
+        $participantInformationByTurn = $this->getParticipantsInformationByTurn($match);
+        if (
+            $lastMessage['actions']
+            && array_key_exists('type', $lastMessage['actions'])
+            && $lastMessage['actions']['type'] == 'side'
+            && array_key_exists('visible_to', $lastMessage['actions'])
+            && $lastMessage['actions']['visible_to'] == $user->id
+            && array_key_exists('maps', $lastMessage)
+            && is_array($lastMessage['maps'])
+        ) {
+            $mapsInformation = $lastMessage['maps'];
+            $activeParticipant = null;
+            $mapTitle = '';
+            $choosableMapId = 0;
+            foreach ($mapsInformation as $index => $information) {
+                if ($information['status'] == 'picked' && $information['attacker'] === null && $information['defender'] === null) {
+                    $mapTitle = $information['title'];
+                    $choosableMapId = $information['map_id'];
+                    if ($choosableMapId != $mapId) {
+                        throw new \Exception(__('strings.invalid_request'));
+                    }
+                    $otherMode = 'defender';
+                    if ($mode == 'defender') {
+                        $otherMode = 'attacker';
+                    }
+                    $selectorParticipantId = -1;
+                    $otherParticipantId = -1;
+                    foreach ($participantInformationByTurn as $item) {
+                        if ($item['captain_id'] == $user->id) {
+                            $selectorParticipantId = $item['participant_id'];
+                            $activeParticipant = $item;
+                        } else {
+                            $otherParticipantId = $item['participant_id'];
+                        }
+                    }
+                    $mapsInformation[$index][$mode] = $selectorParticipantId;
+                    $mapsInformation[$index][$otherMode] = $otherParticipantId;
+                    $lastMessage['maps'] = $mapsInformation;
+                    if (!$activeParticipant) {
+                        throw new \Exception(__('strings.invalid_request'));
+                    }
+
+                    $lastMessage['image'] = $activeParticipant['logo'];
+                    $prefix = '';
+                    if ($activeParticipant['type'] == 'team') {
+                        $prefix = 'Team ';
+                    }
+
+                    $capitalizedMode = ucfirst($mode);
+                    $lastMessage['summary'][] = [
+                        'text' => "{$prefix}{$activeParticipant['title']} picked side {$capitalizedMode} for {$mapTitle}",
+                        'image' => $activeParticipant['logo'],
+                        'timestamp' => time(),
+                    ];
+                    $lobbyMessage->message = json_encode($lastMessage);
+                    $lobbyMessage->save();
+
+                    $lastMessage = $this->getPickAndBanActionsAndInformation($match, $lobby, $lastMessage);
+
+                    $lobbyMessage->message = json_encode($lastMessage);
+                    $lobbyMessage->save();
+                    Redis::publish('lobby-server-edit-message-channel', $lobbyMessage->message);
+                    return 'done';
+                }
+            }
+        }
+        throw new \Exception(__('strings.operation_cannot_be_done'));
+    }
+
+    /**
+     * @param Match $match
+     * @param Lobby $lobby
+     * @param array|null $lastMessage
+     * @return array
+     */
+    private function getPickAndBanActionsAndInformation(Match $match, Lobby $lobby, array $lastMessage = null)
+    {
+        $playCount = $match->plays()->count();
+        $participantInformationByTurn = $this->getParticipantsInformationByTurn($match);
+        if (!$lastMessage) {
+            $maps = $match->tournament->game->maps;
+            $mapsInformation = [];
+            foreach ($maps as $map) {
+                $mapsInformation[] = [
+                    'map_id' => $map->id,
+                    'title' => $map->title,
+                    'image' => $this->makeFullUrl($map->image),
+                    'status' => 'undecided',
+                    'defender' => null,
+                    'attacker' => null,
+                ];
+            }
+            $currentStep = 0;
+            $staffUserId = $this->getFirstStaffUserId($lobby);
+            $staff = $this->prepareStaffUserObjectForLobbyByUserId($staffUserId);
+            $lastMessage = [
+                'type' => 'pick_and_ban',
+                'user' => $staff->toArray(),
+                'timestamp' => time(),
+                'text' => '',
+                'image' => null,
+                'uuid' => Str::orderedUuid()->toString(),
+                'lobby_name' => $lobby->name,
+                'is_final' => false,
+                'current_step' => $currentStep,
+                'summary' => [],
+                'maps' => $mapsInformation,
+                'actions' => [],
+            ];
+
+        } else {
+            $currentStep = $lastMessage['current_step'] + 1;
+            $lastMessage['current_step'] = $currentStep;
+            $mapsInformation = $lastMessage['maps'];
+        }
+        $allSteps = $this->getPackAndBanActionByStepForValorant($playCount, count($mapsInformation));
+        if ($currentStep == $allSteps['total_steps'] - 1) {
+            $lastMessage['text'] = '';
+            $lastMessage['image'] = null;
+            $lastMessage['is_final'] = true;
+            $lastMessage['actions'] = [];
+            return $lastMessage;
+        }
+        $currentAction = $allSteps['actions'][$currentStep];
+        if ($currentAction['auto']) {
+            foreach ($mapsInformation as $index => $information) {
+                if ($information['status'] == 'undecided') {
+                    $mapsInformation[$index]['status'] = 'picked';
+                    $lastMessage['maps'] = $mapsInformation;
+                    $lastMessage['summary'][] = [
+                        'text' => "{$information['title']} is only map remaining.",
+                        'image' => null,
+                        'timestamp' => time(),
+                    ];
+                    $currentStep++;
+                    if ($currentStep == $allSteps['total_steps'] - 1) {
+                        $lastMessage['text'] = '';
+                        $lastMessage['image'] = null;
+                        $lastMessage['is_final'] = true;
+                        $lastMessage['actions'] = [];
+                        return $lastMessage;
+                    }
+                    $currentAction = $allSteps['actions'][$currentStep];
+                    break;
+                }
+            }
+        }
+        $activeParticipant = $participantInformationByTurn[$currentAction['turn']];
+        $lastMessage['image'] = $activeParticipant['logo'];
+        $prefix = '';
+        if ($activeParticipant['type'] == 'team') {
+            $prefix = 'Team ';
+        }
+        if ($currentAction['action'] == 'ban') {
+            $lastMessage['text'] = $prefix . $activeParticipant['title'] . '\'s turn to ban a map.';
+            $lastMessage['actions'] = [
+                'type' => 'ban',
+                'visible_to' => $activeParticipant['captain_id'],
+                'deadline' => time() + 60,
+                'url_count' => 1,
+                'url_prefixes' => ["api/v1/lobbies/{$lobby->name}/picknban/ban/maps/"],
+            ];
+        } else if ($currentAction['action'] == 'pick') {
+            $lastMessage['text'] = $prefix . $activeParticipant['title'] . '\'s turn to pick a map.';
+            $lastMessage['actions'] = [
+                'type' => 'pick',
+                'visible_to' => $activeParticipant['captain_id'],
+                'deadline' => time() + 60,
+                'url_count' => 1,
+                'url_prefixes' => ["api/v1/lobbies/{$lobby->name}/picknban/pick/maps/"],
+            ];
+        } else if ($currentAction['action'] == 'side') {
+            $mapTitle = '';
+            $mapId = 0;
+            foreach ($mapsInformation as $information) {
+                if ($information['status'] == 'picked' && $information['attacker'] === null && $information['defender'] === null) {
+                    $mapTitle = $information['title'];
+                    $mapId = $information['map_id'];
+                    break;
+                }
+            }
+            $lastMessage['text'] = $prefix . $activeParticipant['title'] . '\'s turn to pick a side for map **' . $mapTitle . '**';
+            $lastMessage['actions'] = [
+                'type' => 'side',
+                'visible_to' => $activeParticipant['captain_id'],
+                'deadline' => time() + 60,
+                'url_count' => 2,
+                'urls' => [
+                    'attacker' => "api/v1/lobbies/{$lobby->name}/picknban/side/maps/$mapId/attacker",
+                    'defender' => "api/v1/lobbies/{$lobby->name}/picknban/side/maps/$mapId/defender",
+                ]
+            ];
+        }
+        return $lastMessage;
+    }
+
+    /**
+     * @param Match $match
+     * @return array
+     */
+    private function getMatchParticipantsById(Match $match)
+    {
+        $participants = $match->getParticipants()->toArray();
+        $participantsById = [];
+        foreach ($participants as $participant) {
+            $participantsById[$participant['id']] = $participant;
+        }
+        return $participantsById;
+    }
+
     private function getAutoCoinTossInformation(Match $match)
     {
         $playCount = $match->plays()->count();
@@ -785,6 +1110,37 @@ class LobbyRepository extends BaseRepository
             'title' => $title,
             'text' => $text,
         ];
+    }
+
+    /**
+     * @param int $participantId
+     * @return array
+     */
+    private function getParticipantInformationById(int $participantId)
+    {
+        $participant = Participant::find($participantId);
+        $captainId = $participant->getCaptain()->id;
+        if ($participant->participantable_type == Team::class) {
+            $team = Team::find($participant->participantable_id);
+            return [
+                'participant_id' => $participantId,
+                'participantable_id' => $participant->participantable_id,
+                'type' => 'team',
+                'title' => $team->title,
+                'logo' => $this->makeFullUrl($team->logo),
+                'captain_id' => $captainId,
+            ];
+        } else {
+            $user = User::find($participant->participantable_id);
+            return [
+                'participant_id' => $participantId,
+                'participantable_id' => $participant->participantable_id,
+                'type' => 'user',
+                'title' => $user->username,
+                'logo' => $this->makeFullUrl($user->avatar),
+                'captain_id' => $captainId,
+            ];
+        }
     }
 
     /**
@@ -851,5 +1207,220 @@ class LobbyRepository extends BaseRepository
     private function extractMessageFromLobbyMessage(LobbyMessage $lobbyMessage)
     {
         return json_decode($lobbyMessage->message, true);
+    }
+
+    /**
+     * @param int $playCount
+     * @param int $mapCount
+     * @return mixed
+     */
+    public function getPackAndBanActionByStepForValorant(int $playCount, int $mapCount)
+    {
+        $steps = [
+            1 => [],
+            3 => [],
+            5 => [],
+        ];
+        //BO1
+        $steps[1]['total_steps'] = $mapCount + 1;
+        $steps[1]['actions'] = [];
+        for ($i = 0; $i < $steps[1]['total_steps']; $i++) {
+            $turn = $i % 2;
+            if ($i == $steps[1]['total_steps'] - 1) {//last step of bo1
+                $steps[1]['actions'][$i] = [
+                    'turn' => $steps[1]['actions'][$i - 1]['turn'],
+                    'action' => 'side',
+                    'deadline' => 60,
+                    'auto' => false,
+                ];
+            } else if ($i == $steps[1]['total_steps'] - 2) {//auto pick of bo1
+                $steps[1]['actions'][$i] = [
+                    'turn' => $turn,
+                    'action' => 'pick',
+                    'deadline' => 0,
+                    'auto' => true,
+                ];
+            } else {//bans
+                $steps[1]['actions'][$i] = [
+                    'turn' => $turn,
+                    'action' => 'ban',
+                    'deadline' => 60,
+                    'auto' => false,
+                ];
+            }
+        }
+        // end of BO1
+
+        //BO3
+        $pickedMaps = 0;
+        $remainedMaps = $mapCount;
+        $turn = 0;
+        $step = 0;
+        $remainedBans = 2;
+        $remainedPicks = 2;
+        while ($remainedMaps) {
+            if ($remainedMaps == 1) {
+                $remainedMaps = 0;
+                if ($step > 0) {
+                    $lastTurn = $steps[3]['actions'][$step - 1]['turn'];
+                    if ($steps[3]['actions'][$step - 1]['action'] == 'side') {
+                        $turn = $lastTurn;
+                    } else {
+                        $turn = ($lastTurn + 1) % 2;
+                    }
+                }
+                while ($pickedMaps < $playCount) {
+                    $steps[3]['actions'][$step] = [
+                        'turn' => $turn,
+                        'action' => 'pick',
+                        'deadline' => 0,
+                        'auto' => true,
+                    ];
+                    $pickedMaps++;
+                    $step++;
+                    $steps[3]['actions'][$step] = [
+                        'turn' => $turn,
+                        'action' => 'side',
+                        'deadline' => 60,
+                        'auto' => false,
+                    ];
+                    $turn = ($turn + 1) % 2;
+                    $step++;
+                }
+            } else if ($remainedBans > 0) {
+                $turn = $remainedBans % 2;
+                $steps[3]['actions'][$step] = [
+                    'turn' => $turn,
+                    'action' => 'ban',
+                    'deadline' => 60,
+                    'auto' => false,
+                ];
+                $step++;
+                $remainedBans--;
+                $remainedMaps--;
+                $remainedPicks = 2;
+            } else if ($remainedPicks > 0) {
+                $turn = $remainedPicks % 2;
+                $steps[3]['actions'][$step] = [
+                    'turn' => $turn,
+                    'action' => 'pick',
+                    'deadline' => 60,
+                    'auto' => false,
+                ];
+                $step++;
+                $remainedMaps--;
+                $remainedPicks--;
+                $pickedMaps++;
+                $turn = ($turn + 1) % 2;
+                $steps[3]['actions'][$step] = [
+                    'turn' => $turn,
+                    'action' => 'side',
+                    'deadline' => 60,
+                    'auto' => false,
+                ];
+                $step++;
+                $turn = ($turn + 1) % 2;
+                if ($remainedPicks == 0) {
+                    $remainedBans = 2;
+                }
+            }
+        }
+        $steps[3]['total_steps'] = $step;
+        // end of BO3
+
+        //BO5
+        $pickedMaps = 0;
+        $remainedMaps = $mapCount;
+        $turn = 0;
+        $step = 0;
+        $remainedBans = $mapCount - $playCount;
+        $remainedPicks = $playCount;
+        while ($remainedMaps) {
+            if ($remainedMaps == 1) {
+                $remainedMaps = 0;
+                if ($step > 0) {
+                    $lastTurn = $steps[5]['actions'][$step - 1]['turn'];
+                    if ($steps[5]['actions'][$step - 1]['action'] == 'side') {
+                        $turn = $lastTurn;
+                    } else {
+                        $turn = ($lastTurn + 1) % 2;
+                    }
+                }
+                while ($pickedMaps < $playCount) {
+                    $steps[5]['actions'][$step] = [
+                        'turn' => $turn,
+                        'action' => 'pick',
+                        'deadline' => 0,
+                        'auto' => true,
+                    ];
+                    $remainedPicks--;
+                    $pickedMaps++;
+                    $step++;
+                    $steps[5]['actions'][$step] = [
+                        'turn' => $turn,
+                        'action' => 'side',
+                        'deadline' => 60,
+                        'auto' => false,
+                    ];
+                    $turn = ($turn + 1) % 2;
+                    $step++;
+                }
+            } else if ($remainedBans > 0) {
+                $steps[5]['actions'][$step] = [
+                    'turn' => $turn,
+                    'action' => 'ban',
+                    'deadline' => 60,
+                    'auto' => false,
+                ];
+                $step++;
+                $turn = ($turn + 1) % 2;
+                $remainedBans--;
+                $remainedMaps--;
+            } else if ($remainedPicks > 0) {
+                $steps[5]['actions'][$step] = [
+                    'turn' => $turn,
+                    'action' => 'pick',
+                    'deadline' => 60,
+                    'auto' => false,
+                ];
+                $step++;
+                $remainedMaps--;
+                $remainedPicks--;
+                $pickedMaps++;
+                $turn = ($turn + 1) % 2;
+                $steps[5]['actions'][$step] = [
+                    'turn' => $turn,
+                    'action' => 'side',
+                    'deadline' => 60,
+                    'auto' => false,
+                ];
+                $step++;
+            }
+        }
+        $steps[5]['total_steps'] = $step;
+        //end of BO5
+        return $steps[$playCount];
+    }
+
+    /**
+     * @param Match $match
+     * @return array
+     */
+    private function getParticipantsInformationByTurn(Match $match): array
+    {
+        $participantsById = $this->getMatchParticipantsById($match);
+        $turnTable = [];
+        foreach ($participantsById as $participantId => $participant) {
+            if ($participantId == $match->coin_toss_winner_id) {
+                array_unshift($turnTable, $participantId);
+            } else {
+                $turnTable[] = $participantId;
+            }
+        }
+        $participantInformationByTurn = [];
+        foreach ($turnTable as $participantId) {
+            $participantInformationByTurn[] = $this->getParticipantInformationById($participantId);
+        }
+        return $participantInformationByTurn;
     }
 }

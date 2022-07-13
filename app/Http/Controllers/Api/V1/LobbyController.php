@@ -158,6 +158,75 @@ class LobbyController extends Controller
     /**
      * @param Request $request
      * @param string $lobbyName
+     * @param int $mapId
+     * @param LobbyRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     * @throws \Exception
+     */
+    public function pickMap(Request $request, string $lobbyName, int $mapId, LobbyRepository $repository)
+    {
+        $user = $request->user();
+        $lobby = Lobby::where('name', $lobbyName)->first();
+        if ($lobby && $repository->issuerIsAParticipant($user, $lobby)) {
+            try {
+                return $this->success(['message' => $repository->pickOrBanMap($request, $lobby, $mapId, 'pick')]);
+            } catch (\Exception $exception) {
+                return $this->failMessage($exception->getMessage(), 400);
+            }
+        }
+        return $this->failNotFound();
+    }
+
+    /**
+     * @param Request $request
+     * @param string $lobbyName
+     * @param int $mapId
+     * @param LobbyRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     * @throws \Exception
+     */
+    public function banMap(Request $request, string $lobbyName, int $mapId, LobbyRepository $repository)
+    {
+        $user = $request->user();
+        $lobby = Lobby::where('name', $lobbyName)->first();
+        if ($lobby && $repository->issuerIsAParticipant($user, $lobby)) {
+            try {
+                return $this->success(['message' => $repository->pickOrBanMap($request, $lobby, $mapId, 'ban')]);
+            } catch (\Exception $exception) {
+                return $this->failMessage($exception->getMessage(), 400);
+            }
+        }
+        return $this->failNotFound();
+    }
+
+    /**
+     * @param Request $request
+     * @param string $lobbyName
+     * @param int $mapId
+     * @param string $mode
+     * @param LobbyRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function selectSide(Request $request, string $lobbyName, int $mapId, string $mode, LobbyRepository $repository)
+    {
+        if (! in_array($mode, ['attacker', 'defender'])) {
+            return $this->failMessage(__('strings.invalid_request'), 400);
+        }
+        $user = $request->user();
+        $lobby = Lobby::where('name', $lobbyName)->first();
+        if ($lobby && $repository->issuerIsAParticipant($user, $lobby)) {
+            try {
+                return $this->success(['message' => $repository->pickSide($request, $lobby, $mapId, $mode)]);
+            } catch (\Exception $exception) {
+                return $this->failMessage($exception->getMessage(), 400);
+            }
+        }
+        return $this->failNotFound();
+    }
+
+    /**
+     * @param Request $request
+     * @param string $lobbyName
      * @param LobbyRepository $lobbyRepository
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */

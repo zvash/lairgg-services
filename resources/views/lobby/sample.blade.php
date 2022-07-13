@@ -439,6 +439,16 @@
                                     </table>
                                 </td>
                             </template>
+                            <template v-else-if="message.type == 'pick_and_ban'">
+                                <td class="pickAndBan">
+                                    <span>PICK AND BAN (@{{ message.text }}) (@{{ message.current_step }})</span><br />
+                                    <table class="full-width">
+                                        <tr v-for="(item, index) in message.summary" class="row">
+                                            <td class="leftTextCell">@{{ item.text }} (@{{ item.timestamp }})</td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </template>
                         </tr>
                     </template>
                     <template v-else-if="selfId != message.user.id">

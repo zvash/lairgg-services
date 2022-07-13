@@ -296,6 +296,10 @@ $router->group(['prefix' => 'v1'], function ($router) {
                     $router->post('/{lobbyName}/coin-toss/{uuid}/accept', 'LobbyController@acceptCoinToss');
                     $router->post('/{lobbyName}/coin-toss/{uuid}/decline', 'LobbyController@declineCoinToss');
 
+                    $router->post('/{lobbyName}/picknban/ban/maps/{mapId}', 'LobbyController@banMap');
+                    $router->post('/{lobbyName}/picknban/pick/maps/{mapId}', 'LobbyController@pickMap');
+                    $router->post('/{lobbyName}/picknban/side/maps/{mapId}/{mode}', 'LobbyController@selectSide');
+
                 });
 
                 $router->group(['prefix' => 'plays'], function ($router) {
