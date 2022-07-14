@@ -169,7 +169,7 @@ class LobbyController extends Controller
         $lobby = Lobby::where('name', $lobbyName)->first();
         if ($lobby && $repository->issuerIsAParticipant($user, $lobby)) {
             try {
-                return $this->success(['message' => $repository->pickOrBanMap($request, $lobby, $mapId, 'pick')]);
+                return $this->success(['message' => $repository->pickOrBanMap($user, $lobby, $mapId, 'pick')]);
             } catch (\Exception $exception) {
                 return $this->failMessage($exception->getMessage(), 400);
             }
@@ -191,7 +191,7 @@ class LobbyController extends Controller
         $lobby = Lobby::where('name', $lobbyName)->first();
         if ($lobby && $repository->issuerIsAParticipant($user, $lobby)) {
             try {
-                return $this->success(['message' => $repository->pickOrBanMap($request, $lobby, $mapId, 'ban')]);
+                return $this->success(['message' => $repository->pickOrBanMap($user, $lobby, $mapId, 'ban')]);
             } catch (\Exception $exception) {
                 return $this->failMessage($exception->getMessage(), 400);
             }
@@ -216,7 +216,7 @@ class LobbyController extends Controller
         $lobby = Lobby::where('name', $lobbyName)->first();
         if ($lobby && $repository->issuerIsAParticipant($user, $lobby)) {
             try {
-                return $this->success(['message' => $repository->pickSide($request, $lobby, $mapId, $mode)]);
+                return $this->success(['message' => $repository->pickSide($user, $lobby, $mapId, $mode)]);
             } catch (\Exception $exception) {
                 return $this->failMessage($exception->getMessage(), 400);
             }

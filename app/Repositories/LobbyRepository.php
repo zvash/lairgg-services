@@ -13,6 +13,7 @@ use App\LobbyMessage;
 use App\Match;
 use App\MatchParticipant;
 use App\Participant;
+use App\PickBanTimeout;
 use App\Team;
 use App\Tournament;
 use App\User;
@@ -163,7 +164,7 @@ class LobbyRepository extends BaseRepository
         $staff = $this->prepareStaffUserObjectForLobbyByUserId($staffUserId);
         $lobbyMessage = $this->getLobbyMessageWithType($lobby, 'ready_message');
         $match = $lobby->owner;
-        if (! $lobbyMessage) {
+        if (!$lobbyMessage) {
             $timestamp = time();
             $uuid = Str::orderedUuid()->toString();
             $message = [
@@ -784,19 +785,18 @@ class LobbyRepository extends BaseRepository
     }
 
     /**
-     * @param Request $request
+     * @param User $user
      * @param Lobby $lobby
      * @param int $mapId
      * @param string $action
      * @return string
      * @throws \Exception
      */
-    public function pickOrBanMap(Request $request, Lobby $lobby, int $mapId, string $action)
+    public function pickOrBanMap(User $user, Lobby $lobby, int $mapId, string $action)
     {
-        $user = $request->user();
         $match = $lobby->owner;
         $lobbyMessage = $this->getLobbyMessageWithType($lobby, 'pick_and_ban');
-        if (! $lobbyMessage) {
+        if (!$lobbyMessage) {
             throw new \Exception(__('strings.operation_cannot_be_done'));
         }
         $lastMessage = $this->extractMessageFromLobbyMessage($lobbyMessage);
@@ -867,19 +867,18 @@ class LobbyRepository extends BaseRepository
     }
 
     /**
-     * @param Request $request
+     * @param User $user
      * @param Lobby $lobby
      * @param int $mapId
      * @param string $mode
      * @return string
      * @throws \Exception
      */
-    public function pickSide(Request $request, Lobby $lobby, int $mapId, string $mode)
+    public function pickSide(User $user, Lobby $lobby, int $mapId, string $mode)
     {
-        $user = $request->user();
         $match = $lobby->owner;
         $lobbyMessage = $this->getLobbyMessageWithType($lobby, 'pick_and_ban');
-        if (! $lobbyMessage) {
+        if (!$lobbyMessage) {
             throw new \Exception(__('strings.operation_cannot_be_done'));
         }
         $lastMessage = $this->extractMessageFromLobbyMessage($lobbyMessage);
@@ -1010,6 +1009,7 @@ class LobbyRepository extends BaseRepository
             $lastMessage['image'] = null;
             $lastMessage['is_final'] = true;
             $lastMessage['actions'] = [];
+            $this->resetPickBanTimeout($lobby, $lastMessage);
             return $lastMessage;
         }
         $currentAction = $allSteps['actions'][$currentStep];
@@ -1024,11 +1024,12 @@ class LobbyRepository extends BaseRepository
                         'timestamp' => time(),
                     ];
                     $currentStep++;
-                    if ($currentStep == $allSteps['total_steps'] - 1) {
+                    if ($currentStep == $allSteps['total_steps']) {
                         $lastMessage['text'] = '';
                         $lastMessage['image'] = null;
                         $lastMessage['is_final'] = true;
                         $lastMessage['actions'] = [];
+                        $this->resetPickBanTimeout($lobby, $lastMessage);
                         return $lastMessage;
                     }
                     $currentAction = $allSteps['actions'][$currentStep];
@@ -1082,7 +1083,71 @@ class LobbyRepository extends BaseRepository
                 ]
             ];
         }
+        $this->resetPickBanTimeout($lobby, $lastMessage);
         return $lastMessage;
+    }
+
+    /**
+     * @param Lobby $lobby
+     * @param array $message
+     * @return PickBanTimeout|null
+     */
+    private function resetPickBanTimeout(Lobby $lobby, array $message)
+    {
+        $lobbyName = $lobby->name;
+        if ($message['is_final']) {
+            PickBanTimeout::query()
+                ->where('lobby_name', $lobbyName)
+                ->delete();
+            return null;
+        }
+        $pickBanTimeout = PickBanTimeout::query()
+            ->where('lobby_name', $lobbyName)
+            ->first();
+        if (!$pickBanTimeout) {
+            $pickBanTimeout = new PickBanTimeout();
+            $pickBanTimeout->lobby_name = $lobbyName;
+        }
+        $actions = $message['actions'];
+        $pickBanTimeout->action_type = $actions['type'];
+        $pickBanTimeout->current_step = $message['current_step'];
+        $pickBanTimeout->user_id = $actions['visible_to'];
+        $pickBanTimeout->manually_selected = false;
+        $pickBanTimeout->deadline = $actions['deadline'];
+
+        $maps = $message['maps'];
+        if ($actions['type'] == 'side') {
+            foreach ($maps as $map) {
+                if ($map['status'] == 'picked' && $map['attacker'] === null && $map['defender'] === null) {
+                    $pickBanTimeout->arguments = [
+                        'map_id' => $map['map_id'],
+                        'mode' => ['attacker', 'defender'][mt_rand(0, 1)],
+                    ];
+                    break;
+                }
+            }
+        } else {
+            $undecidedMaps = [];
+            foreach ($maps as $map) {
+                if ($map['status'] == 'undecided') {
+                    $undecidedMaps[] = $map['map_id'];
+                }
+            }
+            if ($undecidedMaps) {
+                $pickBanTimeout->arguments = [
+                    'map_id' => $undecidedMaps[mt_rand(0, count($undecidedMaps) - 1)],
+                ];
+            }
+        }
+        $pickBanTimeout->save();
+        $pickBanTimeout->refresh();
+        $payload = [
+            'id' => $pickBanTimeout->id,
+            'step' => $pickBanTimeout->current_step,
+            'deadline' => $pickBanTimeout->deadline,
+        ];
+        Redis::publish('lobby-server-pick-and-ban-timeout-channel', json_encode($payload));
+        return $pickBanTimeout;
     }
 
     /**

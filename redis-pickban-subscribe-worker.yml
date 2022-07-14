@@ -1,0 +1,8 @@
+apps:
+  - name: redis-pickban-subscribe-worker
+    script: artisan
+    exec_mode: fork
+    interpreter: php
+    instances: 1
+    args:
+      - pickban:subscribe
