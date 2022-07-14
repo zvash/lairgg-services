@@ -208,6 +208,81 @@ class LobbyRepository extends BaseRepository
         return $lobbyMessage->uuid;
     }
 
+    public function createGuidelineMessage(Lobby $lobby)
+    {
+        if (!$this->isMatchLobby($lobby)) {
+            return null;
+        }
+        $match = $lobby->owner;
+        $timestamp = time();
+        $lobbyMessage = $this->getLobbyMessageWithType($lobby, 'guideline');
+        if ($lobbyMessage) {
+            return $lobbyMessage->uuid;
+        }
+        $staffUserId = $this->getFirstStaffUserId($lobby);
+        $staff = $this->prepareStaffUserObjectForLobbyByUserId($staffUserId);
+        $uuid = Str::orderedUuid()->toString();
+
+        //============
+
+        $firstParticipantTitle = 'Team A';
+        $firstParticipantCaptainUsername = 'CaptainA';
+        $secondParticipantTitle = 'Team B';
+        $secondParticipantCaptainUsername = 'CaptainB';
+        $gameName = 'VALORANT';
+
+        $sections = [];
+        $sections[] = [
+            'offset' => 1,
+            'title' => 'CREATE TEAM',
+            'body' => view('lobby.guideline.first', compact('firstParticipantTitle', 'firstParticipantCaptainUsername'))->render(),
+        ];
+        $sections[] = [
+            'offset' => 2,
+            'title' => 'INVITE',
+            'body' => view('lobby.guideline.second', compact('gameName' ,'firstParticipantTitle', 'firstParticipantCaptainUsername', 'secondParticipantTitle', 'secondParticipantCaptainUsername'))->render(),
+        ];
+        $sections[] = [
+            'offset' => 3,
+            'title' => 'START GAME',
+            'body' => view('lobby.guideline.third', compact('firstParticipantTitle', 'firstParticipantCaptainUsername', 'secondParticipantTitle', 'secondParticipantCaptainUsername'))->render(),
+        ];
+
+        $sections[] = [
+            'offset' => 4,
+            'title' => 'REPORT RESULTS',
+            'body' => view('lobby.guideline.forth', compact('firstParticipantTitle', 'firstParticipantCaptainUsername', 'secondParticipantTitle', 'secondParticipantCaptainUsername'))->render(),
+        ];
+
+        //============
+
+        $message = [
+            'text' => 'Start your match!',
+            'subtitle' => 'Follow these steps to play the game:',
+            'type' => 'guideline',
+            'user' => $staff->toArray(),
+            'timestamp' => $timestamp,
+            'uuid' => $uuid,
+            'lobby_name' => $lobby->name,
+            'is_final' => true,
+            'sections' => $sections,
+        ];
+        $lobbyMessageAttributes = [
+            'uuid' => $uuid,
+            'lobby_id' => $lobby->id,
+            'user_id' => $staff->id,
+            'lobby_name' => $lobby->name,
+            'type' => 'guideline',
+            'sequence' => $this->getNextSequence($lobby),
+            'sent_at' => date('Y-m-d H:i:s', $timestamp),
+            'message' => json_encode($message),
+        ];
+        $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
+        $lobbyMessage->save();
+        Redis::publish('lobby-server-message-channel', json_encode($message));
+        return $lobbyMessage->uuid;
+    }
+
     public function creatPickAndBanFirstMessage(Lobby $lobby)
     {
         if (!$this->isMatchLobby($lobby)) {
@@ -950,6 +1025,10 @@ class LobbyRepository extends BaseRepository
                     $lobbyMessage->message = json_encode($lastMessage);
                     $lobbyMessage->save();
                     Redis::publish('lobby-server-edit-message-channel', $lobbyMessage->message);
+                    if ($lastMessage['is_final']) {
+                        sleep(1);
+                        $this->createGuidelineMessage($lobby);
+                    }
                     return 'done';
                 }
             }

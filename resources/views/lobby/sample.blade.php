@@ -449,6 +449,20 @@
                                     </table>
                                 </td>
                             </template>
+                            <template v-else-if="message.type == 'guideline'">
+                                <td class="guideline">
+                                    <span>@{{ message.text }}</span><br />
+                                    <span>@{{ message.subtitle }}</span><br />
+                                    <table v-for="(item, index) in message.sections" class="full-width">
+                                        <tr class="row">
+                                            <td class="leftTextCell">@{{ item.offset }} @{{ item.title }}</td>
+                                        </tr>
+                                        <tr class="row">
+                                            <td class="leftTextCell">@{{ item.body }}</td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </template>
                         </tr>
                     </template>
                     <template v-else-if="selfId != message.user.id">
