@@ -1084,7 +1084,7 @@ class LobbyRepository extends BaseRepository
         }
         $allSteps = $this->getPackAndBanActionByStepForValorant($playCount, count($mapsInformation));
         if ($currentStep == $allSteps['total_steps'] - 1) {
-            $lastMessage['text'] = '';
+            $lastMessage['text'] = 'SUMMARY';
             $lastMessage['image'] = null;
             $lastMessage['is_final'] = true;
             $lastMessage['actions'] = [];
@@ -1104,7 +1104,7 @@ class LobbyRepository extends BaseRepository
                     ];
                     $currentStep++;
                     if ($currentStep == $allSteps['total_steps']) {
-                        $lastMessage['text'] = '';
+                        $lastMessage['text'] = 'SUMMARY';
                         $lastMessage['image'] = null;
                         $lastMessage['is_final'] = true;
                         $lastMessage['actions'] = [];
