@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use App\Nova\Actions\AcceptAllParticipants;
 use App\Nova\Actions\AutoWinRestMatches;
 use App\Nova\Actions\MakeAnnouncement;
 use App\Nova\Actions\ReleaseRandomBracket;
@@ -451,6 +452,13 @@ class Tournament extends Resource
 
             (new AutoWinRestMatches())
                 ->confirmText('Do you want to auto-win current rest matches?')
+                ->confirmButtonText('Yes')
+                ->cancelButtonText('No')
+                ->showOnTableRow()
+                ->showOnDetail(),
+
+            (new AcceptAllParticipants())
+                ->confirmText('Do you want to accept all participants?')
                 ->confirmButtonText('Yes')
                 ->cancelButtonText('No')
                 ->showOnTableRow()
