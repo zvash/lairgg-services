@@ -160,7 +160,7 @@ class MatchRepository extends BaseRepository
             ],
             'maps' => $game->maps->toArray(),
             'ready_state' => $this->getReadyState($user, $match, $matchParticipants),
-            'can_submit_score' => $canSubmitScore,
+            'preparation_is_done' => $canSubmitScore,
         ];
         $participants = [];
         foreach ($matchParticipants as $participant) {
