@@ -5,6 +5,7 @@ namespace App\Repositories;
 
 use App\Dispute;
 use App\Enums\ParticipantAcceptanceState;
+use App\LobbyMessage;
 use App\Map;
 use App\Match;
 use App\MatchParticipant;
@@ -124,6 +125,11 @@ class MatchRepository extends BaseRepository
         $game = $tournament->game;
         $matchParticipants = $match->getParticipants();
         $plays = $match->plays()->orderBy('id')->with(['map', 'parties'])->get();
+        $lobby = $match->lobby;
+        $canSubmitScore = LobbyMessage::query()
+            ->where('lobby_id', $lobby->id)
+            ->where('type', 'guideline')
+            ->count() > 0;
         $information = [
             'id' => $match->id,
             'match_date' => $match->started_at,
@@ -154,6 +160,7 @@ class MatchRepository extends BaseRepository
             ],
             'maps' => $game->maps->toArray(),
             'ready_state' => $this->getReadyState($user, $match, $matchParticipants),
+            'can_submit_score' => $canSubmitScore,
         ];
         $participants = [];
         foreach ($matchParticipants as $participant) {
