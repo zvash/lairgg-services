@@ -152,7 +152,7 @@ class MatchRepository extends BaseRepository
                 'cover' => $game->cover,
                 'logo' => $game->logo,
             ],
-            'maps' => Map::all()->toArray(),
+            'maps' => $game->maps->toArray(),
             'ready_state' => $this->getReadyState($user, $match, $matchParticipants),
         ];
         $participants = [];
