@@ -940,6 +940,15 @@ class LobbyRepository extends BaseRepository
             $lobbyMessage->message = json_encode($lastMessage);
             $lobbyMessage->save();
             Redis::publish('lobby-server-edit-message-channel', $lobbyMessage->message);
+
+            if ($action == 'pick') {
+                $play = $match->plays()->whereNull('map_id')->first();
+                if ($play) {
+                    $play->map_id = $mapId;
+                    $play->save();
+                }
+            }
+
             return $actionText;
         }
         throw new \Exception(__('strings.operation_cannot_be_done'));
