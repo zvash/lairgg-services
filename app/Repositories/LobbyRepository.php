@@ -280,6 +280,10 @@ class LobbyRepository extends BaseRepository
         $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
         $lobbyMessage->save();
         Redis::publish('lobby-server-message-channel', json_encode($message));
+        Redis::publish('lobby-server-internal-message-channel', json_encode([
+            'command' => 'reload_match',
+            'lobby_name' => $lobby->name,
+        ]));
         return $lobbyMessage->uuid;
     }
 
