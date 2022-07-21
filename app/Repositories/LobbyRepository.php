@@ -1115,6 +1115,13 @@ class LobbyRepository extends BaseRepository
                         'image' => null,
                         'timestamp' => time(),
                     ];
+
+                    $play = $match->plays()->whereNull('map_id')->first();
+                    if ($play) {
+                        $play->map_id = $information['map_id'];
+                        $play->save();
+                    }
+
                     $currentStep++;
                     if ($currentStep == $allSteps['total_steps']) {
                         $lastMessage['text'] = 'SUMMARY';
