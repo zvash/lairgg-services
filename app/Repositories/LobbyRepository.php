@@ -284,6 +284,8 @@ class LobbyRepository extends BaseRepository
             'command' => 'reload_match',
             'lobby_name' => $lobby->name,
         ]));
+        sleep(1);
+        $this->createChatStartMessage($lobby);
         return $lobbyMessage->uuid;
     }
 
@@ -317,10 +319,33 @@ class LobbyRepository extends BaseRepository
         ];
         $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
         $lobbyMessage->save();
-        Redis::publish('lobby-server-message-channel', json_encode($newMessage));
+
+        $preMessage = [];
+        foreach ($newMessage as $key => $value) {
+            $preMessage[$key] = $value;
+        }
+        $preMessage['is_final'] = false;
+        $preMessage['summary'] = [];
+        $preMessage['maps'] = [];
+        $preMessage['actions'] = [];
+        $preMessage['current_step'] = -1;
+        $preMessage['text'] = 'Performing pick and ban...';
+        Redis::publish('lobby-server-message-channel', json_encode($preMessage));
+        $delay = 3;
+        $newMessage['actions']['deadline'] = $newMessage['actions']['deadline'] + $delay;
+        $this->resetPickBanTimeout($lobby, $newMessage);
+        $lobbyMessage->message = json_encode($newMessage);
+        $lobbyMessage->save();
+        sleep($delay);
+        Redis::publish('lobby-server-edit-message-channel', json_encode($newMessage));
         return $lobbyMessage->uuid;
     }
 
+    /**
+     * @param Lobby $lobby
+     * @param string $title
+     * @return mixed|null
+     */
     public function createBigTitleMessage(Lobby $lobby, string $title)
     {
         if (!$this->isMatchLobby($lobby)) {
@@ -346,6 +371,45 @@ class LobbyRepository extends BaseRepository
             'user_id' => $staff->id,
             'lobby_name' => $lobby->name,
             'type' => 'big_title',
+            'sequence' => $this->getNextSequence($lobby),
+            'sent_at' => date('Y-m-d H:i:s', $timestamp),
+            'message' => json_encode($newMessage),
+        ];
+        $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
+        $lobbyMessage->save();
+        Redis::publish('lobby-server-message-channel', json_encode($newMessage));
+        return $lobbyMessage->uuid;
+    }
+
+    /**
+     * @param Lobby $lobby
+     * @return mixed|null
+     */
+    public function createChatStartMessage(Lobby $lobby)
+    {
+        if (!$this->isMatchLobby($lobby)) {
+            return null;
+        }
+        $match = $lobby->owner;
+        $timestamp = time();
+        $uuid = Str::orderedUuid()->toString();
+        $staffUserId = $this->getFirstStaffUserId($lobby);
+        $staff = $this->prepareStaffUserObjectForLobbyByUserId($staffUserId);
+        $newMessage = [
+            'type' => 'chat_start',
+            'user' => $staff->toArray(),
+            'timestamp' => $timestamp,
+            'text' => 'Lobby is ready. It\'s now possible for you to send messages!',
+            'uuid' => $uuid,
+            'lobby_name' => $lobby->name,
+            'is_final' => true,
+        ];
+        $lobbyMessageAttributes = [
+            'uuid' => $uuid,
+            'lobby_id' => $lobby->id,
+            'user_id' => $staff->id,
+            'lobby_name' => $lobby->name,
+            'type' => 'chat_start',
             'sequence' => $this->getNextSequence($lobby),
             'sent_at' => date('Y-m-d H:i:s', $timestamp),
             'message' => json_encode($newMessage),
@@ -403,7 +467,15 @@ class LobbyRepository extends BaseRepository
         ];
         $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
         $lobbyMessage->save();
-        Redis::publish('lobby-server-message-channel', json_encode($newMessage));
+        $preMessage = [];
+        foreach ($newMessage as $key => $value) {
+            $preMessage[$key] = $value;
+        }
+        $preMessage['is_final'] = false;
+        $preMessage['result'] = 'Performing coin toss...';
+        Redis::publish('lobby-server-message-channel', json_encode($preMessage));
+        sleep(3);
+        Redis::publish('lobby-server-edit-message-channel', json_encode($newMessage));
         return $lobbyMessage->uuid;
     }
 

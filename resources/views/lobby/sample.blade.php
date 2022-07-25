@@ -463,6 +463,11 @@
                                     </table>
                                 </td>
                             </template>
+                            <template v-else-if="message.type == 'chat_start'">
+                                <td class="chatStart">
+                                    <h1>@{{ message.text }}</h1><br />
+                                </td>
+                            </template>
                         </tr>
                     </template>
                     <template v-else-if="selfId != message.user.id">
