@@ -132,7 +132,7 @@ class MatchRepository extends BaseRepository
             ->count() > 0;
         $information = [
             'id' => $match->id,
-            'match_date' => $match->started_at,
+            'match_date' => $match->started_at_with_timezone,
             'games_per_match' => $match->play_count,
             'stage' => $match->getRoundTitle(),
             'winner_participant_id' => $match->winner_team_id,

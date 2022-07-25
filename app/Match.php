@@ -50,6 +50,7 @@ class Match extends Model
     protected $appends = [
         'has_started',
         'has_finished',
+        'started_at_with_timezone',
     ];
 
     /**
@@ -617,5 +618,19 @@ class Match extends Model
                 ->setAttribute('is_forfeit', 0)
                 ->save();
         }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStartedAtWithTimezoneAttribute()
+    {
+        $startedAt = $this->started_at;
+        $timezone = request()->header('timezone');
+        if ($startedAt && $timezone) {
+            $minutes = convertTimeToMinutes($timezone);
+            return $startedAt->addMinutes($minutes);
+        }
+        return $startedAt;
     }
 }
