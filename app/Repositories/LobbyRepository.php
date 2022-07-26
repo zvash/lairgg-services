@@ -331,7 +331,7 @@ class LobbyRepository extends BaseRepository
         $preMessage['current_step'] = -1;
         $preMessage['text'] = 'Performing pick and ban...';
         Redis::publish('lobby-server-message-channel', json_encode($preMessage));
-        $delay = 3;
+        $delay = 4;
         $newMessage['actions']['deadline'] = $newMessage['actions']['deadline'] + $delay;
         $this->resetPickBanTimeout($lobby, $newMessage);
         $lobbyMessage->message = json_encode($newMessage);
@@ -399,7 +399,7 @@ class LobbyRepository extends BaseRepository
             'type' => 'chat_start',
             'user' => $staff->toArray(),
             'timestamp' => $timestamp,
-            'text' => 'Lobby is ready. It\'s now possible for you to send messages!',
+            'text' => 'Chat is now enabled - say hi! You can also contact the admin if you need anything by typing @admin. GLHF!',
             'uuid' => $uuid,
             'lobby_name' => $lobby->name,
             'is_final' => true,
@@ -474,7 +474,7 @@ class LobbyRepository extends BaseRepository
         $preMessage['is_final'] = false;
         $preMessage['result'] = 'Performing coin toss...';
         Redis::publish('lobby-server-message-channel', json_encode($preMessage));
-        sleep(3);
+        sleep(4);
         Redis::publish('lobby-server-edit-message-channel', json_encode($newMessage));
         return $lobbyMessage->uuid;
     }
