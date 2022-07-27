@@ -5,6 +5,7 @@ namespace App\Repositories;
 
 use App\Dispute;
 use App\Enums\ParticipantAcceptanceState;
+use App\Jobs\FireUpPrematchPreparation;
 use App\LobbyMessage;
 use App\Map;
 use App\Match;
@@ -279,10 +280,11 @@ class MatchRepository extends BaseRepository
         $lobbyRepository->createReadyMessage($lobby, $user);
 
         if ($readyCount >= 2 && $readyCount == $match->getParticipants()->count()) {
-            sleep(1);
-            $lobbyRepository->createAutoCoinTossMessage($lobby);
-            sleep(1);
-            $lobbyRepository->creatPickAndBanFirstMessage($lobby);
+//            sleep(1);
+//            $lobbyRepository->createAutoCoinTossMessage($lobby);
+//            sleep(1);
+//            $lobbyRepository->creatPickAndBanFirstMessage($lobby);
+            dispatch(new FireUpPrematchPreparation($lobby, $lobbyRepository));
         }
         return $lobby;
     }
