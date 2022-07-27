@@ -284,7 +284,7 @@ class MatchRepository extends BaseRepository
 //            $lobbyRepository->createAutoCoinTossMessage($lobby);
 //            sleep(1);
 //            $lobbyRepository->creatPickAndBanFirstMessage($lobby);
-            dispatch(new FireUpPrematchPreparation($lobby, $lobbyRepository));
+            dispatch(new FireUpPrematchPreparation($lobby->id));
         }
         return $lobby;
     }

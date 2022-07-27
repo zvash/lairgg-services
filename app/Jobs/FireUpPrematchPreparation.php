@@ -15,24 +15,17 @@ class FireUpPrematchPreparation implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * @var Lobby $lobby
+     * @var int $lobbyId
      */
-    protected $lobby;
-
-    /**
-     * @var LobbyRepository $lobbyRepository
-     */
-    protected $lobbyRepository;
+    protected $lobbyId;
 
     /**
      * FireUpPrematchPreparation constructor.
-     * @param Lobby $lobby
-     * @param LobbyRepository $lobbyRepository
+     * @param int $lobbyId
      */
-    public function __construct(Lobby $lobby, LobbyRepository $lobbyRepository)
+    public function __construct(int $lobbyId)
     {
-        $this->lobby = $lobby;
-        $this->lobbyRepository = $lobbyRepository;
+        $this->lobbyId = $lobbyId;
     }
 
 
@@ -43,8 +36,11 @@ class FireUpPrematchPreparation implements ShouldQueue
      */
     public function handle()
     {
-        $this->lobbyRepository->createAutoCoinTossMessage($this->lobby);
+        $lobby = Lobby::find($this->lobbyId)->load('owner');
+        $lobby->owner = $lobby->lobby_aware;
+        $lobbyRepository = new LobbyRepository();
+        $lobbyRepository->createAutoCoinTossMessage($lobby);
         sleep(1);
-        $this->lobbyRepository->creatPickAndBanFirstMessage($this->lobby);
+        $lobbyRepository->creatPickAndBanFirstMessage($lobby);
     }
 }
