@@ -918,6 +918,8 @@ class LobbyRepository extends BaseRepository
                         'title' => 'Team ' . $team->title . ' is ready!',
                         'logo' => $this->makeFullUrl($team->logo),
                         'ready_at' => $readyAtWithTimeZone,
+                        'ready_at_utc' => $readyAt,
+                        'ready_at_timestamp' => time($readyAt),
                     ];
 
                 } else if ($participant->participantable_type == User::class) {
@@ -926,6 +928,8 @@ class LobbyRepository extends BaseRepository
                         'title' => $captain->username . ' is ready!',
                         'logo' => $this->makeFullUrl($captain->avatar),
                         'ready_at' => $readyAtWithTimeZone,
+                        'ready_at_utc' => $readyAt,
+                        'ready_at_timestamp' => time($readyAt),
                     ];
                 }
             }
