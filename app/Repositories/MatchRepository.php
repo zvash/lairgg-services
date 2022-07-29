@@ -21,6 +21,7 @@ use App\TournamentType;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class MatchRepository extends BaseRepository
 {
@@ -252,6 +253,7 @@ class MatchRepository extends BaseRepository
                 ->create([
                     'match_id' => $match->id,
                     'participant_id' => $participant->id,
+                    'match_date' => $match->started_at,
                     'ready_at' => Carbon::now(),
                 ]);
             $readyStateChanged = true;
@@ -284,7 +286,8 @@ class MatchRepository extends BaseRepository
 //            $lobbyRepository->createAutoCoinTossMessage($lobby);
 //            sleep(1);
 //            $lobbyRepository->creatPickAndBanFirstMessage($lobby);
-            dispatch(new FireUpPrematchPreparation($lobby->id));
+            Redis::publish('lobby-initiate-pre-match-preparation-channel', json_encode(['lobby_id' => $lobby->id]));
+//            dispatch(new FireUpPrematchPreparation($lobby->id));
         }
         return $lobby;
     }

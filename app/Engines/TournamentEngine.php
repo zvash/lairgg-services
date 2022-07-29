@@ -6,6 +6,7 @@ namespace App\Engines;
 use App\Enums\ParticipantAcceptanceState;
 use App\Exceptions\TournamentIsActiveException;
 use App\Match;
+use App\MatchParticipant;
 use App\Participant;
 use App\Party;
 use App\Play;
@@ -346,9 +347,12 @@ abstract class TournamentEngine
      */
     private function removeMatches(Collection $matches)
     {
+        $matchIds = [];
         foreach ($matches as $match) {
+            $matchIds[] = $match->id;
             $match->delete();
         }
+        MatchParticipant::query()->whereIn('match_id', $matchIds)->delete();
     }
 
     /**
@@ -523,6 +527,7 @@ abstract class TournamentEngine
      */
     public function assignParticipantToMatch(Match $match, Participant $participant)
     {
+        $this->createMatchParticipantRecord($match, $participant);
         $plays = $match->plays->all();
         $parties = [];
         foreach ($plays as $play) {
@@ -600,5 +605,22 @@ abstract class TournamentEngine
             ->offset($offset)
             ->first();
         return $match;
+    }
+
+    /**
+     * @param Match $match
+     * @param Participant $participant
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model
+     */
+    protected function createMatchParticipantRecord(Match $match, Participant $participant)
+    {
+        return MatchParticipant::query()
+            ->firstOrCreate([
+                'match_id' => $match->id,
+                'participant_id' => $participant->id,
+            ], [
+                'ready_at' => null,
+                'match_date' => $match->started_at,
+            ]);
     }
 }

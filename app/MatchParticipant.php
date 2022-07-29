@@ -10,10 +10,12 @@ class MatchParticipant extends Model
         'match_id',
         'participant_id',
         'ready_at',
+        'match_date',
     ];
 
     protected $casts = [
         'ready_at' => 'datetime',
+        'match_date' => 'datetime',
     ];
 
     protected $appends = [

@@ -7,6 +7,7 @@ use App\Enums\ParticipantAcceptanceState;
 use App\Http\Requests\DeleteProfileImagesRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Match;
+use App\MatchParticipant;
 use App\Participant;
 use App\Prize;
 use App\Team;
@@ -14,6 +15,7 @@ use App\Tournament;
 use App\TournamentAnnouncement;
 use App\User;
 use App\UserLastTournamentAnnouncement;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 
@@ -386,6 +388,27 @@ class UserRepository extends BaseRepository
         }
         $user->save();
         return $user;
+    }
+
+    /**
+     * @param User $user
+     * @return Match|null
+     */
+    public function getFirstNextActiveMatch(User $user)
+    {
+        $tomorrow = Carbon::now()->addDay();
+        $participantIds = $this->getAllParticipantsForUser($user)->pluck('id')->all();
+        $participantIds[] = [0];
+        $matchParticipant = MatchParticipant::query()
+            ->whereIn('participant_id', $participantIds)
+            ->where('match_date', '>', Carbon::now())
+            ->where('match_date', '<', $tomorrow)
+            ->orderBy('match_date')
+            ->first();
+        if ($matchParticipant) {
+            return Match::find($matchParticipant->match_id);
+        }
+        return null;
     }
 
     /**

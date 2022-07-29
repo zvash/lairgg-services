@@ -389,6 +389,10 @@ class Match extends Model
         return false;
     }
 
+    /**
+     * @param Match $nextMatch
+     * @param int $participantId
+     */
     private function addParticipantToNextMatch(Match $nextMatch, int $participantId)
     {
         $participantsIds = $this->getParticipants()->pluck('id')->all();
@@ -413,6 +417,18 @@ class Match extends Model
                 }
             }
         }
+
+        $matchParticipant = MatchParticipant::query()
+            ->firstOrCreate([
+                'match_id' => $nextMatch->id,
+                'participant_id' => $participantId,
+            ], [
+                'is_ready' => null,
+                'match_date' => $nextMatch->started_at,
+            ]);
+        $matchParticipant->setAttribute('is_ready', null)
+            ->setAttribute('match_date', $nextMatch->started_at)
+            ->save();
     }
 
     /**
@@ -618,6 +634,10 @@ class Match extends Model
                 ->setAttribute('is_forfeit', 0)
                 ->save();
         }
+        MatchParticipant::query()
+            ->where('match_id', $match->id)
+            ->where('participant_id', $participantId)
+            ->delete();
     }
 
     /**
