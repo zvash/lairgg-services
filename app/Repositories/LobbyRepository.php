@@ -854,7 +854,7 @@ class LobbyRepository extends BaseRepository
     private function getLastSequenceForLobby(Lobby $lobby)
     {
         $lastSequence = 0;
-        $lastMessage = $lobby->messages()->latest('sent_at')->limit(1)->first();
+        $lastMessage = $lobby->messages()->latest('sequence')->limit(1)->first();
         if ($lastMessage) {
             $lastSequence = $lastMessage->sequence;
         }
@@ -919,7 +919,7 @@ class LobbyRepository extends BaseRepository
                         'logo' => $this->makeFullUrl($team->logo),
                         'ready_at' => $readyAtWithTimeZone,
                         'ready_at_utc' => $readyAt,
-                        'ready_at_timestamp' => time($readyAt),
+                        'ready_at_timestamp' => strtotime($readyAt),
                     ];
 
                 } else if ($participant->participantable_type == User::class) {
@@ -929,7 +929,7 @@ class LobbyRepository extends BaseRepository
                         'logo' => $this->makeFullUrl($captain->avatar),
                         'ready_at' => $readyAtWithTimeZone,
                         'ready_at_utc' => $readyAt,
-                        'ready_at_timestamp' => time($readyAt),
+                        'ready_at_timestamp' => strtotime($readyAt),
                     ];
                 }
             }
