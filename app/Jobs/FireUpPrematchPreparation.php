@@ -41,6 +41,6 @@ class FireUpPrematchPreparation implements ShouldQueue
         $lobbyRepository = new LobbyRepository();
         $lobbyRepository->createAutoCoinTossMessage($lobby);
         sleep(1);
-        $lobbyRepository->creatPickAndBanFirstMessage($lobby);
+        $lobbyRepository->createPickAndBanFirstMessage($lobby);
     }
 }

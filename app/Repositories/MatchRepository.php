@@ -165,7 +165,11 @@ class MatchRepository extends BaseRepository
             'preparation_is_done' => $canSubmitScore,
         ];
         $participants = [];
+        $firstParticipantId = 0;
         foreach ($matchParticipants as $participant) {
+            if (!$firstParticipantId) {
+                $firstParticipantId = $participant->id;
+            }
             $type = $participant->participantable_type == Team::class ? 'team' : 'user';
             $record = [
                 'id' => $participant->id,
@@ -217,6 +221,16 @@ class MatchRepository extends BaseRepository
         }
         $information['participants'] = $participants;
         $information['viewer_is_captain'] = $userIsCaptain;
+        $plays = $plays->toArray();
+        foreach ($plays as $index => $play) {
+            $parties = $play['parties'];
+            usort($parties, function ($p1, $p2) use ($firstParticipantId) {
+                $p1Id = abs($p1['team_id'] - $firstParticipantId);
+                $p2Id = abs($p2['team_id'] - $firstParticipantId);
+                return $p1Id <=> $p2Id;
+            });
+            $plays[$index]['parties'] = $parties;
+        }
         $information['plays'] = $plays->toArray();
         return $information;
     }

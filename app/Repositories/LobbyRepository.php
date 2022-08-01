@@ -289,7 +289,7 @@ class LobbyRepository extends BaseRepository
         return $lobbyMessage->uuid;
     }
 
-    public function creatPickAndBanFirstMessage(Lobby $lobby)
+    public function createPickAndBanFirstMessage(Lobby $lobby)
     {
         if (!$this->isMatchLobby($lobby)) {
             return null;
@@ -1176,6 +1176,7 @@ class LobbyRepository extends BaseRepository
             $lastMessage['is_final'] = true;
             $lastMessage['actions'] = [];
             $this->resetPickBanTimeout($lobby, $lastMessage);
+            $lastMessage['updated_at'] = time();
             return $lastMessage;
         }
         $currentAction = $allSteps['actions'][$currentStep];
@@ -1203,6 +1204,7 @@ class LobbyRepository extends BaseRepository
                         $lastMessage['is_final'] = true;
                         $lastMessage['actions'] = [];
                         $this->resetPickBanTimeout($lobby, $lastMessage);
+                        $lastMessage['updated_at'] = time();
                         return $lastMessage;
                     }
                     $currentAction = $allSteps['actions'][$currentStep];
@@ -1257,6 +1259,7 @@ class LobbyRepository extends BaseRepository
             ];
         }
         $this->resetPickBanTimeout($lobby, $lastMessage);
+        $lastMessage['updated_at'] = time();
         return $lastMessage;
     }
 
