@@ -231,7 +231,7 @@ class MatchRepository extends BaseRepository
             });
             $plays[$index]['parties'] = $parties;
         }
-        $information['plays'] = $plays->toArray();
+        $information['plays'] = $plays;
         return $information;
     }
 
