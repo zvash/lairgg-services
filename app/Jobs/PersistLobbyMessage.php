@@ -55,7 +55,7 @@ class PersistLobbyMessage implements ShouldQueue
             'lobby_name' => $lobby->name,
             'type' => $this->message['type'],
             'sequence' => $this->lobbyRepository->getNextSequence($lobby),
-            'sent_at' => date('Y-m-d H:i:s', intval($this->message['timestamp'] / 1000)),
+            'sent_at' => date('Y-m-d H:i:s', intval($this->message['timestamp'])),
             'message' => json_encode($this->message),
         ];
         $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
