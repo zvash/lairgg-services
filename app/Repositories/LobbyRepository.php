@@ -1443,7 +1443,7 @@ class LobbyRepository extends BaseRepository
         return 1;
     }
 
-    private function getLobbyMessageWithType(Lobby $lobby, string $type)
+    public function getLobbyMessageWithType(Lobby $lobby, string $type)
     {
         return LobbyMessage::query()
             ->where('lobby_id', $lobby->id)

@@ -70,6 +70,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->get('matches/all', 'UserController@matches');
 
+                    $router->get('matches/next', 'UserController@getNextMatch');
+
                     $router->get('orders/{status}/get', 'UserController@listOrders');
 
                     $router->get('authenticated', 'UserController@authenticated');

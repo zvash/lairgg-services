@@ -390,25 +390,51 @@ class UserRepository extends BaseRepository
         return $user;
     }
 
+
     /**
      * @param User $user
-     * @return Match|null
+     * @param LobbyRepository $repository
+     * @return mixed
+     * @throws \Exception
      */
-    public function getFirstNextActiveMatch(User $user)
+    public function getFirstMatchThatNeedsAttention(User $user, LobbyRepository $repository)
     {
         $tomorrow = Carbon::now()->addDay();
         $participantIds = $this->getAllParticipantsForUser($user)->pluck('id')->all();
         $participantIds[] = [0];
         $matchParticipant = MatchParticipant::query()
             ->whereIn('participant_id', $participantIds)
-            ->where('match_date', '>', Carbon::now())
+            ->whereNotNull('match_date')
             ->where('match_date', '<', $tomorrow)
+            ->whereHas('match', function (Builder $match) {
+                return $match->whereNull('winner_team_id');
+            })
             ->orderBy('match_date')
             ->first();
         if ($matchParticipant) {
-            return Match::find($matchParticipant->match_id);
+            $match = $matchParticipant->match;
+            $lobby = $match->lobby;
+            $status = null;
+            if ($repository->getLobbyMessageWithType($lobby, 'chat_start')) {//match is live
+                $status = 'ongoing';
+            } else if (
+                $match->started_at->lte(Carbon::now())
+                && $match->started_at->copy()->addMinutes($match->tournament->match_check_in_period)->gt(Carbon::now())
+            ) { //pre match preparation
+                $status = 'pre-match';
+            } else { //upcoming match
+                $status = 'upcoming';
+            }
+            $matchArray = $match->toArray();
+            unset($matchArray['tournament']);
+            unset($matchArray['lobby']);
+            $matchArray['status'] = $status;
+            $matchArray['candidates'] = $match->getCandidates();
+            $matchArray['started_at_timestamp'] = strtotime($match->started_at);
+            $matchArray['tournament_title'] = $match->tournament->title;
+            return $matchArray;
         }
-        return null;
+        throw new \Exception('Content was not found.');
     }
 
     /**

@@ -14,6 +14,7 @@ use App\Http\Requests\StoreUser;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Repositories\GameRepository;
+use App\Repositories\LobbyRepository;
 use App\Repositories\TournamentRepository;
 use App\Repositories\UserRepository;
 use App\Tournament;
@@ -455,6 +456,21 @@ class UserController extends Controller
     public function specificPlayerInfo(Request $request, User $user, UserRepository $repository)
     {
         return $this->success($repository->info($user));
+    }
+
+    /**
+     * @param Request $request
+     * @param UserRepository $userRepository
+     * @param LobbyRepository $lobbyRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function getNextMatch(Request $request, UserRepository $userRepository, LobbyRepository $lobbyRepository)
+    {
+        try {
+            return $this->success($userRepository->getFirstMatchThatNeedsAttention($request->user(), $lobbyRepository));
+        } catch (\Exception $exception) {
+            return $this->failNotFound();
+        }
     }
 
     /**
