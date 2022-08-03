@@ -474,6 +474,7 @@ class Match extends Model
     public function getCandidates()
     {
         $candidates = [];
+        $this->load('tournament');
         $engine = $this->tournament->engine();
         $numberOfPlayers = $engine->matchPlayerCount();
         $participants = $this->getParticipants();

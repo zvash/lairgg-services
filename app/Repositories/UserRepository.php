@@ -441,7 +441,7 @@ class UserRepository extends BaseRepository
      * @param User $user
      * @return Builder[]|\Illuminate\Database\Eloquent\Collection
      */
-    private function getAllParticipantsForUser(User $user)
+    public function getAllParticipantsForUser(User $user)
     {
         $userTeams = $user->teams()->pluck('teams.id')->all();
         $participants = Participant::query()
