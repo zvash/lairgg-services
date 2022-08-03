@@ -423,10 +423,10 @@ class Match extends Model
                 'match_id' => $nextMatch->id,
                 'participant_id' => $participantId,
             ], [
-                'is_ready' => null,
+                'ready_at' => null,
                 'match_date' => $nextMatch->started_at,
             ]);
-        $matchParticipant->setAttribute('is_ready', null)
+        $matchParticipant->setAttribute('ready_at', null)
             ->setAttribute('match_date', $nextMatch->started_at)
             ->save();
     }
