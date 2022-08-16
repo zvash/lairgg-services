@@ -18,11 +18,11 @@ class ProcessDisqualifiedParticipants
     public function __invoke()
     {
         $now = Carbon::now();
-        $nextMinute = $now->copy()->addMinutes(30)->addSecond();
+        $nextMinute = $now->copy()->addMinute()->addSecond();
         $matchParticipants = MatchParticipant::query()
             ->whereNull('disqualified_at')
             ->whereNull('ready_at')
-            ->whereRaw("disqualify_deadline >= '{$now->copy()->subMinutes(30)->format('Y-m-d H:i:s')}'")
+            ->whereRaw("disqualify_deadline >= '{$now->format('Y-m-d H:i:s')}'")
             ->whereRaw("disqualify_deadline < '{$nextMinute->format('Y-m-d H:i:s')}'")
             ->get();
         $lobbyRepository = new LobbyRepository();
