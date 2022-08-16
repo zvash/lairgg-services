@@ -35,7 +35,7 @@ class NotifyParticipantJoinRequestWasAccepted implements ShouldQueue
     {
         $participant = $event->participant;
         $tournament = $participant->tournament;
-        if (!in_array($participant->status, [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])) {
+        if (!in_array($participant->status, [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY, ParticipantAcceptanceState::DISQUALIFIED])) {
             return;
         }
         $title = 'Accepted';

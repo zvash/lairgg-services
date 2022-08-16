@@ -28,7 +28,7 @@ class UpdateBracketWithNewlyAcceptedParticipant
     public function handle(ParticipantStatusWasUpdated $event)
     {
         $participant = $event->participant;
-        if (in_array($participant->status, [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])) {
+        if (in_array($participant->status, [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY, ParticipantAcceptanceState::DISQUALIFIED])) {
             $tournament = $participant->tournament;
             $engine = $tournament->engine();
             if ($engine) {

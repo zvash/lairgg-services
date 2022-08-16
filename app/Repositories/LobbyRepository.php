@@ -155,7 +155,7 @@ class LobbyRepository extends BaseRepository
         return false;
     }
 
-    public function createReadyMessage(Lobby $lobby, User $user)
+    public function createReadyMessage(Lobby $lobby, User $user, bool $otherPartyIsDisqualified = false)
     {
         if (!$this->isMatchLobby($lobby)) {
             return null;
@@ -167,15 +167,21 @@ class LobbyRepository extends BaseRepository
         if (!$lobbyMessage) {
             $timestamp = time();
             $uuid = Str::orderedUuid()->toString();
+            $subtitle = 'Waiting for your opponent to ready...';
+            $isFinal = false;
+            if ($otherPartyIsDisqualified) {
+                $subtitle = 'Other party has been disqualified.';
+                $isFinal = true;
+            }
             $message = [
                 'text' => 'TEAMS STATUS',
-                'subtitle' => 'Waiting for your opponent to ready...',
+                'subtitle' => $subtitle,
                 'type' => 'ready_message',
                 'user' => $staff->toArray(),
                 'timestamp' => $timestamp,
                 'uuid' => $uuid,
                 'lobby_name' => $lobby->name,
-                'is_final' => false,
+                'is_final' => $isFinal,
                 'opponents' => [
                     0 => $this->getParticipantInformation($user, $match),
                 ],
@@ -198,8 +204,12 @@ class LobbyRepository extends BaseRepository
             $participantInformation = $this->getParticipantInformation($user, $match);
             if (count($message['opponents']) == 1 && $message['opponents'][0]['id'] != $participantInformation['id']) {
                 $message['is_final'] = true;
-                $message['subtitle'] = null;
-                $message['opponents'][] = $participantInformation;
+                if ($otherPartyIsDisqualified) {
+                    $message['subtitle'] = 'Other party has been disqualified.';
+                } else {
+                    $message['subtitle'] = null;
+                    $message['opponents'][] = $participantInformation;
+                }
                 $lobbyMessage->message = json_encode($message);
                 $lobbyMessage->save();
                 Redis::publish('lobby-server-edit-message-channel', $lobbyMessage->message);
@@ -811,7 +821,7 @@ class LobbyRepository extends BaseRepository
         }
         $participants = $owner
             ->participants()
-            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
+            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY, ParticipantAcceptanceState::DISQUALIFIED])
             ->get();
         $participantsUserIds = [];
         foreach ($participants as $participant) {

@@ -548,7 +548,7 @@ class Tournament extends Model
     public function getAcceptedCountAttribute()
     {
         return $this->participants()
-            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
+            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY, ParticipantAcceptanceState::DISQUALIFIED])
             ->count();
     }
 

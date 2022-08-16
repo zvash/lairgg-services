@@ -428,7 +428,7 @@ abstract class TournamentEngine
     {
         return $tournament
             ->participants()
-            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
+            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY, ParticipantAcceptanceState::DISQUALIFIED])
             ->count();
     }
 
@@ -439,7 +439,7 @@ abstract class TournamentEngine
     protected function getAllParticipantsWithRandomOrder(Tournament $tournament)
     {
         return $tournament->participants()
-            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
+            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY, ParticipantAcceptanceState::DISQUALIFIED])
             ->get()
             ->shuffle()
             ->all();
@@ -621,6 +621,7 @@ abstract class TournamentEngine
             ], [
                 'ready_at' => null,
                 'match_date' => $match->started_at,
+                'disqualify_deadline' => $match->started_at->copy()->addMinutes($match->tournament->match_check_in_period),
             ]);
     }
 }

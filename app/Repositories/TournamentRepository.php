@@ -50,7 +50,7 @@ class TournamentRepository extends BaseRepository
             })
             ->sum('value');
         $participants = $tournament->participants()
-            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
+            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY, ParticipantAcceptanceState::DISQUALIFIED])
             ->with('participantable')
             ->get()
             ->toArray();
@@ -59,6 +59,7 @@ class TournamentRepository extends BaseRepository
         $userJoinStatus = 'not-joined';
         $userCheckedIn = false;
         $userIsCaptain = false;
+        $isDisqualified = false;
 
         $teamParticipants = $tournament->players > 1;
         if ($teamParticipants) {
@@ -79,6 +80,7 @@ class TournamentRepository extends BaseRepository
         if ($participationRecord) {
             $userJoinStatus = $participationRecord->status;
             $userCheckedIn = $participationRecord->checked_in_at != null;
+            $isDisqualified = $participationRecord->status = ParticipantAcceptanceState::DISQUALIFIED;
             if ($participationRecord->participantable_type == Team::class) {
                 $team = Team::find($participationRecord->participantable_id);
                 $captain = $team->players()->where('captain', 1)->first();
@@ -107,6 +109,7 @@ class TournamentRepository extends BaseRepository
             'status' => $userJoinStatus,
             'checked_in' => $userCheckedIn,
             'description' => Participant::getAcceptanceStatusDescription($userJoinStatus),
+            'is_disqualified' => $isDisqualified,
         ];
         return $tournament;
     }
@@ -846,7 +849,7 @@ class TournamentRepository extends BaseRepository
             throw new \Exception(__('strings.tournament.not_a_participant'));
         }
 
-        if (!in_array($participant->status, [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])) {
+        if (!in_array($participant->status, [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY, ParticipantAcceptanceState::DISQUALIFIED])) {
             throw new \Exception(__('strings.tournament.not_accepted'));
         }
 
@@ -999,7 +1002,7 @@ class TournamentRepository extends BaseRepository
     protected function userTournamentsQueryBuilder(User $user)
     {
         $tournaments = Tournament::whereHas('participants', function (Builder $participants) use ($user) {
-            $participants->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
+            $participants->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY, ParticipantAcceptanceState::DISQUALIFIED])
                 ->whereHasMorph('participantable', [User::class, Team::class], function (Builder $participantable, $type) use ($user) {
                     if ($type == Team::class) {
                         $participantable->whereHas('players', function (Builder $players) use ($user) {

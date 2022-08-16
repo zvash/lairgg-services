@@ -34,7 +34,7 @@ class NotifyTournamentRulesWereUpdated implements ShouldQueue
     public function handle(TournamentRulesWereUpdated $event)
     {
         $tournament = $event->tournament;
-        $participants = $tournament->participants()->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])->get();
+        $participants = $tournament->participants()->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY, ParticipantAcceptanceState::DISQUALIFIED])->get();
         $title = 'Update';
         $body = __('notifications.tournament.rules', [
             'tournament' => $tournament->title,

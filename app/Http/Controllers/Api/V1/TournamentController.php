@@ -178,6 +178,7 @@ class TournamentController extends Controller
             ->whereIn('status', [
                 ParticipantAcceptanceState::ACCEPTED,
                 ParticipantAcceptanceState::ACCEPTED_NOT_READY,
+                ParticipantAcceptanceState::DISQUALIFIED,
             ])
             ->get()
             ->load('participantable');

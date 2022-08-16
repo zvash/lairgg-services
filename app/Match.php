@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Enums\ParticipantAcceptanceState;
 use App\Traits\Eloquents\LobbyAware;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -425,9 +426,11 @@ class Match extends Model
             ], [
                 'ready_at' => null,
                 'match_date' => $nextMatch->started_at,
+                'disqualify_deadline' => $nextMatch->started_at->copy()->addMinutes($nextMatch->tournament->match_check_in_period),
             ]);
         $matchParticipant->setAttribute('ready_at', null)
             ->setAttribute('match_date', $nextMatch->started_at)
+            ->setAttribute('disqualify_deadline', $nextMatch->started_at->copy()->addMinutes($nextMatch->tournament->match_check_in_period))
             ->save();
     }
 
@@ -491,6 +494,7 @@ class Match extends Model
                     'title' => $title,
                     'score' => $score,
                     'is_winner' => $isWinner,
+                    'is_disqualified' => $definiteParticipant->status == ParticipantAcceptanceState::DISQUALIFIED,
                 ];
             } else if ($this->group == 1 && $this->round == 1) {
                 $candidates[] = [
@@ -498,6 +502,7 @@ class Match extends Model
                     'title' => null,
                     'score' => null,
                     'is_winner' => null,
+                    'is_disqualified' => null,
                 ];
             } else if ($definiteParticipant) {
                 $previousMatch = $this->getPreviousMatchWithoutParticipant($definiteParticipant);
@@ -512,6 +517,7 @@ class Match extends Model
                         'title' => implode(' vs. ', $names),
                         'score' => null,
                         'is_winner' => null,
+                        'is_disqualified' => null,
                     ];
                 } else {
                     $candidates[] = [
@@ -519,6 +525,7 @@ class Match extends Model
                         'title' => null,
                         'score' => null,
                         'is_winner' => null,
+                        'is_disqualified' => null,
                     ];
                 }
             } else {
@@ -529,6 +536,7 @@ class Match extends Model
                         'title' => null,
                         'score' => null,
                         'is_winner' => null,
+                        'is_disqualified' => null,
                     ];
                     continue;
                 }
@@ -544,6 +552,7 @@ class Match extends Model
                             'title' => implode(' vs. ', $names),
                             'score' => null,
                             'is_winner' => null,
+                            'is_disqualified' => null,
                         ];
                     } else {
                         $candidates[] = [
@@ -551,6 +560,7 @@ class Match extends Model
                             'title' => null,
                             'score' => null,
                             'is_winner' => null,
+                            'is_disqualified' => null,
                         ];
                     }
                 }

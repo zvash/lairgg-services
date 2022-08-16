@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Jobs\ProcessDisqualifiedParticipants;
 use App\Jobs\ProcessNotFinalOrders;
 use App\ScheduledJobs\NotifyTournamentWillHaveAnActionInFuture;
 use Illuminate\Console\Scheduling\Schedule;
@@ -26,6 +27,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->call(new ProcessDisqualifiedParticipants())
+            ->everyMinute()
+            ->name('process disqualified participants');
+
         $schedule->job(new ProcessNotFinalOrders())
             ->everyMinute()
             ->withoutOverlapping(5)

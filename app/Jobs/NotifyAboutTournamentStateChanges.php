@@ -52,7 +52,7 @@ class NotifyAboutTournamentStateChanges implements ShouldQueue
     {
         $template = 'notifications.tournament.' . $this->action;
         foreach ($this->tournaments as $tournament) {
-            $participants = $tournament->participants()->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])->get();
+            $participants = $tournament->participants()->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY, ParticipantAcceptanceState::DISQUALIFIED])->get();
             $title = 'Heads-Up';
             $body = __($template, [
                 'tournament' => $tournament->title,

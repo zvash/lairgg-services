@@ -145,6 +145,8 @@ class Participant extends Model
                 return "Description for rejected participants";
             case ParticipantAcceptanceState::RESERVED:
                 return "Description for reserved participants";
+            case ParticipantAcceptanceState::DISQUALIFIED:
+                return "Description for disqualified participants";
             default:
                 return "";
         }

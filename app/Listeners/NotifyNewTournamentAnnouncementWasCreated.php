@@ -35,7 +35,7 @@ class NotifyNewTournamentAnnouncementWasCreated implements ShouldQueue
     {
         $announcement = $event->announcement;
         $tournament = $announcement->tournament;
-        $participants = $tournament->participants()->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])->get();
+        $participants = $tournament->participants()->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY, ParticipantAcceptanceState::DISQUALIFIED])->get();
         $title = 'Tournament Announcement';
         $body = __('notifications.tournament.announcement', [
             'tournament' => $tournament->title,

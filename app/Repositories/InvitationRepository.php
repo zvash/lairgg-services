@@ -200,6 +200,7 @@ class InvitationRepository extends BaseRepository
                         'accepted_count' => $invitedToObject->participants()->whereIn('status', [
                             ParticipantAcceptanceState::ACCEPTED,
                             ParticipantAcceptanceState::ACCEPTED_NOT_READY,
+                            ParticipantAcceptanceState::DISQUALIFIED,
                         ])->count(),
                     ];
                 } else {

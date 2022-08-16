@@ -250,6 +250,14 @@ class MatchRepository extends BaseRepository
         if (!$participant) {
             throw new \Exception(__('strings.match.you_are_not_participant'));
         }
+        $isDisqualified = MatchParticipant::query()
+            ->where('match_id', $match->id)
+            ->where('participant_id', $participant->id)
+            ->whereNotNull('disqualified_at')
+            ->count() > 0;
+        if ($isDisqualified) {
+            throw new \Exception('You\'ve been disqualified from this tournament.');
+        }
         $now = Carbon::now();
         $startedAt = $match->started_at;
         $minutesAfterStartedAt = $startedAt->addMinutes($match->tournament->match_check_in_period);
@@ -269,6 +277,7 @@ class MatchRepository extends BaseRepository
                     'participant_id' => $participant->id,
                     'match_date' => $match->started_at,
                     'ready_at' => Carbon::now(),
+                    'disqualify_deadline' => $match->started_at->copy()->addMinutes($minutesAfterStartedAt),
                 ]);
             $readyStateChanged = true;
         } else if (!$matchParticipantRecord->ready_at) {
@@ -284,6 +293,14 @@ class MatchRepository extends BaseRepository
             return $lobby;
         }
 
+        $otherPartyIsDisqualified = $match->disqualified_count == 1;
+        if ($otherPartyIsDisqualified) {
+            $match->winner_team_id = $participant->id;
+            $match->is_forfeit = true;
+            $match->save();
+            $match->addWinnerToNextMatchForWinners();
+        }
+
         $readyCount = MatchParticipant::query()
             ->where('match_id', $match->id)
             ->whereNotNull('ready_at')
@@ -293,7 +310,7 @@ class MatchRepository extends BaseRepository
             $lobbyRepository->createBigTitleMessage($lobby, 'Prematch prep');
         }
 
-        $lobbyRepository->createReadyMessage($lobby, $user);
+        $lobbyRepository->createReadyMessage($lobby, $user, $otherPartyIsDisqualified);
 
         if ($readyCount >= 2 && $readyCount == $match->getParticipants()->count()) {
 //            sleep(1);

@@ -105,7 +105,7 @@ class UserRepository extends BaseRepository
     {
         $userTeams = $user->teams()->pluck('teams.id')->all();
         $participants = Participant::query()
-            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY])
+            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY, ParticipantAcceptanceState::DISQUALIFIED])
             ->where(function (Builder $query) use ($userTeams, $user) {
                 return $query->where(function (Builder $query) use ($user) {
                     return $query->where('participantable_type', User::class)
@@ -405,6 +405,7 @@ class UserRepository extends BaseRepository
         $matchParticipant = MatchParticipant::query()
             ->whereIn('participant_id', $participantIds)
             ->whereNotNull('match_date')
+            ->whereNull('disqualified_at')
             ->where('match_date', '<', $tomorrow)
             ->whereHas('match', function (Builder $match) {
                 return $match->whereNull('winner_team_id');
