@@ -354,6 +354,8 @@ class MatchRepository extends BaseRepository
         ];
         $viewerIsAParticipant = false;
         $participantIds = $participants->pluck('id')->toArray();
+        $participantIdByPlayerId = [];
+        $viewerParticipantId = 0;
         foreach ($participants as $participant) {
             $type = $participant->participantable_type == Team::class ? 'team' : 'user';
             $playerIds = [];
@@ -362,8 +364,12 @@ class MatchRepository extends BaseRepository
             } else if ($type == 'user') {
                 $playerIds[] = $participant->participantable_id;
             }
+            foreach ($playerIds as $playerId) {
+                $participantIdByPlayerId[$playerId] = $participant->id;
+            }
             if (in_array($user->id, $playerIds)) {
                 $viewerIsAParticipant = true;
+                $viewerParticipantId = $participantIdByPlayerId[$user->id];
                 $viewerIsReady = MatchParticipant::query()
                         ->where('match_id', $match->id)
                         ->where('participant_id', $participant->id)
@@ -383,6 +389,22 @@ class MatchRepository extends BaseRepository
                 $readyState['viewer_is_participant'] = $viewerIsAParticipant;
                 $readyState['viewer_is_ready'] = $viewerIsReady;
                 $readyState['opponent_is_ready'] = $opponentIsReady;
+                $readyState['viewer_is_disqualified'] = MatchParticipant::query()
+                    ->where('match_id', $match->id)
+                    ->where('participant_id', $viewerParticipantId)
+                    ->whereNotNull('disqualified_at')
+                    ->count() > 0;
+                $readyState['opponent_is_disqualified'] = MatchParticipant::query()
+                        ->where('match_id', $match->id)
+                        ->where('participant_id', '<>', $viewerParticipantId)
+                        ->whereNotNull('disqualified_at')
+                        ->count() > 0;
+                if ($viewerIsAParticipant && $participants->count() == 1 && $match->disqualified_count > 0) {
+                    $readyState['opponent_is_disqualified'] = true;
+                }
+                $readyState['viewer_won_by_auto_win'] = $viewerIsAParticipant
+                    && $readyState['opponent_is_disqualified']
+                    && $match->winner_team_id == $viewerParticipantId;
             }
         }
         return $readyState;
