@@ -96,6 +96,10 @@ class PlayRepository extends BaseRepository
         if ($numberOfForfeiters > count($scoreRecords) - 1) {
             throw new \Exception(__('strings.play.too_many_forfeits'));
         }
+
+        $match = $play->match;
+        $match->removeMatchParticipantsFromNextMatches();
+
         $notify = false;
         foreach ($scoreRecords as $record) {
             $party = $play->parties()->whereId($record['party_id'])->first();
@@ -122,7 +126,6 @@ class PlayRepository extends BaseRepository
         if ($notify && $user) {
             event(new MatchScoreWasSubmitted($play->match, $user));
         }
-        $match = $play->match;
         $winnerAndLosers = $match->getWinnerAndLosers();
         if ($match->isOver()) {
             if ($winnerAndLosers['winner_id']) {

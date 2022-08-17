@@ -309,6 +309,25 @@ class Match extends Model
         ];
     }
 
+    public function removeMatchParticipantsFromNextMatches()
+    {
+        $winnerAndLosers = $this->getWinnerAndLosers();
+        $nextMatchForWinner = $this->getNextMatchForWinner();
+        $nextMatchForLoser = $this->getNextMatchForLoser();
+        if ($nextMatchForWinner && $winnerAndLosers['winner_id']) {
+            MatchParticipant::query()
+                ->where('match_id', $nextMatchForWinner->id)
+                ->where('participant_id', $winnerAndLosers['winner_id'])
+                ->delete();
+        }
+        if ($nextMatchForLoser && $winnerAndLosers['losers_ids']) {
+            MatchParticipant::query()
+                ->where('match_id', $nextMatchForLoser->id)
+                ->whereIn('participant_id', $winnerAndLosers['losers_ids'])
+                ->delete();
+        }
+    }
+
     /**
      * @return Match|null
      */
