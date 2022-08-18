@@ -101,6 +101,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->first_name ? ucwords($this->first_name) : $this->username;
+    }
+
+    /**
      * Get the gender that owns the user.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

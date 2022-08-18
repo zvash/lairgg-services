@@ -22,9 +22,10 @@ class CustomVerifyEmail extends VerifyEmail implements ShouldQueue
     {
         $url = $this->verificationUrl($notifiable);
 
+        $name = $notifiable->getName();
         return (new MailMessage)
             ->subject(__('emails.verification.subject'))
-            ->markdown('auth.mails.verify', compact('notifiable', 'url'))
+            ->view('auth.mails.verify', compact('name', 'url', 'notifiable'))
             ->from(config('mail.from_address'), config('mail.from_name'))
             ->replyTo(config('mail.from_address'), config('mail.from_name'));
     }
