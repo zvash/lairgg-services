@@ -22,6 +22,7 @@ use App\TournamentType;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 
 class MatchRepository extends BaseRepository
@@ -130,9 +131,9 @@ class MatchRepository extends BaseRepository
         $plays = $match->plays()->orderBy('id')->with(['map', 'parties'])->get();
         $lobby = $match->lobby;
         $canSubmitScore = LobbyMessage::query()
-            ->where('lobby_id', $lobby->id)
-            ->where('type', 'guideline')
-            ->count() > 0;
+                ->where('lobby_id', $lobby->id)
+                ->where('type', 'guideline')
+                ->count() > 0;
         $information = [
             'id' => $match->id,
             'match_date' => $match->started_at,
@@ -252,10 +253,10 @@ class MatchRepository extends BaseRepository
             throw new \Exception(__('strings.match.you_are_not_participant'));
         }
         $isDisqualified = MatchParticipant::query()
-            ->where('match_id', $match->id)
-            ->where('participant_id', $participant->id)
-            ->whereNotNull('disqualified_at')
-            ->count() > 0;
+                ->where('match_id', $match->id)
+                ->where('participant_id', $participant->id)
+                ->whereNotNull('disqualified_at')
+                ->count() > 0;
         if ($isDisqualified) {
             throw new \Exception('You\'ve been disqualified from this tournament.');
         }
@@ -394,10 +395,10 @@ class MatchRepository extends BaseRepository
                 $readyState['viewer_is_ready'] = $viewerIsReady;
                 $readyState['opponent_is_ready'] = $opponentIsReady;
                 $readyState['viewer_is_disqualified'] = MatchParticipant::query()
-                    ->where('match_id', $match->id)
-                    ->where('participant_id', $viewerParticipantId)
-                    ->whereNotNull('disqualified_at')
-                    ->count() > 0;
+                        ->where('match_id', $match->id)
+                        ->where('participant_id', $viewerParticipantId)
+                        ->whereNotNull('disqualified_at')
+                        ->count() > 0;
                 $readyState['opponent_is_disqualified'] = MatchParticipant::query()
                         ->where('match_id', $match->id)
                         ->where('participant_id', '<>', $viewerParticipantId)
@@ -436,5 +437,53 @@ class MatchRepository extends BaseRepository
             }
         }
         return null;
+    }
+
+    public function forfeitAll(Match $match, User $user, PlayRepository $repository)
+    {
+        $participant = $this->findMatchParticipantByUser($match, $user);
+        if (!$participant) {
+            throw new \Exception('Participant was not found.');
+        }
+        $captain = $participant->getCaptain();
+        if ($captain->id != $user->id) {
+            throw new \Exception('Only captains can edit match scores.');
+        }
+
+        DB::beginTransaction();
+        try {
+            $match->is_forfeit = true;
+            $match->save();
+            $plays = $match->plays();
+            $playsCount = $plays->count();
+            $i = 1;
+            foreach ($plays as $play) {
+                $scores = [];
+                $parties = $play->parties;
+                foreach ($parties as $party) {
+                    if ($party->team_id == $participant->id) {
+                        $scores[] = [
+                            'party_id' => $party->id,
+                            'is_winner' => false,
+                            'score' => 0,
+                            'is_forfeit' => true,
+                        ];
+                    } else {
+                        $scores[] = [
+                            'party_id' => $party->id,
+                            'is_winner' => true,
+                            'score' => 1,
+                            'is_forfeit' => false,
+                        ];
+                    }
+                }
+                $repository->setPlayScores($play, $scores, $user, $i == $playsCount);
+                $i++;
+            }
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            throw new \Exception($exception->getMessage());
+        }
     }
 }

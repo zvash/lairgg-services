@@ -247,6 +247,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->post('/{match}/play-count', 'MatchController@setPlayCount');
 
+                    $router->post('/{match}/forfeit-all', 'MatchController@forfeitAll');
+
                     $router->get('/{match}/disputes', 'MatchController@getDisputes');
 
                     $router->get('/{match}/lobby', 'MatchController@getLobbyName');

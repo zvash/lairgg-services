@@ -39,6 +39,24 @@ class MatchController extends Controller
      * @param Request $request
      * @param Match $match
      * @param MatchRepository $matchRepository
+     * @param PlayRepository $playRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function forfeitAll(Request $request, Match $match, MatchRepository $matchRepository, PlayRepository $playRepository)
+    {
+        $user = $request->user();
+        try {
+            $matchRepository->forfeitAll($match, $user, $playRepository);
+            return response()->noContent();
+        } catch (\Exception $exception) {
+            return $this->failMessage($exception->getMessage(), 400);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @param Match $match
+     * @param MatchRepository $matchRepository
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
     public function setPlayCount(Request $request, Match $match, MatchRepository $matchRepository)

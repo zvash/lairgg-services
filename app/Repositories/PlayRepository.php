@@ -82,10 +82,11 @@ class PlayRepository extends BaseRepository
      * @param Play $play
      * @param array $scoreRecords
      * @param User $user
+     * @param bool $enableNotification
      * @return Play
      * @throws \Exception
      */
-    public function setPlayScores(Play $play, array $scoreRecords, ?User $user): Play
+    public function setPlayScores(Play $play, array $scoreRecords, ?User $user, bool $enableNotification = true): Play
     {
         $numberOfForfeiters = 0;
         foreach ($scoreRecords as $scoreRecord) {
@@ -123,7 +124,7 @@ class PlayRepository extends BaseRepository
                 $notify = true;
             }
         }
-        if ($notify && $user) {
+        if ($notify && $enableNotification && $user) {
             event(new MatchScoreWasSubmitted($play->match, $user));
         }
         $winnerAndLosers = $match->getWinnerAndLosers();
