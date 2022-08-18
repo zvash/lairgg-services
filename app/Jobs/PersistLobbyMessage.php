@@ -2,9 +2,12 @@
 
 namespace App\Jobs;
 
+use App\Events\LobbyHasANewMessage;
 use App\Lobby;
 use App\LobbyMessage;
+use App\Match;
 use App\Repositories\LobbyRepository;
+use App\UserLobby;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -60,6 +63,26 @@ class PersistLobbyMessage implements ShouldQueue
         ];
         $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
         $lobbyMessage->save();
-        return; $lobbyMessage->id;
+        $this->notifyOtherParticipantIfNeeded($this->message['user']['id'], $lobby);
+        return;
+    }
+
+    private function notifyOtherParticipantIfNeeded(int $senderId, Lobby $lobby)
+    {
+        if (!$lobby->owner instanceof Match) {
+            return;
+        }
+        $match = $lobby->owner;
+        $allParticipants = $match->getParticipants();
+        $participantIds = [];
+        foreach ($allParticipants as $participant) {
+            $captain = $participant->getCaptain();
+            if ($captain->id != $senderId && UserLobby::needsToBeNotified($captain->id, $lobby->name)) {
+                $participantIds[] = $participant->id;
+            }
+        }
+        if ($participantIds) {
+            event(new LobbyHasANewMessage($match, $senderId, $participantIds));
+        }
     }
 }

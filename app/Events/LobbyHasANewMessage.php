@@ -22,19 +22,26 @@ class LobbyHasANewMessage
     public $match;
 
     /**
-     * @var Participant $participant
+     * @var int $senderUserId
      */
-    public $participant;
+    public $senderUserId;
+
+    /**
+     * @var array $participantIds
+     */
+    public $participantIds;
 
     /**
      * LobbyHasANewMessage constructor.
      * @param Match $match
-     * @param Participant $participant
+     * @param int $senderUserId
+     * @param array $participantIds
      */
-    public function __construct(Match $match, Participant $participant)
+    public function __construct(Match $match, int $senderUserId, array $participantIds)
     {
         $this->match = $match;
-        $this->participant = $participant;
+        $this->participantIds = $participantIds;
+        $this->senderUserId = $senderUserId;
     }
 
 }

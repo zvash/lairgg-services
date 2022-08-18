@@ -61,4 +61,18 @@ trait ParticipantHelper
         }
         return $userIds;
     }
+
+    /**
+     * @param Collection $participants
+     * @return array
+     */
+    private function getCaptainUserIdsForParticipants(Collection $participants)
+    {
+        $userIds = [];
+        foreach ($participants as $participant) {
+            $captain = $participant->getCaptain();
+            $userIds[] = $captain->id;
+        }
+        return $userIds;
+    }
 }
