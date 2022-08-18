@@ -291,6 +291,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->get('/coin-toss-reasons', 'LobbyController@getCoinTossReasons');
 
+                    $router->get('/{lobbyName}/coin-toss-reasons', 'LobbyController@getLobbyCoinTossReasons');
+
                     $router->post('/{lobbyName}/dispute', 'LobbyController@createDispute');
 
                     $router->post('/{lobbyName}/coin', 'LobbyController@createCoinToss');

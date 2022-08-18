@@ -250,4 +250,16 @@ class LobbyController extends Controller
         $reasons = CoinTossReason::query()->pluck('reason')->all();
         return $this->success($reasons);
     }
+
+    public function getLobbyCoinTossReasons(Request $request, string $lobbyName)
+    {
+        $lobby = Lobby::where('name', $lobbyName)->first();
+        if ($lobby && $lobby->owner instanceof Match) {
+            $match = $lobby->owner;
+            $gameId = $match->tournament->game->id;
+            $reasons = CoinTossReason::query()->where('game_id', $gameId)->pluck('reason')->all();
+            return $this->success($reasons);
+        }
+        return $this->failNotFound();
+    }
 }
