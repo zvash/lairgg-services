@@ -433,6 +433,7 @@ class UserRepository extends BaseRepository
             $matchArray['candidates'] = $match->getCandidates();
             $matchArray['started_at_timestamp'] = strtotime($match->started_at);
             $matchArray['tournament_title'] = $match->tournament->title;
+            $matchArray['participant_type'] = $match->tournament->players == 1 ? 'user' : 'team';
             return $matchArray;
         }
         throw new \Exception('Content was not found.');
