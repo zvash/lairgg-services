@@ -39,7 +39,7 @@ class NotifyBracketWasReleased implements ShouldQueue
         $body = __('notifications.tournament.bracket', [
             'tournament' => $tournament->title,
         ]);
-        $type = PushNotificationType::TOURNAMENT;
+        $type = PushNotificationType::TOURNAMENT_BRACKET;
         $image = $tournament->image;
         $userIds = [];
         foreach ($participants as $participant) {

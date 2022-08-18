@@ -18,4 +18,6 @@ class PushNotificationType extends Enum
     const MATCH = 'match';
     const MATCH_LOBBY = 'match_lobby';
     const TOURNAMENT_LOBBY = 'tournament_lobby';
+    const TOURNAMENT_ANNOUNCEMENT = 'tournament_announcement';
+    const TOURNAMENT_BRACKET = 'tournament_bracket';
 }

@@ -40,7 +40,7 @@ class NotifyNewTournamentAnnouncementWasCreated implements ShouldQueue
         $body = __('notifications.tournament.announcement', [
             'tournament' => $tournament->title,
         ]);
-        $type = PushNotificationType::TOURNAMENT;
+        $type = PushNotificationType::TOURNAMENT_ANNOUNCEMENT;
         $image = $tournament->image;
         $userIds = [];
         foreach ($participants as $participant) {
