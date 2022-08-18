@@ -3,6 +3,7 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -30,6 +31,7 @@ class CoinTossReason extends Resource
      */
     public static $search = [
         'id',
+        'game_id',
         'reason',
     ];
 
@@ -53,6 +55,8 @@ class CoinTossReason extends Resource
     {
         return [
             ID::make()->sortable(),
+
+            BelongsTo::make('Game', 'game', Game::class),
 
             Text::make('Reason')
                 ->required()

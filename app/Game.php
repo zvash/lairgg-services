@@ -94,4 +94,12 @@ class Game extends Model
     {
         return $this->hasMany(Tournament::class);
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function coinTossReason()
+    {
+        return $this->hasMany(CoinTossReason::class);
+    }
 }
