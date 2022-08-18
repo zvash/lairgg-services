@@ -30,11 +30,10 @@ class ResetPasswordMail extends Mailable implements ShouldQueue
      * Build the message.
      *
      * @return $this
-     * @throws \ReflectionException
      */
     public function build()
     {
         $code = $this->code;
-        return $this->html($this->view('emails.password_reset')->with(compact('code'))->render());
+        return $this->view('emails.password_reset')->with(compact('code'));
     }
 }
