@@ -300,6 +300,7 @@ class TournamentRepository extends BaseRepository
                 'matches' => $roundMatches,
             ];
         }
+        $allMatches['participant_type'] = $tournament->players == 1 ? 'user' : 'team';
         return $allMatches;
     }
 
