@@ -22,7 +22,7 @@ return [
         'reserve_team_accepted' => '**:team** has been moved from reserved to approved for **:tournament**.',
         'rules' => 'The rules for **:tournament** have been updated.',
         'ended' => '**:tournament** has ended.',
-        'bracket' => 'Bracket for **:tournament** has been released.',
+        'bracket' => 'Bracket for **:tournament** has been released. Go checkout your first match.',
         'announcement' => '**:tournament** has a new announcement',
     ],
     'team' => [
@@ -45,7 +45,12 @@ return [
         'place' => 'Your order has been placed.',
     ],
     'match' => [
-        'score_submitted' => '**:player** has submitted the match score.',
+        'score_submitted' => '**:player** has edited the match score.',
+        'heads_up_1' => 'Your match will start in :remained_time.',
+        'heads_up_pre_match' => 'You have :remained_time to start your pre-match preparation.',
+        'opponent_ready' => 'Your opponent is ready. Start you pre-match preparation.',
+        'disqualified' => 'You missed the pre-match preparation time. Contact admin for further instructions.',
+        'opponent_disqualified' => 'Your opponent missed the pre-match preparation time. Contact admin for further instructions.',
     ],
     'match_lobby' => [
         'dispute_submitted' => '**:player** has submitted a dispute.',
@@ -53,5 +58,7 @@ return [
         'coin_toss_request' => '**:player** has requested a coin toss.',
         'coin_toss_accepted' => 'Your coin toss request has been accepted by **:player**.',
         'coin_toss_declined' => 'Your coin toss request has been declined by **:player**.',
+        'pick_and_ban_started' => 'Pick & Ban has been started.',
+        'new_message' => 'You have a new message in the match lobby.',
     ]
 ];

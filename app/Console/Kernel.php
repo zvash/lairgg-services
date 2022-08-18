@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Jobs\ProcessDisqualifiedParticipants;
 use App\Jobs\ProcessNotFinalOrders;
+use App\ScheduledJobs\NotifyMatchWillNeedAttentionInFuture;
 use App\ScheduledJobs\NotifyTournamentWillHaveAnActionInFuture;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -35,6 +36,10 @@ class Kernel extends ConsoleKernel
             ->everyMinute()
             ->withoutOverlapping(5)
             ->name('process not final orders');
+
+        $schedule->call(new NotifyMatchWillNeedAttentionInFuture())
+            ->everyMinute()
+            ->name('notify changes that will happen to tournaments');
 
         $schedule->call(new NotifyTournamentWillHaveAnActionInFuture())
             ->everyMinute()

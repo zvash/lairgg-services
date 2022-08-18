@@ -7,6 +7,7 @@ use App\Dispute;
 use App\Enums\DisputeState;
 use App\Enums\ParticipantAcceptanceState;
 use App\Events\MatchLobbyHadAnAction;
+use App\Events\PickAndBanStarted;
 use App\Http\Requests\CreateDisputeRequest;
 use App\Lobby;
 use App\LobbyMessage;
@@ -348,6 +349,7 @@ class LobbyRepository extends BaseRepository
         $lobbyMessage->save();
         sleep($delay);
         Redis::publish('lobby-server-edit-message-channel', json_encode($newMessage));
+        event(new PickAndBanStarted($match));
         return $lobbyMessage->uuid;
     }
 

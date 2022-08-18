@@ -5,6 +5,7 @@ namespace App\Repositories;
 
 use App\Dispute;
 use App\Enums\ParticipantAcceptanceState;
+use App\Events\ParticipantIsReady;
 use App\Jobs\FireUpPrematchPreparation;
 use App\LobbyMessage;
 use App\Map;
@@ -285,6 +286,9 @@ class MatchRepository extends BaseRepository
             $matchParticipantRecord->save();
             $readyStateChanged = true;
         }
+
+        event(new ParticipantIsReady($match, $participant));
+
         $lobby = $match->lobby;
         if (!$lobby) {
             throw new \Exception(__('strings.operation_cannot_be_done'));

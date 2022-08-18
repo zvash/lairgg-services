@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\ParticipantAcceptanceState;
+use App\Events\ParticipantIsDisqualified;
 use App\Match;
 use App\MatchParticipant;
 use App\Participant;
@@ -62,6 +63,7 @@ class DisqualifyParticipant implements ShouldQueue
                 ->update(['disqualified_at' => Carbon::now()]);
             $this->increaseMatchDisqualifiedCount($match);
             DB::commit();
+            event(new ParticipantIsDisqualified($match, $participant));
             $this->updateReadyMessageInLobby($match, $participant);
         } catch (\Exception $exception) {
             DB::rollBack();

@@ -8,11 +8,15 @@ use App\Events\BracketWasReleased;
 use App\Events\CashoutStatusWasChanged;
 use App\Events\CashoutWasCreated;
 use App\Events\InvitationCreated;
+use App\Events\LobbyHasANewMessage;
 use App\Events\MatchLobbyHadAnAction;
 use App\Events\MatchScoreWasSubmitted;
 use App\Events\NewTournamentAnnouncementWasCreated;
 use App\Events\OrderStatusWasChangedToShipped;
+use App\Events\ParticipantIsDisqualified;
+use App\Events\ParticipantIsReady;
 use App\Events\ParticipantStatusWasUpdated;
+use App\Events\PickAndBanStarted;
 use App\Events\ShopOrderStateWasUpdated;
 use App\Events\ShopOrderWasCreated;
 use App\Events\TeamGemsWereShared;
@@ -25,11 +29,15 @@ use App\Listeners\NotifyBracketWasReleased;
 use App\Listeners\NotifyCashoutStatusWasChanged;
 use App\Listeners\NotifyCashoutWasCreated;
 use App\Listeners\NotifyInvitation;
+use App\Listeners\NotifyLobbyHasANewMessage;
 use App\Listeners\NotifyMatchLobbyHadAnAction;
 use App\Listeners\NotifyMatchScoreWasSubmitted;
 use App\Listeners\NotifyNewTournamentAnnouncementWasCreated;
+use App\Listeners\NotifyParticipantIsDisqualified;
+use App\Listeners\NotifyParticipantIsReady;
 use App\Listeners\NotifyParticipantJoinRequestWasAccepted;
 use App\Listeners\NotifyParticipantJoinRequestWasRejected;
+use App\Listeners\NotifyPickAndBanStarted;
 use App\Listeners\NotifyShopOrderStateWasUpdated;
 use App\Listeners\NotifyShopOrderWasCreated;
 use App\Listeners\NotifyTeamGemsWereShared;
@@ -113,6 +121,18 @@ class EventServiceProvider extends ServiceProvider
         ],
         MatchScoreWasSubmitted::class => [
             NotifyMatchScoreWasSubmitted::class,
+        ],
+        ParticipantIsReady::class => [
+            NotifyParticipantIsReady::class,
+        ],
+        ParticipantIsDisqualified::class => [
+            NotifyParticipantIsDisqualified::class,
+        ],
+        PickAndBanStarted::class => [
+            NotifyPickAndBanStarted::class,
+        ],
+        LobbyHasANewMessage::class => [
+            NotifyLobbyHasANewMessage::class,
         ],
     ];
 
