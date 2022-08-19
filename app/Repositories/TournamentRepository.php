@@ -298,9 +298,9 @@ class TournamentRepository extends BaseRepository
             $allMatches[] = [
                 'title' => $title,
                 'matches' => $roundMatches,
+                'participant_type' => $tournament->players == 1 ? 'user' : 'team',
             ];
         }
-        $allMatches['participant_type'] = $tournament->players == 1 ? 'user' : 'team';
         return $allMatches;
     }
 
