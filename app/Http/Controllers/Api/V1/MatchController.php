@@ -46,7 +46,8 @@ class MatchController extends Controller
     {
         $user = $request->user();
         try {
-            $matchRepository->forfeitAll($match, $user, $playRepository);
+            $participantId = $request->get('participant_id', 0);
+            $matchRepository->forfeitAll($match, $user, $participantId, $playRepository);
             return response()->noContent();
         } catch (\Exception $exception) {
             return $this->failMessage($exception->getMessage(), 400);

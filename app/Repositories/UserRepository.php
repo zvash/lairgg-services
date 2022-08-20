@@ -430,7 +430,7 @@ class UserRepository extends BaseRepository
             unset($matchArray['tournament']);
             unset($matchArray['lobby']);
             $matchArray['status'] = $status;
-            $matchArray['candidates'] = $match->getCandidates();
+            $matchArray['candidates'] = $match->getCandidates(false);
             $matchArray['started_at_timestamp'] = strtotime($match->started_at);
             $matchArray['tournament_title'] = $match->tournament->title;
             $matchArray['participant_type'] = $match->tournament->players == 1 ? 'user' : 'team';

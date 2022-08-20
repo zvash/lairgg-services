@@ -439,15 +439,23 @@ class MatchRepository extends BaseRepository
         return null;
     }
 
-    public function forfeitAll(Match $match, User $user, PlayRepository $repository)
+    public function forfeitAll(Match $match, User $user, int $participantId, PlayRepository $repository)
     {
-        $participant = $this->findMatchParticipantByUser($match, $user);
+        $requesterParticipant = $this->findMatchParticipantByUser($match, $user);
+        if (!$requesterParticipant) {
+            throw new \Exception('Participant was not found.');
+        }
+        $participant = Participant::find($participantId);
         if (!$participant) {
             throw new \Exception('Participant was not found.');
         }
-        $captain = $participant->getCaptain();
+        $captain = $requesterParticipant->getCaptain();
         if ($captain->id != $user->id) {
             throw new \Exception('Only captains can edit match scores.');
+        }
+        $participantIds = $match->getParticipants()->pluck('id')->all();
+        if (!in_array($participantId, $participantIds)) {
+            throw new \Exception('Wrong participant id.');
         }
 
         DB::beginTransaction();

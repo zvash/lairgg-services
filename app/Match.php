@@ -491,9 +491,10 @@ class Match extends Model
     }
 
     /**
+     * @param bool $withNames
      * @return array
      */
-    public function getCandidates()
+    public function getCandidates(bool $withNames = true)
     {
         $candidates = [];
         $this->load('tournament');
@@ -533,7 +534,7 @@ class Match extends Model
                     }
                     $candidates[] = [
                         'logo' => null,
-                        'title' => implode(' vs. ', $names),
+                        'title' => $withNames ? implode(' vs. ', $names) : 'TBD',
                         'score' => null,
                         'is_winner' => null,
                         'is_disqualified' => null,
@@ -568,7 +569,7 @@ class Match extends Model
                         }
                         $candidates[] = [
                             'logo' => null,
-                            'title' => implode(' vs. ', $names),
+                            'title' => $withNames ? implode(' vs. ', $names) : 'TBD',
                             'score' => null,
                             'is_winner' => null,
                             'is_disqualified' => null,
