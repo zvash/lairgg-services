@@ -462,7 +462,7 @@ class MatchRepository extends BaseRepository
         try {
             $match->is_forfeit = true;
             $match->save();
-            $plays = $match->plays();
+            $plays = $match->plays;
             $playsCount = $plays->count();
             $i = 1;
             foreach ($plays as $play) {
