@@ -133,6 +133,25 @@ class LoginController extends Controller
         return $user;
     }
 
+    /**
+     * Password criteria in password set validation rules
+     *
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function passwordCriteria()
+    {
+        return $this->success([
+            'description' => 'Must be at least eight characters and should be a mix of uppercase and lowercase characters, numbers and one or more of these @$!%*#?& characters.',
+            'criteria' => [
+                'At least eight characters.',
+                'At least one uppercase character.',
+                'At least one lowercase character.',
+                'At least one numeric character.',
+                'At least one of these @$!%*#?& characters.',
+            ],
+        ]);
+    }
+
     private function getAttributesByProvider(string $provider, $user)
     {
         if ($provider == 'google') {

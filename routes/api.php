@@ -20,6 +20,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
         $router->get('countries', 'CountryController@all');
 
+        $router->get('password-criteria', 'LoginController@passwordCriteria');
+
         $router->group(['prefix' => 'users'], function ($router) {
 
             $router->post('password/reset/email', 'ForgotPasswordController@sendCode')->name('password.reset.email');
