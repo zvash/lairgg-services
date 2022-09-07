@@ -15,6 +15,8 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
     $router->group(['namespace' => 'Api\V1'], function ($router) {
 
+        $router->get('/client-version/{type}/{version}', 'ClientVersionController@updateStatus');
+
         $router->post('users/device/register', 'UserController@registerDeviceForPushNotification');
         $router->get('tournaments/{tournament}/matches/brackets/{bracket}', 'TournamentController@bracketMatches');
 
