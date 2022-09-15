@@ -60,5 +60,6 @@ return [
         'coin_toss_declined' => 'Your coin toss request has been declined by **:player**.',
         'pick_and_ban_started' => 'Pick & Ban has been started.',
         'new_message' => 'You have a new message in the match lobby.',
+        'admin_was_mentioned' => 'An admin is required in the match lobby.',
     ]
 ];

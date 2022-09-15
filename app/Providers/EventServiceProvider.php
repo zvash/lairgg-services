@@ -4,6 +4,7 @@ namespace App\Providers;
 
 
 use App\CashOut;
+use App\Events\AdminHasBeenMentioned;
 use App\Events\BracketWasReleased;
 use App\Events\CashoutStatusWasChanged;
 use App\Events\CashoutWasCreated;
@@ -25,6 +26,7 @@ use App\Events\TeamWasDeleted;
 use App\Events\TournamentGemsWereReleased;
 use App\Events\TournamentRulesWereUpdated;
 use App\Listeners\EmailInvitation;
+use App\Listeners\NotifyAdminHasBeenMentioned;
 use App\Listeners\NotifyBracketWasReleased;
 use App\Listeners\NotifyCashoutStatusWasChanged;
 use App\Listeners\NotifyCashoutWasCreated;
@@ -133,6 +135,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         LobbyHasANewMessage::class => [
             NotifyLobbyHasANewMessage::class,
+        ],
+        AdminHasBeenMentioned::class => [
+            NotifyAdminHasBeenMentioned::class,
         ],
     ];
 

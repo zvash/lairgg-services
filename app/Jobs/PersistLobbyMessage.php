@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\AdminHasBeenMentioned;
 use App\Events\LobbyHasANewMessage;
 use App\Lobby;
 use App\LobbyMessage;
@@ -64,6 +65,7 @@ class PersistLobbyMessage implements ShouldQueue
         $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
         $lobbyMessage->save();
         $this->notifyOtherParticipantIfNeeded($this->message['user']['id'], $lobby);
+        $this->notifyAdminsIfNeeded($this->message['user']['id'], $lobby);
         return;
     }
 
@@ -83,6 +85,36 @@ class PersistLobbyMessage implements ShouldQueue
         }
         if ($participantIds) {
             event(new LobbyHasANewMessage($match, $senderId, $participantIds));
+        }
+    }
+
+    /**
+     * @param int $senderId
+     * @param Lobby $lobby
+     */
+    private function notifyAdminsIfNeeded(int $senderId, Lobby $lobby)
+    {
+        if ($this->message['type'] != 'text') {
+            return;
+        }
+        if (!$lobby->owner instanceof Match) {
+            return;
+        }
+        $text = strtolower($this->message['text']);
+        if (! preg_match('/[^0-9a-z]@admin[s]?\b/', $text)) {
+            return;
+        }
+        $match = $lobby->owner;
+        $organization = $match->tournament->organization;
+        $staffUserIds = $organization->staff->pluck('user_id')->all();
+        $toBeNotifiedStaffUserIds = [];
+        foreach ($staffUserIds as $userId) {
+            if ($userId != $senderId && UserLobby::needsToBeNotified($userId, $lobby->name)) {
+                $toBeNotifiedStaffUserIds[] = $userId;
+            }
+        }
+        if ($staffUserIds) {
+            event(new AdminHasBeenMentioned($match, $senderId, $staffUserIds));
         }
     }
 }
