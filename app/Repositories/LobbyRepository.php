@@ -216,6 +216,9 @@ class LobbyRepository extends BaseRepository
                 Redis::publish('lobby-server-edit-message-channel', $lobbyMessage->message);
             }
         }
+        if ($otherPartyIsDisqualified) {
+            $this->createReloadMatchInternalCommand($lobby);
+        }
         return $lobbyMessage->uuid;
     }
 
@@ -291,13 +294,17 @@ class LobbyRepository extends BaseRepository
         $lobbyMessage = new LobbyMessage($lobbyMessageAttributes);
         $lobbyMessage->save();
         Redis::publish('lobby-server-message-channel', json_encode($message));
+        $this->createReloadMatchInternalCommand($lobby);
+        sleep(1);
+        $this->createChatStartMessage($lobby);
+        return $lobbyMessage->uuid;
+    }
+
+    protected function createReloadMatchInternalCommand(Lobby $lobby) {
         Redis::publish('lobby-server-internal-message-channel', json_encode([
             'command' => 'reload_match',
             'lobby_name' => $lobby->name,
         ]));
-        sleep(1);
-        $this->createChatStartMessage($lobby);
-        return $lobbyMessage->uuid;
     }
 
     public function createPickAndBanFirstMessage(Lobby $lobby)
