@@ -483,13 +483,57 @@ class UserController extends Controller
         return $this->success([
             'description' => 'Must be at least eight characters and should be a mix of uppercase and lowercase characters, numbers and one or more of these @$!%*#?& characters.',
             'criteria' => [
-                'At least eight characters.',
-                'At least one uppercase character.',
-                'At least one lowercase character.',
-                'At least one numeric character.',
-                'At least one of these @$!%*#?& characters.',
+                [
+                    'title' => 'min_length',
+                    'caption' => 'At least eight characters.',
+                    'type' => 'int',
+                    'value' => 8
+                ], [
+                    'title' => 'uppercase_character',
+                    'caption' => 'At least one uppercase character.',
+                    'type' => 'regex',
+                    'value' => '[A-Z]',
+                ], [
+                    'title' => 'lowercase_character',
+                    'caption' => 'At least one lowercase character.',
+                    'type' => 'regex',
+                    'value' => '[a-z]',
+                ], [
+                    'title' => 'numeric_character',
+                    'caption' => 'At least one numeric character.',
+                    'type' => 'regex',
+                    'value' => '[0-9]',
+                ], [
+                    'title' => 'special_character',
+                    'caption' => 'At least one of these @$!%*#?& characters.',
+                    'type' => 'regex',
+                    'value' => '[@$!%*#?&]',
+                ],
+            ],
+            'criteria_index_by_title' => [
+                'min_length' => 0,
+                'uppercase_character' => 1,
+                'lowercase_character' => 2,
+                'numeric_character' => 3,
+                'special_character' => 4,
             ],
         ]);
+    }
+
+    /**
+     * @param Request $request
+     * @param string $attributeName
+     * @param string $attributeValue
+     * @param UserRepository $repository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function checkUnique(Request $request, string $attributeName, string $attributeValue, UserRepository $repository)
+    {
+        try {
+            return $this->success(['is_unique' => $repository->isUnique($attributeName, $attributeValue)]);
+        } catch (\Exception $exception) {
+            return $this->failMessage($exception->getMessage(), 400);
+        }
     }
 
     /**

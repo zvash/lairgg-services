@@ -458,4 +458,20 @@ class UserRepository extends BaseRepository
             ->get();
         return $participants;
     }
+
+    /**
+     * @param string $attributeName
+     * @param string $attributeValue
+     * @return bool
+     * @throws \Exception
+     */
+    public function isUnique(string $attributeName, string $attributeValue)
+    {
+        if (! in_array($attributeName, ['email', 'username'])) {
+            throw new \Exception(__('This will only works for email or username fields!'));
+        }
+        return ! User::query()
+            ->where($attributeName, $attributeValue)
+            ->exists();
+    }
 }

@@ -23,6 +23,7 @@ $router->group(['prefix' => 'v1'], function ($router) {
         $router->get('countries', 'CountryController@all');
 
         $router->get('password-criteria', 'UserController@passwordCriteria');
+        $router->get('users/{attributeName}/{attributeValue}/check-unique', 'UserController@checkUnique');
 
         $router->group(['prefix' => 'users'], function ($router) {
 
