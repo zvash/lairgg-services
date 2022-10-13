@@ -321,6 +321,18 @@ class TournamentController extends Controller
      * @param TournamentRepository $tournamentRepository
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
+    public function recentlyFinishedForUser(Request $request, TournamentRepository $tournamentRepository)
+    {
+        $user = Auth::user();
+        $tournaments = $tournamentRepository->recentlyFinishedForUser($user, 10);
+        return $this->success($tournaments);
+    }
+
+    /**
+     * @param Request $request
+     * @param TournamentRepository $tournamentRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function laterToday(Request $request, TournamentRepository $tournamentRepository)
     {
         $user = Auth::user();
@@ -345,10 +357,34 @@ class TournamentController extends Controller
      * @param TournamentRepository $tournamentRepository
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
+    public function upcomingForUser(Request $request, TournamentRepository $tournamentRepository)
+    {
+        $user = Auth::user();
+        $tournaments = $tournamentRepository->getUpcomingTournamentsForUser($user, 10);
+        return $this->success($tournaments);
+    }
+
+    /**
+     * @param Request $request
+     * @param TournamentRepository $tournamentRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function tomorrow(Request $request, TournamentRepository $tournamentRepository)
     {
         $user = Auth::user();
         $tournaments = $tournamentRepository->getTomorrowTournaments($user, 10);
+        return $this->success($tournaments);
+    }
+
+    /**
+     * @param Request $request
+     * @param TournamentRepository $tournamentRepository
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function tomorrowForUser(Request $request, TournamentRepository $tournamentRepository)
+    {
+        $user = Auth::user();
+        $tournaments = $tournamentRepository->getTomorrowTournamentsForUser($user, 10);
         return $this->success($tournaments);
     }
 

@@ -639,6 +639,20 @@ class TournamentRepository extends BaseRepository
     }
 
     /**
+     * @param User $user
+     * @param int $paginate
+     * @return array|\Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function recentlyFinishedForUser(User $user, int $paginate = 0)
+    {
+        $tournaments = $this->withUserTournaments(Tournament::recentlyFinished(), $user);
+        if ($paginate) {
+            return $tournaments->paginate($paginate);
+        }
+        return $tournaments->get()->toArray();
+    }
+
+    /**
      * Get Live tournaments
      *
      * @param User $user
@@ -709,9 +723,41 @@ class TournamentRepository extends BaseRepository
      * @param int $paginate
      * @return array|\Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
+    public function getTomorrowTournamentsForUser(User $user, int $paginate = 0)
+    {
+        $tournaments = $this->withUserTournaments(Tournament::tomorrow(), $user);
+        if ($paginate) {
+            return $tournaments->paginate($paginate);
+        }
+        return $tournaments->get()->toArray();
+    }
+
+    /**
+     * Tournaments that will start tomorrow
+     *
+     * @param User $user
+     * @param int $paginate
+     * @return array|\Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
     public function getUpcomingTournaments(User $user, int $paginate = 0)
     {
         $tournaments = $this->withGames(Tournament::upcoming(), $user);
+        if ($paginate) {
+            return $tournaments->paginate($paginate);
+        }
+        return $tournaments->get()->toArray();
+    }
+
+    /**
+     * Tournaments that will start tomorrow
+     *
+     * @param User $user
+     * @param int $paginate
+     * @return array|\Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getUpcomingTournamentsForUser(User $user, int $paginate = 0)
+    {
+        $tournaments = $this->withUserTournaments(Tournament::upcoming(), $user);
         if ($paginate) {
             return $tournaments->paginate($paginate);
         }
@@ -1033,6 +1079,37 @@ class TournamentRepository extends BaseRepository
         return $query->whereHas('game', function ($game) use ($gameIds) {
             return $game->whereIn('id', $gameIds);
         });
+    }
+
+    /**
+     * @param Builder $query
+     * @param User $user
+     * @return Builder
+     */
+    private function withUserTournaments(Builder $query, User $user)
+    {
+        $tournamentIds = $this->getUserTournamentIds($user);
+        $tournamentIds[] = 0;
+        return $query->whereIn('id', $tournamentIds);
+    }
+
+    public function getUserTournamentIds(User $user)
+    {
+        $userTeams = $user->teams()->pluck('teams.id')->all();
+        $participants = Participant::query()
+            ->whereIn('status', [ParticipantAcceptanceState::ACCEPTED, ParticipantAcceptanceState::ACCEPTED_NOT_READY, ParticipantAcceptanceState::DISQUALIFIED])
+            ->where(function (Builder $query) use ($userTeams, $user) {
+                return $query->where(function (Builder $query) use ($user) {
+                    return $query->where('participantable_type', User::class)
+                        ->where('participantable_id', $user->id);
+                })
+                    ->orWhere(function (Builder $query) use ($userTeams) {
+                        return $query->where('participantable_type', Team::class)
+                            ->whereIn('participantable_id', $userTeams);
+                    });
+            })->get();
+        $participantsIdsByTournamentIds = $participants->pluck('id', 'tournament_id')->all();
+        return array_keys($participantsIdsByTournamentIds);
     }
 
     /**

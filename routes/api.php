@@ -121,13 +121,17 @@ $router->group(['prefix' => 'v1'], function ($router) {
 
                     $router->get('/featured', 'TournamentController@featured');
                     $router->get('/live', 'TournamentController@live');
-                    $router->get('/finished', 'TournamentController@recentlyFinished');
+                    $router->get('/finished', 'TournamentController@recentlyFinishedForUser');
                     $router->get('/today', 'TournamentController@today');
                     $router->get('/later-today', 'TournamentController@laterToday');
-                    $router->get('/tomorrow', 'TournamentController@tomorrow');
+                    $router->get('/tomorrow', 'TournamentController@tomorrowForUser');
                     $router->get('/after-tomorrow', 'TournamentController@willStartAfterTomorrow');
-                    $router->get('/upcoming', 'TournamentController@upcoming');
+                    $router->get('/upcoming', 'TournamentController@upcomingForUser');
                     $router->get('/after-now', 'TournamentController@willStartAfterNow');
+
+//                    $router->get('/tomorrow', 'TournamentController@tomorrow');
+//                    $router->get('/upcoming', 'TournamentController@upcoming');
+//                    $router->get('/finished', 'TournamentController@recentlyFinished');
 
                     $router->post('/{tournament}/invite', 'TournamentController@invite');
 
