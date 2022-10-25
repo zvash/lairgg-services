@@ -6,6 +6,7 @@ use App\Nova\Actions\AcceptAllParticipants;
 use App\Nova\Actions\AutoWinRestMatches;
 use App\Nova\Actions\MakeAnnouncement;
 use App\Nova\Actions\ReleaseRandomBracket;
+use App\Nova\Actions\ReleaseTournamentGems;
 use App\Enums\{
     Platform, Status, TournamentStructure
 };
@@ -438,6 +439,13 @@ class Tournament extends Resource
         return [
             (new ReleaseRandomBracket())
                 ->confirmText('Do you want to create a new bracket and release it?')
+                ->confirmButtonText('Yes')
+                ->cancelButtonText('No')
+                ->showOnTableRow()
+                ->showOnDetail(),
+
+            (new ReleaseTournamentGems())
+                ->confirmText('Do you want to release this tournament\'s gems?')
                 ->confirmButtonText('Yes')
                 ->cancelButtonText('No')
                 ->showOnTableRow()
